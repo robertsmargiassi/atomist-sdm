@@ -19,9 +19,8 @@ import {
     pushTest,
 } from "@atomist/sdm";
 
-export function simplifiedDeployment(...names: String[]): PushTest {
+export function simplifiedDeployment(...names: string[]): PushTest {
     return pushTest("Simplified deployment required", async pci => {
         return names.includes(pci.project.name);
     });
 }
-

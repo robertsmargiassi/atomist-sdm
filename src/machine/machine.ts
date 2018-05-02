@@ -58,9 +58,9 @@ import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodeP
 import { tagRepo } from "@atomist/sdm/common/listener/support/tagRepo";
 import { createKubernetesData } from "@atomist/sdm/handlers/events/delivery/goals/k8s/launchGoalK8";
 import { SdmGoal } from "@atomist/sdm/ingesters/sdmGoalIngester";
-import { nodeTagger } from "@atomist/spring-automation/commands/tag/nodeTagger";
-import { MaterialChange } from "../pushtest/materialChange";
-import { simplifiedDeployment } from "../pushtest/simplifiedDeployment";
+import { MaterialChange } from "../support/materialChange";
+import { simplifiedDeployment } from "../support/simplifiedDeployment";
+import { AutomationClientTagger } from "../support/tagger";
 import {
     BuildGoals,
     DockerGoals,
@@ -101,7 +101,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     );
 
     sdm.addNewRepoWithCodeActions(
-            tagRepo(nodeTagger),
+            tagRepo(AutomationClientTagger),
         )
         .addAutofixes(
             AddAtomistTypeScriptHeader,
