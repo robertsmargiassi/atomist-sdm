@@ -79,24 +79,24 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
         options,
 
         whenPushSatisfies(not(MaterialChange))
-            .itMeans("No material change")
+            .itMeans("No Material Change")
             .setGoals(NoGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
             simplifiedDeployment("k8-automation", "automation-client-sdm"))
-            .itMeans("Automation Client Deploy (single env)")
+            .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
-            .itMeans("Automation Client Deploy")
+            .itMeans("Deploy")
             .setGoals(KubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, IsAtomistAutomationClient)
-            .itMeans("Automation Client Docker Build")
+            .itMeans("Docker Build")
             .setGoals(DockerGoals),
 
         whenPushSatisfies(IsNode, not(HasDockerfile), IsAtomistAutomationClient)
-            .itMeans("Automation Client Build")
+            .itMeans("Build")
             .setGoals(BuildGoals),
     );
 
