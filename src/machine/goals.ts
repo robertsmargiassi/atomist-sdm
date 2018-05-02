@@ -113,5 +113,5 @@ export const SimplifiedKubernetesDeployGoals = new Goals(
     PublishGoal,
     DockerBuildGoal,
     TagGoal,
-    ProductionDeploymentGoal,
+    new GoalWithPrecondition(ProductionDeploymentGoal.definition, DockerBuildGoal),
 );
