@@ -111,7 +111,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     sdm.addSupportingCommands(
             enableDeploy,
             disableDeploy,
-        )
+        );
 
     sdm.addNewRepoWithCodeActions(
             tagRepo(AutomationClientTagger),
