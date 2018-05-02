@@ -170,12 +170,10 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
 
         .addFullfillmentCallback({
             goal: StagingDeploymentGoal,
-            callback: kubernetesDataCallback(options),
-        })
+            callback: kubernetesDataCallback(options)})
         .addFullfillmentCallback({
             goal: ProductionDeploymentGoal,
-            callback: kubernetesDataCallback(options),
-        });
+            callback: kubernetesDataCallback(options)});
 
     return sdm;
 }
