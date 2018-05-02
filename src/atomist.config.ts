@@ -24,7 +24,9 @@ import {
 } from "@atomist/sdm";
 import { createEphemeralProgressLog } from "@atomist/sdm/common/log/EphemeralProgressLog";
 import { WriteToAllProgressLog } from "@atomist/sdm/common/log/WriteToAllProgressLog";
+
 import { machine } from "./machine/machine";
+import { configureLogzio } from "./util/logzio";
 
 const SdmOptions: SoftwareDeliveryMachineOptions & DockerOptions = {
 
@@ -42,6 +44,7 @@ const SdmOptions: SoftwareDeliveryMachineOptions & DockerOptions = {
 
 export const configuration: any = {
     postProcessors: [
+        configureLogzio,
         configureForSdm(machine(SdmOptions)),
     ],
 };
