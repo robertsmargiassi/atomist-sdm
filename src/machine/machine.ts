@@ -86,7 +86,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             .itMeans("No Material Change")
             .setGoals(NoGoals),
 
-        // Simplified deployment goalset for this automation and k8-automation; we are skipping
+        // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
             simplifiedDeployment("k8-automation", "automation-client-sdm"))
