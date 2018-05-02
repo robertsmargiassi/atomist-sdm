@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@atomist/automation-client": "https://r.atomist.com/SkHgerlMaG",
-    "@atomist/sdm": "https://r.atomist.com/ByNoPlNPpz",
+    "@atomist/sdm": "https://r.atomist.com/B1mPSKUvpf",
     "@atomist/sample-sdm": "https://r.atomist.com/SymViXMDpz",
     "@atomist/slack-messages": "^0.12.1"
   },
