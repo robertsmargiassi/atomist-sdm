@@ -68,7 +68,7 @@ export const ProductionDeploymentGoal = new Goal({
 
 // Just running the build and publish
 export const BuildGoals = new Goals(
-    "Automation Client Build",
+    "Build",
     VersionGoal,
     ReviewGoal,
     AutofixGoal,
@@ -79,7 +79,7 @@ export const BuildGoals = new Goals(
 
 // Build including docker build
 export const DockerGoals = new Goals(
-    "Automation Client Docker Build",
+    "Docker Build",
     VersionGoal,
     ReviewGoal,
     AutofixGoal,
@@ -91,7 +91,7 @@ export const DockerGoals = new Goals(
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = new Goals(
-    "Automation Client Deploy",
+    "Deploy",
     VersionGoal,
     ReviewGoal,
     AutofixGoal,
@@ -105,7 +105,7 @@ export const KubernetesDeployGoals = new Goals(
 
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = new Goals(
-    "Automation Client Deploy (single env)",
+    "Simplified Deploy",
     VersionGoal,
     ReviewGoal,
     AutofixGoal,
