@@ -16,6 +16,10 @@ RUN curl -s -L -O https://github.com/Yelp/dumb-init/releases/download/v$DUMB_INI
     && dpkg -i dumb-init_${DUMB_INIT_VERSION}_amd64.deb \
     && rm -f dumb-init_${DUMB_INIT_VERSION}_amd64.deb
 
+RUN curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.12/bin/linux/amd64/kubectl \
+    && chmod +x /usr/local/bin/kubectl \
+    && kubectl version --client
+
 RUN git config --global user.email "bot@atomist.com" \
     &&  git config --global user.name "Atomist Bot"
 
