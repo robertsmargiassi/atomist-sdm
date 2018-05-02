@@ -56,6 +56,10 @@ import { IsDeployEnabled } from "@atomist/sdm/common/listener/support/pushtest/d
 import { HasDockerfile } from "@atomist/sdm/common/listener/support/pushtest/docker/dockerPushTests";
 import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
 import { tagRepo } from "@atomist/sdm/common/listener/support/tagRepo";
+import {
+    disableDeploy,
+    enableDeploy,
+} from "@atomist/sdm/handlers/commands/SetDeployEnablement";
 import { createKubernetesData } from "@atomist/sdm/handlers/events/delivery/goals/k8s/launchGoalK8";
 import { SdmGoal } from "@atomist/sdm/ingesters/sdmGoalIngester";
 import { MaterialChange } from "../support/materialChange";
@@ -103,6 +107,11 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             .itMeans("Module Build")
             .setGoals(BuildGoals),
     );
+
+    sdm.addSupportingCommands(
+            enableDeploy,
+            disableDeploy,
+        )
 
     sdm.addNewRepoWithCodeActions(
             tagRepo(AutomationClientTagger),
