@@ -19,6 +19,7 @@
 import {
     AutofixGoal,
     BuildGoal,
+    Goal,
     Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
@@ -54,14 +55,14 @@ export const StagingDeploymentGoal = new GoalWithPrecondition({
     approvalRequired: true,
 }, DockerBuildGoal);
 
-export const ProductionDeploymentGoal = new GoalWithPrecondition({
+export const ProductionDeploymentGoal = new Goal({
     uniqueName: "DeployToProduction",
     environment: ProductionEnvironment,
     orderedName: "3-prod-deploy",
     displayName: "deploy to Prod",
     completedDescription: "Deployed to Prod",
     failedDescription: "Prod deployment failure",
-}, StagingDeploymentGoal);
+});
 
 // GOALSET Definition
 
@@ -90,7 +91,7 @@ export const DockerGoals = new Goals(
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = new Goals(
-    "Automation Client Kubernetes Deploy",
+    "Automation Client Deploy",
     VersionGoal,
     ReviewGoal,
     AutofixGoal,
@@ -99,5 +100,18 @@ export const KubernetesDeployGoals = new Goals(
     DockerBuildGoal,
     TagGoal,
     StagingDeploymentGoal,
+    new GoalWithPrecondition(ProductionDeploymentGoal.definition, StagingDeploymentGoal),
+);
+
+// Docker build and testing and production kubernetes deploy
+export const SimplifiedKubernetesDeployGoals = new Goals(
+    "Automation Client Deploy (single env)",
+    VersionGoal,
+    ReviewGoal,
+    AutofixGoal,
+    BuildGoal,
+    PublishGoal,
+    DockerBuildGoal,
+    TagGoal,
     ProductionDeploymentGoal,
 );

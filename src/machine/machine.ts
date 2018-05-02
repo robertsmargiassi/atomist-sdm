@@ -38,7 +38,6 @@ import { executePublish } from "@atomist/sdm/common/delivery/build/local/npm/exe
 import { NodeProjectIdentifier } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectIdentifier";
 import { NodeProjectVersioner } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectVersioner";
 import { NpmPreparations } from "@atomist/sdm/common/delivery/build/local/npm/npmBuilder";
-import { npmCustomBuilder } from "@atomist/sdm/common/delivery/build/local/npm/NpmDetectBuildMapping";
 import { executeVersioner } from "@atomist/sdm/common/delivery/build/local/projectVersioner";
 import { tslintFix } from "@atomist/sdm/common/delivery/code/autofix/node/tslint";
 import { PackageLockFingerprinter } from "@atomist/sdm/common/delivery/code/fingerprint/node/PackageLockFingerprinter";
@@ -55,21 +54,20 @@ import {
 } from "@atomist/sdm/common/delivery/goals/common/commonGoals";
 import { IsDeployEnabled } from "@atomist/sdm/common/listener/support/pushtest/deployPushTests";
 import { HasDockerfile } from "@atomist/sdm/common/listener/support/pushtest/docker/dockerPushTests";
-import {
-    HasAtomistBuildFile,
-    IsNode,
-} from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
+import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
 import { tagRepo } from "@atomist/sdm/common/listener/support/tagRepo";
 import { createKubernetesData } from "@atomist/sdm/handlers/events/delivery/goals/k8s/launchGoalK8";
 import { SdmGoal } from "@atomist/sdm/ingesters/sdmGoalIngester";
 import { nodeTagger } from "@atomist/spring-automation/commands/tag/nodeTagger";
 import { MaterialChange } from "../pushtest/materialChange";
+import { simplifiedDeployment } from "../pushtest/simplifiedDeployment";
 import {
     BuildGoals,
     DockerGoals,
     KubernetesDeployGoals,
     ProductionDeploymentGoal,
     PublishGoal,
+    SimplifiedKubernetesDeployGoals,
     StagingDeploymentGoal,
 } from "./goals";
 
@@ -83,6 +81,11 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
         whenPushSatisfies(not(MaterialChange))
             .itMeans("No material change")
             .setGoals(NoGoals),
+
+        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
+            simplifiedDeployment("k8-automation", "automation-client-sdm"))
+            .itMeans("Automation Client Deploy (single env)")
+            .setGoals(SimplifiedKubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
             .itMeans("Automation Client Deploy")
@@ -113,9 +116,6 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     const hasPackageLock = hasFile("package-lock.json");
 
     sdm.addBuildRules(
-        build.when(HasAtomistBuildFile)
-            .itMeans("Custom build script")
-            .set(npmCustomBuilder(options.artifactStore, options.projectLoader)),
         build.when(hasPackageLock)
             .itMeans("npm run build")
             .set(nodeBuilder(options.projectLoader, "npm ci", "npm run build")),
@@ -143,6 +143,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             executePublish(options.projectLoader, NodeProjectIdentifier, NpmPreparations));
 
     sdm.goalFulfillmentMapper
+
         .addSideEffect({
             goal: StagingDeploymentGoal,
             pushTest: IsNode,
