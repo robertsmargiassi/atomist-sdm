@@ -2,11 +2,16 @@
   "spec": {
     "template": {
       "spec": {
+        "serviceAccountName": "sdm-serviceaccount",
         "containers": [
           {
             "env": [
               {
-                "name": "ATOMIST_ENV",
+                "name": "ATOMIST_DEPLOYMENT_NAME",
+                "value": "automation-client-sdm"
+              },
+              {
+                "name": "ATOMIST_DEPLOYMENT_NAME",
                 "valueFrom": {
                   "fieldRef": {
                     "fieldPath": "metadata.namespace"
@@ -14,10 +19,31 @@
                 }
               },
               {
+                "name": "NODE_ENV",
+                "value": "production"
+              },
+              {
+                "name": "FORCE_COLOR",
+                "value": "1"
+              },
+              {
+                "name": "ATOMIST_GOAL_LAUNCHER",
+                "value": "kubernetes"
+              },
+              {
+                "name": "GITHUB_TOKEN",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "atomist",
+                    "key": "token"
+                  }
+                }
+              },
+              {
                 "name": "ATOMIST_CONFIG",
                 "valueFrom": {
                   "secretKeyRef": {
-                    "name": "atm-jessitron",
+                    "name": "atm-sdm",
                     "key": "config"
                   }
                 }
@@ -25,6 +51,42 @@
               {
                 "name": "ATOMIST_CONFIG_PATH",
                 "value": "/opt/atm/atomist-config.json"
+              },
+              {
+                "name": "ATOMIST_DOCKER_REGISTRY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "docker",
+                    "key": "registry"
+                  }
+                }
+              },
+              {
+                "name": "ATOMIST_DOCKER_USER",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "docker",
+                    "key": "user"
+                  }
+                }
+              },
+              {
+                "name": "ATOMIST_DOCKER_PASSWORD",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "docker",
+                    "key": "password"
+                  }
+                }
+              },
+              {
+                "name": "ATOMIST_NPM",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "npm",
+                    "key": "config"
+                  }
+                }
               }
             ],
             "livenessProbe": {
@@ -53,15 +115,19 @@
             },
             "resources": {
               "limits": {
-                "cpu": "1000m",
-                "memory": "1024Mi"
+                "cpu": "2000m",
+                "memory": "3000Mi"
               },
               "requests": {
-                "cpu": "100m",
-                "memory": "768Mi"
+                "cpu": "500m",
+                "memory": "1000Mi"
               }
             },
             "volumeMounts": [
+              {
+                "name": "docker-sock",
+                "mountPath": "/var/run/docker.sock"
+              },
               {
                 "name": "automation",
                 "mountPath": "/opt/atm",
@@ -71,6 +137,12 @@
           }
         ],
         "volumes": [
+          {
+            "name": "docker-sock",
+            "hostPath": {
+              "path": "/var/run/docker.sock"
+            }
+          },
           {
             "name": "automation",
             "secret": {

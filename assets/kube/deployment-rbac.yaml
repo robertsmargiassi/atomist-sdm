@@ -109,6 +109,7 @@ spec:
           mountPath: "/var/run/docker.sock"
         - name: automation
           mountPath: "/opt/atm"
+          readOnly: true
       volumes:
       - name: docker-sock
         hostPath:
