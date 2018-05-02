@@ -98,6 +98,10 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
         whenPushSatisfies(IsNode, not(HasDockerfile), IsAtomistAutomationClient)
             .itMeans("Build")
             .setGoals(BuildGoals),
+
+        whenPushSatisfies(IsNode, not(HasDockerfile), not(IsAtomistAutomationClient))
+            .itMeans("Module Build")
+            .setGoals(BuildGoals),
     );
 
     sdm.addNewRepoWithCodeActions(
