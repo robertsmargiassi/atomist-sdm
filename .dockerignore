@@ -9,6 +9,8 @@ log/
 img/
 test/
 ts*.json
+.atomist/kube/
+assets/kube/
 build/typedoc/
 *.log
 *.txt
