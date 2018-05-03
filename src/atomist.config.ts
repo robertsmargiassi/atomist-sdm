@@ -22,6 +22,7 @@ import {
     EphemeralLocalArtifactStore,
     SoftwareDeliveryMachineOptions,
 } from "@atomist/sdm";
+import { GitHubCredentialsResolver } from "@atomist/sdm/handlers/common/GitHubCredentialsResolver";
 import { machine } from "./machine/machine";
 import { configureLogzio } from "./util/logzio";
 
@@ -31,6 +32,7 @@ const SdmOptions: SoftwareDeliveryMachineOptions & DockerOptions = {
     artifactStore: new EphemeralLocalArtifactStore(),
     projectLoader: new CachingProjectLoader(),
     logFactory: logFactory("http://rolar.cfapps.io"),
+    credentialsResolver: new GitHubCredentialsResolver(),
 
     // Docker options
     registry: process.env.ATOMIST_DOCKER_REGISTRY,
