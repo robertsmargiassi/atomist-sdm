@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import { automationClientInstance } from "@atomist/automation-client/automationClient";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
@@ -111,21 +112,21 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     );
 
     sdm.addSupportingCommands(
-            enableDeploy,
-            disableDeploy,
-        );
+        enableDeploy,
+        disableDeploy,
+    );
 
     sdm.addNewRepoWithCodeActions(
-            tagRepo(AutomationClientTagger),
-        )
+        tagRepo(AutomationClientTagger),
+    )
         .addAutofixes(
             AddAtomistTypeScriptHeader,
             tslintFix,
-        )
+    )
         .addReviewerRegistrations(
             CommonTypeScriptErrors,
             DontImportOwnIndex,
-        )
+    )
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
     const hasPackageLock = hasFile("package-lock.json");
@@ -139,7 +140,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             .set(nodeBuilder(options.projectLoader, "npm install", "npm run build")));
 
     sdm.addGoalImplementation("nodeVersioner", VersionGoal,
-            executeVersioner(options.projectLoader, NodeProjectVersioner))
+        executeVersioner(options.projectLoader, NodeProjectVersioner))
         .addGoalImplementation("nodeDockerBuild", DockerBuildGoal,
             executeDockerBuild(
                 options.projectLoader,
@@ -162,18 +163,22 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
         .addSideEffect({
             goal: StagingDeploymentGoal,
             pushTest: IsNode,
-            sideEffectName: "@atomist/k8-automation" })
+            sideEffectName: "@atomist/k8-automation",
+        })
         .addSideEffect({
             goal: ProductionDeploymentGoal,
             pushTest: IsNode,
-            sideEffectName: "@atomist/k8-automation" })
+            sideEffectName: "@atomist/k8-automation",
+        })
 
         .addFullfillmentCallback({
             goal: StagingDeploymentGoal,
-            callback: kubernetesDataCallback(options)})
+            callback: kubernetesDataCallback(options),
+        })
         .addFullfillmentCallback({
             goal: ProductionDeploymentGoal,
-            callback: kubernetesDataCallback(options)});
+            callback: kubernetesDataCallback(options),
+        });
 
     return sdm;
 }
@@ -195,23 +200,24 @@ function kubernetesDataFromGoal(goal: SdmGoal, p: GitProject): Promise<SdmGoal> 
             name: goal.repo.name,
             environment: automationClientInstance().configuration.environment,
             port: 2866,
-            ns: namespaceFromFoal(goal),
+            ns: namespaceFromGoal(goal),
             imagePullSecret: "atomistjfrog",
         },
         p);
 }
 
-function namespaceFromFoal(goal: SdmGoal): string {
+function namespaceFromGoal(goal: SdmGoal): string {
     const name = goal.repo.name;
-    if (name === "automation-client-sdm") {
+    if (/-sdm$/.test(name)) {
         return "sdm";
     } else if (name === "k8-automation") {
         return "k8-automation";
-    } else if (goal.environment === StagingEnvironment) {
+    } else if (goal.environment === StagingEnvironment.replace(/\/$/, "")) {
         return "testing";
-    } else if (goal.environment === ProductionEnvironment) {
+    } else if (goal.environment === ProductionEnvironment.replace(/\/$/, "")) {
         return "production";
     } else {
+        logger.debug(`Unmatched goal.environment using default namespace: ${goal.environment}`);
         return "default";
     }
 }
