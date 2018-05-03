@@ -66,6 +66,14 @@ export const ProductionDeploymentGoal = new Goal({
 
 // GOALSET Definition
 
+// Just running review and autofix
+export const CheckGoals = new Goals(
+    "Check",
+    VersionGoal,
+    ReviewGoal,
+    AutofixGoal,
+);
+
 // Just running the build and publish
 export const BuildGoals = new Goals(
     "Build",

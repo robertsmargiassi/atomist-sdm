@@ -53,6 +53,7 @@ import {
     TagGoal,
     VersionGoal,
 } from "@atomist/sdm/common/delivery/goals/common/commonGoals";
+import { HasTravisFile } from "@atomist/sdm/common/listener/support/pushtest/ci/ciPushTests";
 import { IsDeployEnabled } from "@atomist/sdm/common/listener/support/pushtest/deployPushTests";
 import { HasDockerfile } from "@atomist/sdm/common/listener/support/pushtest/docker/dockerPushTests";
 import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
@@ -68,6 +69,7 @@ import { simplifiedDeployment } from "../support/simplifiedDeployment";
 import { AutomationClientTagger } from "../support/tagger";
 import {
     BuildGoals,
+    CheckGoals,
     DockerGoals,
     KubernetesDeployGoals,
     ProductionDeploymentGoal,
@@ -86,6 +88,10 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
         whenPushSatisfies(not(MaterialChange))
             .itMeans("No Material Change")
             .setGoals(NoGoals),
+
+        whenPushSatisfies(HasTravisFile, IsNode)
+            .itMeans("Just Checking")
+            .setGoals(CheckGoals),
 
         // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
@@ -112,20 +118,20 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     );
 
     sdm.addSupportingCommands(
-            enableDeploy,
-            disableDeploy,
-        )
+        enableDeploy,
+        disableDeploy,
+    )
         .addNewRepoWithCodeActions(
             tagRepo(AutomationClientTagger),
-        )
+    )
         .addAutofixes(
-                AddAtomistTypeScriptHeader,
-                tslintFix,
-        )
+            AddAtomistTypeScriptHeader,
+            tslintFix,
+    )
         .addReviewerRegistrations(
-                CommonTypeScriptErrors,
-                DontImportOwnIndex,
-        )
+            CommonTypeScriptErrors,
+            DontImportOwnIndex,
+    )
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
     const hasPackageLock = hasFile("package-lock.json");
