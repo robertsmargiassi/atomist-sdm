@@ -18,7 +18,6 @@ import { logger } from "@atomist/automation-client";
 import { automationClientInstance } from "@atomist/automation-client/automationClient";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
-import { whackHeaderEditor } from "@atomist/sample-sdm/commands/editors/demo/removeTypeScriptHeader";
 import { CommonTypeScriptErrors } from "@atomist/sample-sdm/parts/team/commonTypeScriptErrors";
 import { DontImportOwnIndex } from "@atomist/sample-sdm/parts/team/dontImportOwnIndex";
 import {
@@ -193,7 +192,7 @@ function kubernetesDataCallback(options: MachineOptions): (goal: SdmGoal, contex
             if (goalData.kubernetes.ns === "production"
                 && goalData.kubernetes.deploymentSpec
                 && goalData.kubernetes.deploymentSpec.spec) {
-                goalData.kubernetes.deploymentSpec.spec.replicas === 3;
+                goalData.kubernetes.deploymentSpec.spec.replicas = 3;
                 newGoal.data = JSON.stringify(goalData);
             }
 
