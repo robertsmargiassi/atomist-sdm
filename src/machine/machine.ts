@@ -186,30 +186,22 @@ function kubernetesDataCallback(options: MachineOptions): (goal: SdmGoal, contex
         return options.projectLoader.doWithProject({
             credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
         }, async p => {
-            const newGoal = await kubernetesDataFromGoal(goal, p);
-            const goalData = JSON.parse(newGoal.data);
-
-            if (goalData.kubernetes.ns === "production"
-                && goalData.kubernetes.deploymentSpec
-                && goalData.kubernetes.deploymentSpec.spec) {
-                goalData.kubernetes.deploymentSpec.spec.replicas = 3;
-                newGoal.data = JSON.stringify(goalData);
-            }
-
-            return newGoal;
+            return kubernetesDataFromGoal(goal, p);
         });
     };
 }
 
 function kubernetesDataFromGoal(goal: SdmGoal, p: GitProject): Promise<SdmGoal> {
+    const ns = namespaceFromGoal(goal);
     return createKubernetesData(
         goal,
         {
             name: goal.repo.name,
             environment: automationClientInstance().configuration.environment,
             port: 2866,
-            ns: namespaceFromGoal(goal),
+            ns,
             imagePullSecret: "atomistjfrog",
+            replicas: ns === "production" ? 3 : 1,
         },
         p);
 }
