@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@atomist/automation-client": "https://r.atomist.com/SkHgerlMaG",
-    "@atomist/sample-sdm": "https://r.atomist.com/SymViXMDpz",
-    "@atomist/sdm": "https://atomist.jfrog.io/atomist/api/npm/npm-dev-local/@atomist/sdm/-/@atomist/sdm-0.0.1-20180502203737.tgz",
+    "@atomist/sample-sdm": "https://r.atomist.com/ry7LPTEOpf",
+    "@atomist/sdm": "https://r.atomist.com/SJUFmjEupf",
     "@atomist/slack-messages": "^0.12.1",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",

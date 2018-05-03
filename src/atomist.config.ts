@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
+import { logFactory } from "@atomist/sample-sdm/blueprint/log/logFactory";
 import {
     CachingProjectLoader,
     configureForSdm,
     DockerOptions,
     EphemeralLocalArtifactStore,
-    LoggingProgressLog,
     SoftwareDeliveryMachineOptions,
 } from "@atomist/sdm";
-import { createEphemeralProgressLog } from "@atomist/sdm/common/log/EphemeralProgressLog";
-import { WriteToAllProgressLog } from "@atomist/sdm/common/log/WriteToAllProgressLog";
 import { machine } from "./machine/machine";
 import { configureLogzio } from "./util/logzio";
 
@@ -32,8 +30,7 @@ const SdmOptions: SoftwareDeliveryMachineOptions & DockerOptions = {
     // SDM Options
     artifactStore: new EphemeralLocalArtifactStore(),
     projectLoader: new CachingProjectLoader(),
-    logFactory: async name => new WriteToAllProgressLog(name,
-        await createEphemeralProgressLog(name), new LoggingProgressLog(name, "info")),
+    logFactory: logFactory("http://rolar.cfapps.io"),
 
     // Docker options
     registry: process.env.ATOMIST_DOCKER_REGISTRY,

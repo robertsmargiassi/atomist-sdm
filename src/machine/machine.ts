@@ -18,6 +18,7 @@ import { logger } from "@atomist/automation-client";
 import { automationClientInstance } from "@atomist/automation-client/automationClient";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
+import { whackHeaderEditor } from "@atomist/sample-sdm/commands/editors/demo/removeTypeScriptHeader";
 import { CommonTypeScriptErrors } from "@atomist/sample-sdm/parts/team/commonTypeScriptErrors";
 import { DontImportOwnIndex } from "@atomist/sample-sdm/parts/team/dontImportOwnIndex";
 import {
@@ -112,21 +113,24 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
     );
 
     sdm.addSupportingCommands(
-        enableDeploy,
-        disableDeploy,
-    );
+            enableDeploy,
+            disableDeploy,
+        )
+        .addEditors(
+            () => whackHeaderEditor,
+        );
 
     sdm.addNewRepoWithCodeActions(
-        tagRepo(AutomationClientTagger),
-    )
+            tagRepo(AutomationClientTagger),
+        )
         .addAutofixes(
-            AddAtomistTypeScriptHeader,
-            tslintFix,
-    )
+                AddAtomistTypeScriptHeader,
+                tslintFix,
+        )
         .addReviewerRegistrations(
-            CommonTypeScriptErrors,
-            DontImportOwnIndex,
-    )
+                CommonTypeScriptErrors,
+                DontImportOwnIndex,
+        )
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
     const hasPackageLock = hasFile("package-lock.json");
