@@ -116,11 +116,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             enableDeploy,
             disableDeploy,
         )
-        .addEditors(
-            () => whackHeaderEditor,
-        );
-
-    sdm.addNewRepoWithCodeActions(
+        .addNewRepoWithCodeActions(
             tagRepo(AutomationClientTagger),
         )
         .addAutofixes(
@@ -163,7 +159,6 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             executePublish(options.projectLoader, NodeProjectIdentifier, NpmPreparations));
 
     sdm.goalFulfillmentMapper
-
         .addSideEffect({
             goal: StagingDeploymentGoal,
             pushTest: IsNode,
@@ -192,7 +187,17 @@ function kubernetesDataCallback(options: MachineOptions): (goal: SdmGoal, contex
         return options.projectLoader.doWithProject({
             credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
         }, async p => {
-            return kubernetesDataFromGoal(goal, p);
+            const newGoal = await kubernetesDataFromGoal(goal, p);
+            const goalData = JSON.parse(newGoal.data);
+
+            if (goalData.kubernetes.ns === "production"
+                && goalData.kubernetes.deploymentSpec
+                && goalData.kubernetes.deploymentSpec.spec) {
+                goalData.kubernetes.deploymentSpec.spec.replicas === 3;
+                newGoal.data = JSON.stringify(goalData);
+            }
+
+            return newGoal;
         });
     };
 }
