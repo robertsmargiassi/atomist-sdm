@@ -18,9 +18,9 @@
     "url": "https://github.com/atomist/automation-client-sdm/issues"
   },
   "dependencies": {
-    "@atomist/automation-client": "https://r.atomist.com/SkHgerlMaG",
+    "@atomist/automation-client": "https://r.atomist.com/ByplbWsk9pG",
     "@atomist/sample-sdm": "https://r.atomist.com/ry7LPTEOpf",
-    "@atomist/sdm": "https://r.atomist.com/SJN3kDFdaf",
+    "@atomist/sdm": "https://r.atomist.com/SkXxYvXe56z",
     "@atomist/slack-messages": "^0.12.1",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",

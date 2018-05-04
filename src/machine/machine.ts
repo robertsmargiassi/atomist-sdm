@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
+import {
+    Configuration,
+    logger,
+} from "@atomist/automation-client";
 import { automationClientInstance } from "@atomist/automation-client/automationClient";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
@@ -35,7 +38,8 @@ import {
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { RepoContext } from "@atomist/sdm/common/context/SdmContext";
 import { executeTag } from "@atomist/sdm/common/delivery/build/executeTag";
-import { executePublish } from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
+import { executePublish,
+    NpmOptions } from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
 import { NodeProjectIdentifier } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectIdentifier";
 import { NodeProjectVersioner } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectVersioner";
 import { NpmPreparations } from "@atomist/sdm/common/delivery/build/local/npm/npmBuilder";
@@ -78,9 +82,10 @@ import {
     StagingDeploymentGoal,
 } from "./goals";
 
-export type MachineOptions = SoftwareDeliveryMachineOptions & DockerOptions;
+export type MachineOptions = SoftwareDeliveryMachineOptions;
 
-export function machine(options: MachineOptions): SoftwareDeliveryMachine {
+export function machine(options: SoftwareDeliveryMachineOptions,
+                        configuration: Configuration): SoftwareDeliveryMachine {
     const sdm = new SoftwareDeliveryMachine(
         "Automation Client Software Delivery Machine",
         options,
@@ -152,16 +157,18 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
                 DefaultDockerImageNameCreator,
                 NpmPreparations,
                 {
-                    registry: options.registry,
-                    user: options.user,
-                    password: options.password,
-
+                    ...configuration.custom.sdm.docker as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
                 }))
         .addGoalImplementation("nodeTag", TagGoal,
             executeTag(options.projectLoader))
         .addGoalImplementation("nodePublish", PublishGoal,
-            executePublish(options.projectLoader, NodeProjectIdentifier, NpmPreparations));
+            executePublish(options.projectLoader,
+                NodeProjectIdentifier,
+                NpmPreparations,
+                {
+                    ...configuration.custom.sdm.npm as NpmOptions,
+                }));
 
     sdm.goalFulfillmentMapper
         .addSideEffect({
