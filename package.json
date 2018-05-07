@@ -18,9 +18,8 @@
     "url": "https://github.com/atomist/automation-client-sdm/issues"
   },
   "dependencies": {
-    "@atomist/automation-client": "https://r.atomist.com/ByplbWsk9pG",
-    "@atomist/sample-sdm": "https://r.atomist.com/ry7LPTEOpf",
-    "@atomist/sdm": "https://r.atomist.com/SkXxYvXe56z",
+    "@atomist/automation-client": "https://r.atomist.com/SkDUQkI0Tz",
+    "@atomist/sdm": "https://atomist.jfrog.io/atomist/api/npm/npm-dev-local/@atomist/sdm/-/@atomist/sdm-0.0.1-no-env-vars.20180507233656.tgz",
     "@atomist/slack-messages": "^0.12.1",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",

@@ -18,11 +18,7 @@ import {
     Configuration,
     logger,
 } from "@atomist/automation-client";
-import { automationClientInstance } from "@atomist/automation-client/automationClient";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
-import { CommonTypeScriptErrors } from "@atomist/sample-sdm/parts/team/commonTypeScriptErrors";
-import { DontImportOwnIndex } from "@atomist/sample-sdm/parts/team/dontImportOwnIndex";
 import {
     hasFile,
     IsAtomistAutomationClient,
@@ -130,12 +126,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
             tagRepo(AutomationClientTagger),
     )
         .addAutofixes(
-            AddAtomistTypeScriptHeader,
             tslintFix,
-    )
-        .addReviewerRegistrations(
-            CommonTypeScriptErrors,
-            DontImportOwnIndex,
     )
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
@@ -157,7 +148,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
                 DefaultDockerImageNameCreator,
                 NpmPreparations,
                 {
-                    ...configuration.custom.sdm.docker as DockerOptions,
+                    ...configuration.sdm.docker as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
                 }))
         .addGoalImplementation("nodeTag", TagGoal,
@@ -167,7 +158,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
                 NodeProjectIdentifier,
                 NpmPreparations,
                 {
-                    ...configuration.custom.sdm.npm as NpmOptions,
+                    ...configuration.sdm.npm as NpmOptions,
                 }));
 
     sdm.goalFulfillmentMapper
@@ -184,33 +175,36 @@ export function machine(options: SoftwareDeliveryMachineOptions,
 
         .addFullfillmentCallback({
             goal: StagingDeploymentGoal,
-            callback: kubernetesDataCallback(options),
+            callback: kubernetesDataCallback(options, configuration),
         })
         .addFullfillmentCallback({
             goal: ProductionDeploymentGoal,
-            callback: kubernetesDataCallback(options),
+            callback: kubernetesDataCallback(options, configuration),
         });
 
     return sdm;
 }
 
-function kubernetesDataCallback(options: MachineOptions): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
+function kubernetesDataCallback(options: MachineOptions,
+                                configuration: Configuration): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
     return async (goal, ctx) => {
         return options.projectLoader.doWithProject({
             credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
         }, async p => {
-            return kubernetesDataFromGoal(goal, p);
+            return kubernetesDataFromGoal(goal, p, configuration);
         });
     };
 }
 
-function kubernetesDataFromGoal(goal: SdmGoal, p: GitProject): Promise<SdmGoal> {
+function kubernetesDataFromGoal(goal: SdmGoal,
+                                p: GitProject,
+                                configuration: Configuration): Promise<SdmGoal> {
     const ns = namespaceFromGoal(goal);
     return createKubernetesData(
         goal,
         {
             name: goal.repo.name,
-            environment: automationClientInstance().configuration.environment,
+            environment: configuration.environment,
             port: 2866,
             ns,
             imagePullSecret: "atomistjfrog",
