@@ -1,4 +1,4 @@
-# automation-client-sdm
+# atomist-sdm
 
 Instance of an Atomist Software Delivery Machine that can be used to
 automate delivery of Atomist automatiom-client projects, like SDMs.
@@ -21,7 +21,7 @@ Machine](https://the-composition.com/why-you-need-a-software-delivery-machine-85
 [video](https://vimeo.com/260496136) shows it in action.
 
 Please see the [Atomist SDM
-library](https://github.com/atomist-github-sdm) for explanation on
+library](https://github.com/atomist/sdm) for explanation on
 what an SDM can do. The present document describes how to get yours
 running.
 
@@ -85,7 +85,7 @@ as a message to the Atomist bot, e.g., `@atomist team`, in Slack.  The
 `read:org` and `repo` scopes.
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/atomist/automation-client-sdm/master/assets/kube/namespace.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/atomist/atomist-sdm/master/assets/kube/namespace.yaml
 $ kubectl create secret --namespace=sdm generic automation \
     --from-literal=config='{"teamIds":["TEAM_ID"],"token":"TOKEN"}'
 ```
@@ -104,8 +104,8 @@ If your Kubernetes cluster uses RBAC (minikube does), you can deploy with the
 following commands
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/atomist/automation-client-sdm/master/assets/kube/rbac.yaml
-$ kubectl apply -f https://raw.githubusercontent.com/atomist/automation-client-sdm/master/assets/kube/deployment-rbac.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/atomist/atomist-sdm/master/assets/kube/rbac.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/atomist/atomist-sdm/master/assets/kube/deployment-rbac.yaml
 ```
 
 If you get the following error when running the first command,
@@ -139,7 +139,7 @@ Then run the command to create the `kube/rbac.yaml` resources again.
 To deploy on clusters without RBAC, run the following commands
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/atomist/automation-client-sdm/master/assets/kube/deployment-no-rbac.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/atomist/atomist-sdm/master/assets/kube/deployment-no-rbac.yaml
 ```
 
 If the logs from the pod have lines indicating a failure to access the
@@ -185,7 +185,7 @@ at [atomist-community.slack.com][slack].
 
 If you find a problem, please create an [issue][].
 
-[issue]: https://github.com/atomist/automation-client-sdm/issues
+[issue]: https://github.com/atomist/atomist-sdm/issues
 
 ## Development
 

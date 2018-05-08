@@ -34,8 +34,10 @@ import {
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { RepoContext } from "@atomist/sdm/common/context/SdmContext";
 import { executeTag } from "@atomist/sdm/common/delivery/build/executeTag";
-import { executePublish,
-    NpmOptions } from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
+import {
+    executePublish,
+    NpmOptions,
+} from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
 import { NodeProjectIdentifier } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectIdentifier";
 import { NodeProjectVersioner } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectVersioner";
 import { NpmPreparations } from "@atomist/sdm/common/delivery/build/local/npm/npmBuilder";
@@ -97,7 +99,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
         // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
-            simplifiedDeployment("k8-automation", "automation-client-sdm"))
+            simplifiedDeployment("k8-automation", "automation-client-sdm", "atomist-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
@@ -118,16 +120,9 @@ export function machine(options: SoftwareDeliveryMachineOptions,
             .setGoals(BuildGoals),
     );
 
-    sdm.addSupportingCommands(
-        enableDeploy,
-        disableDeploy,
-    )
-        .addNewRepoWithCodeActions(
-            tagRepo(AutomationClientTagger),
-    )
-        .addAutofixes(
-            tslintFix,
-    )
+    sdm.addSupportingCommands(enableDeploy, disableDeploy)
+        .addNewRepoWithCodeActions(tagRepo(AutomationClientTagger))
+        .addAutofixes(tslintFix)
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
     const hasPackageLock = hasFile("package-lock.json");
