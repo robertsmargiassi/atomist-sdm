@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
-import { automationClientInstance } from "@atomist/automation-client/automationClient";
+import {
+    Configuration,
+    logger,
+} from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { AddAtomistTypeScriptHeader } from "@atomist/sample-sdm/blueprint/code/autofix/addAtomistHeader";
-import { CommonTypeScriptErrors } from "@atomist/sample-sdm/parts/team/commonTypeScriptErrors";
-import { DontImportOwnIndex } from "@atomist/sample-sdm/parts/team/dontImportOwnIndex";
 import {
     hasFile,
     IsAtomistAutomationClient,
@@ -35,7 +34,8 @@ import {
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { RepoContext } from "@atomist/sdm/common/context/SdmContext";
 import { executeTag } from "@atomist/sdm/common/delivery/build/executeTag";
-import { executePublish } from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
+import { executePublish,
+    NpmOptions } from "@atomist/sdm/common/delivery/build/local/npm/executePublish";
 import { NodeProjectIdentifier } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectIdentifier";
 import { NodeProjectVersioner } from "@atomist/sdm/common/delivery/build/local/npm/nodeProjectVersioner";
 import { NpmPreparations } from "@atomist/sdm/common/delivery/build/local/npm/npmBuilder";
@@ -78,9 +78,10 @@ import {
     StagingDeploymentGoal,
 } from "./goals";
 
-export type MachineOptions = SoftwareDeliveryMachineOptions & DockerOptions;
+export type MachineOptions = SoftwareDeliveryMachineOptions;
 
-export function machine(options: MachineOptions): SoftwareDeliveryMachine {
+export function machine(options: SoftwareDeliveryMachineOptions,
+                        configuration: Configuration): SoftwareDeliveryMachine {
     const sdm = new SoftwareDeliveryMachine(
         "Automation Client Software Delivery Machine",
         options,
@@ -125,12 +126,7 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
             tagRepo(AutomationClientTagger),
     )
         .addAutofixes(
-            AddAtomistTypeScriptHeader,
             tslintFix,
-    )
-        .addReviewerRegistrations(
-            CommonTypeScriptErrors,
-            DontImportOwnIndex,
     )
         .addFingerprinterRegistrations(new PackageLockFingerprinter());
 
@@ -152,16 +148,18 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
                 DefaultDockerImageNameCreator,
                 NpmPreparations,
                 {
-                    registry: options.registry,
-                    user: options.user,
-                    password: options.password,
-
+                    ...configuration.sdm.docker as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
                 }))
         .addGoalImplementation("nodeTag", TagGoal,
             executeTag(options.projectLoader))
         .addGoalImplementation("nodePublish", PublishGoal,
-            executePublish(options.projectLoader, NodeProjectIdentifier, NpmPreparations));
+            executePublish(options.projectLoader,
+                NodeProjectIdentifier,
+                NpmPreparations,
+                {
+                    ...configuration.sdm.npm as NpmOptions,
+                }));
 
     sdm.goalFulfillmentMapper
         .addSideEffect({
@@ -177,33 +175,36 @@ export function machine(options: MachineOptions): SoftwareDeliveryMachine {
 
         .addFullfillmentCallback({
             goal: StagingDeploymentGoal,
-            callback: kubernetesDataCallback(options),
+            callback: kubernetesDataCallback(options, configuration),
         })
         .addFullfillmentCallback({
             goal: ProductionDeploymentGoal,
-            callback: kubernetesDataCallback(options),
+            callback: kubernetesDataCallback(options, configuration),
         });
 
     return sdm;
 }
 
-function kubernetesDataCallback(options: MachineOptions): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
+function kubernetesDataCallback(options: MachineOptions,
+                                configuration: Configuration): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
     return async (goal, ctx) => {
         return options.projectLoader.doWithProject({
             credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
         }, async p => {
-            return kubernetesDataFromGoal(goal, p);
+            return kubernetesDataFromGoal(goal, p, configuration);
         });
     };
 }
 
-function kubernetesDataFromGoal(goal: SdmGoal, p: GitProject): Promise<SdmGoal> {
+function kubernetesDataFromGoal(goal: SdmGoal,
+                                p: GitProject,
+                                configuration: Configuration): Promise<SdmGoal> {
     const ns = namespaceFromGoal(goal);
     return createKubernetesData(
         goal,
         {
             name: goal.repo.name,
-            environment: automationClientInstance().configuration.environment,
+            environment: configuration.environment,
             port: 2866,
             ns,
             imagePullSecret: "atomistjfrog",

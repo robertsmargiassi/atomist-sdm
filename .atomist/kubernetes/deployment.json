@@ -51,42 +51,6 @@
               {
                 "name": "ATOMIST_CONFIG_PATH",
                 "value": "/opt/atm/atomist-config.json"
-              },
-              {
-                "name": "ATOMIST_DOCKER_REGISTRY",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "docker",
-                    "key": "registry"
-                  }
-                }
-              },
-              {
-                "name": "ATOMIST_DOCKER_USER",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "docker",
-                    "key": "user"
-                  }
-                }
-              },
-              {
-                "name": "ATOMIST_DOCKER_PASSWORD",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "docker",
-                    "key": "password"
-                  }
-                }
-              },
-              {
-                "name": "ATOMIST_NPM",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "npm",
-                    "key": "config"
-                  }
-                }
               }
             ],
             "livenessProbe": {
