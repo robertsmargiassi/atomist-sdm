@@ -19,8 +19,14 @@ import {
     pushTest,
 } from "@atomist/sdm";
 
-export function simplifiedDeployment(...names: string[]): PushTest {
+export function IsSimplifiedDeployment(...names: string[]): PushTest {
     return pushTest("Simplified deployment required", async pci => {
         return names.includes(pci.project.name);
+    });
+}
+
+export function IsTeam(...teams: string[]): PushTest {
+    return pushTest("Atomist team checks", async pci => {
+        return teams.includes(pci.context.teamId);
     });
 }

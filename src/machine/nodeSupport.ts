@@ -58,7 +58,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine,
             .set(nodeBuilder(sdm.opts.projectLoader, "npm install", "npm run build")));
 
     sdm.addGoalImplementation("nodeVersioner", VersionGoal,
-        executeVersioner(sdm.opts.projectLoader, NodeProjectVersioner))
+        executeVersioner(sdm.opts.projectLoader, NodeProjectVersioner), { pushTest: IsNode })
         .addGoalImplementation("nodeDockerBuild", DockerBuildGoal,
             executeDockerBuild(
                 sdm.opts.projectLoader,
@@ -67,14 +67,14 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine,
                 {
                     ...configuration.sdm.docker.hub as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
-                }))
+                }), { pushTest: IsNode })
         .addGoalImplementation("nodePublish", PublishGoal,
             executePublish(sdm.opts.projectLoader,
                 NodeProjectIdentifier,
                 NpmPreparations,
                 {
                     ...configuration.sdm.npm as NpmOptions,
-                }));
+                }), { pushTest: IsNode });
 
     sdm.goalFulfillmentMapper
         .addSideEffect({

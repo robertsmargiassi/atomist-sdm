@@ -18,6 +18,7 @@ import { Configuration } from "@atomist/automation-client";
 import {
     IsAtomistAutomationClient,
     IsLein,
+    NeverMatch,
     not,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineOptions,
@@ -35,7 +36,10 @@ import {
 } from "@atomist/sdm/handlers/commands/SetDeployEnablement";
 import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
-import { simplifiedDeployment } from "../support/simplifiedDeployment";
+import {
+    IsTeam,
+    IsSimplifiedDeployment,
+} from "../support/isSimplifiedDeployment";
 import {
     BuildGoals,
     CheckGoals,
@@ -53,6 +57,14 @@ export function machine(options: SoftwareDeliveryMachineOptions,
         "Atomist Software Delivery Machine",
         options,
 
+        whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
+            .itMeans("Non Clojure repository in Atomist team")
+            .setGoals(NoGoals),
+
+        whenPushSatisfies(not(IsNode), IsTeam("T29E48P34"))
+            .itMeans("Non Node repository in Community team")
+            .setGoals(NoGoals),
+
         // Node
 
         whenPushSatisfies(IsNode, not(MaterialChangeToNodeRepo))
@@ -66,7 +78,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
         // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
-            simplifiedDeployment("k8-automation", "automation-client-sdm", "atomist-sdm"))
+            IsSimplifiedDeployment("k8-automation", "automation-client-sdm", "atomist-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 

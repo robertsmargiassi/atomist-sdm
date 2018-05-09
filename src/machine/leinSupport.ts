@@ -17,6 +17,7 @@ import {
     VersionGoal,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
+import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
 import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as df from "dateformat";
 
@@ -40,7 +41,7 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
                 {
                     ...configuration.sdm.docker.jfrog as DockerOptions,
                     dockerfileFinder: async () => "docker/Dockerfile",
-                }))
+                }), { pushTest: IsLein })
 
 }
 
