@@ -21,6 +21,7 @@
     "@atomist/automation-client": "https://r.atomist.com/SkDUQkI0Tz",
     "@atomist/sdm": "https://atomist.jfrog.io/atomist/api/npm/npm-dev-local/@atomist/sdm/-/@atomist/sdm-0.0.1-no-env-vars.20180507233656.tgz",
     "@atomist/slack-messages": "^0.12.1",
+    "@atomist/clj-editors": "0.0.15",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",
     "serialize-error": "^2.1.0",
