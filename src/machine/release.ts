@@ -184,7 +184,7 @@ export function executeReleaseNpm(
 
 export async function dockerReleasePreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
     const version = await rwlcVersion(rwlc);
-    const dockerOptions = configurationValue<DockerOptions>("sdm.docker");
+    const dockerOptions = configurationValue<DockerOptions>("sdm.docker.hub");
     const image = dockerImage({
         registry: dockerOptions.registry,
         name: p.name,
