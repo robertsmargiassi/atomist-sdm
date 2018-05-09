@@ -1,9 +1,26 @@
+/*
+ * Copyright © 2018 Atomist, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {
     Configuration,
     logger,
 } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
+    allSatisfied,
     hasFile,
     nodeBuilder,
     not,
@@ -41,11 +58,18 @@ import { AutomationClientTagger } from "../support/tagger";
 import {
     ProductionDeploymentGoal,
     PublishGoal,
+    ReleaseDockerGoal,
+    ReleaseNpmGoal,
     StagingDeploymentGoal,
 } from "./goals";
+import {
+    DockerReleasePreparations,
+    executeReleaseDocker,
+    executeReleaseNpm,
+    NpmReleasePreparations,
+} from "./release";
 
-export function addNodeSupport(sdm: SoftwareDeliveryMachine,
-                               configuration:Configuration) {
+export function addNodeSupport(sdm: SoftwareDeliveryMachine, configuration: Configuration) {
 
     const hasPackageLock = hasFile("package-lock.json");
 
@@ -74,7 +98,21 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine,
                 NpmPreparations,
                 {
                     ...configuration.sdm.npm as NpmOptions,
-                }), { pushTest: IsNode });
+                }), { pushTest: IsNode })
+        .addGoalImplementation("nodeNpmRelease", ReleaseNpmGoal,
+            executeReleaseNpm(sdm.opts.projectLoader,
+                NodeProjectIdentifier,
+                NpmReleasePreparations,
+                {
+                    ...configuration.sdm.npm as NpmOptions,
+                }), { pushTest: IsNode })
+        .addGoalImplementation("nodeDockerRelease", ReleaseDockerGoal,
+            executeReleaseDocker(sdm.opts.projectLoader,
+                NodeProjectIdentifier,
+                DockerReleasePreparations,
+                {
+                    ...configuration.sdm.docker.hub as DockerOptions,
+                }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) });
 
     sdm.goalFulfillmentMapper
         .addSideEffect({

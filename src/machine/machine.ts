@@ -19,7 +19,6 @@ import {
     executeTag,
     IsAtomistAutomationClient,
     IsLein,
-    NeverMatch,
     not,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineOptions,
@@ -36,12 +35,12 @@ import {
     disableDeploy,
     enableDeploy,
 } from "@atomist/sdm/handlers/commands/SetDeployEnablement";
+import {
+    IsSimplifiedDeployment,
+    IsTeam,
+} from "../support/isSimplifiedDeployment";
 import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
-import {
-    IsTeam,
-    IsSimplifiedDeployment,
-} from "../support/isSimplifiedDeployment";
 import {
     BuildGoals,
     CheckGoals,
@@ -115,12 +114,10 @@ export function machine(options: SoftwareDeliveryMachineOptions,
     sdm.addSupportingCommands(enableDeploy, disableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
-        executeTag(sdm.opts.projectLoader))
-
+        executeTag(sdm.opts.projectLoader));
 
     addNodeSupport(sdm, configuration);
     addLeinSupport(sdm, configuration);
 
     return sdm;
 }
-
