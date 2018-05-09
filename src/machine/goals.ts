@@ -64,6 +64,28 @@ export const ProductionDeploymentGoal = new Goal({
     failedDescription: "Prod deployment failure",
 });
 
+export const ReleaseNpmGoal = new Goal({
+    uniqueName: "ReleaseNpm",
+    environment: ProductionEnvironment,
+    orderedName: "3-release",
+    displayName: "release NPM artifacts",
+    workingDescription: "Releasing...",
+    completedDescription: "Released",
+    failedDescription: "Release failure",
+    isolated: true,
+});
+
+export const ReleaseDockerGoal = new Goal({
+    uniqueName: "ReleaseDocker",
+    environment: ProductionEnvironment,
+    orderedName: "3-release",
+    displayName: "release Docker image",
+    workingDescription: "Releasing...",
+    completedDescription: "Released",
+    failedDescription: "Release failure",
+    isolated: true,
+});
+
 // GOALSET Definition
 
 // Just running review and autofix
@@ -77,51 +99,46 @@ export const CheckGoals = new Goals(
 // Just running the build and publish
 export const BuildGoals = new Goals(
     "Build",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
+    ...CheckGoals.goals,
     BuildGoal,
-    PublishGoal,
+    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
     TagGoal,
+    new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
 );
 
 // Build including docker build
 export const DockerGoals = new Goals(
     "Docker Build",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
-    BuildGoal,
-    PublishGoal,
-    DockerBuildGoal,
-    TagGoal,
+    ...BuildGoals.goals,
+    new GoalWithPrecondition({ ...DockerBuildGoal.definition, approvalRequired: true }, ...DockerBuildGoal.dependsOn),
+    new GoalWithPrecondition(ReleaseDockerGoal.definition, DockerBuildGoal),
 );
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = new Goals(
     "Deploy",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
+    ...CheckGoals.goals,
     BuildGoal,
     PublishGoal,
     DockerBuildGoal,
     TagGoal,
     StagingDeploymentGoal,
     new GoalWithPrecondition(ProductionDeploymentGoal.definition, StagingDeploymentGoal),
+    new GoalWithPrecondition(ReleaseNpmGoal.definition, StagingDeploymentGoal),
+    new GoalWithPrecondition(ReleaseDockerGoal.definition, StagingDeploymentGoal),
 );
 
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = new Goals(
     "Simplified Deploy",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
+    ...CheckGoals.goals,
     BuildGoal,
     PublishGoal,
     DockerBuildGoal,
     TagGoal,
-    new GoalWithPrecondition(ProductionDeploymentGoal.definition, DockerBuildGoal),
+    new GoalWithPrecondition({ ...ProductionDeploymentGoal.definition, approvalRequired: true }, DockerBuildGoal),
+    new GoalWithPrecondition(ReleaseNpmGoal.definition, ProductionDeploymentGoal),
+    new GoalWithPrecondition(ReleaseDockerGoal.definition, ProductionDeploymentGoal),
 );
 
 export const LibraryPublished = new Goal({
@@ -134,9 +151,7 @@ export const LibraryPublished = new Goal({
 
 export const LeinDockerGoals = new Goals(
     "Lein Docker Build",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
+    ...CheckGoals.goals,
     BuildGoal,
     DockerBuildGoal,
     TagGoal,
