@@ -47,8 +47,11 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
         .addAutofixes(
             editorAutofixRegistration(
               {"name": "cljformat",
-               "editor": async p => {await clj.cljfmt(p.baseDir);
-                                     return p}));
+               "editor": async p => {
+                    await clj.cljfmt(p.baseDir);
+                    return p;
+                },
+              }));
     
 }
 
