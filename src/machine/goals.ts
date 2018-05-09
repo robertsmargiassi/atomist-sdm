@@ -123,3 +123,22 @@ export const SimplifiedKubernetesDeployGoals = new Goals(
     TagGoal,
     new GoalWithPrecondition(ProductionDeploymentGoal.definition, DockerBuildGoal),
 );
+
+export const LibraryPublished = new Goal({
+    uniqueName: "LibraryPublished",
+    environment: ProductionEnvironment,
+    orderedName: "3-prod-library-published",
+    displayName: "publish library",
+    completedDescription: "Library Published",
+});
+
+export const LeinDockerGoals = new Goals(
+    "Lein Docker Build",
+    VersionGoal,
+    ReviewGoal,
+    AutofixGoal,
+    BuildGoal,
+    DockerBuildGoal,
+    TagGoal,
+    new GoalWithPrecondition(LibraryPublished.definition, TagGoal),
+);
