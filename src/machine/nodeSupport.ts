@@ -50,10 +50,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine,
     const hasPackageLock = hasFile("package-lock.json");
 
     sdm.addBuildRules(
-        build.when(hasPackageLock)
+        build.when(IsNode, hasPackageLock)
             .itMeans("npm run build")
             .set(nodeBuilder(sdm.opts.projectLoader, "npm ci", "npm run build")),
-        build.when(not(hasPackageLock))
+        build.when(IsNode, not(hasPackageLock))
             .itMeans("npm run build (no package-lock.json)")
             .set(nodeBuilder(sdm.opts.projectLoader, "npm install", "npm run build")));
 
