@@ -38,7 +38,7 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
                 DefaultDockerImageNameCreator,
                 [MetajarPreparation],
                 {
-                    ...configuration.sdm.docker.private as DockerOptions,
+                    ...configuration.sdm.docker.jfrog as DockerOptions,
                     dockerfileFinder: async () => "docker/Dockerfile",
                 }))
 

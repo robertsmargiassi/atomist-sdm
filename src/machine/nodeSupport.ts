@@ -65,7 +65,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine,
                 DefaultDockerImageNameCreator,
                 NpmPreparations,
                 {
-                    ...configuration.sdm.docker.public as DockerOptions,
+                    ...configuration.sdm.docker.hub as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
                 }))
         .addGoalImplementation("nodePublish", PublishGoal,
