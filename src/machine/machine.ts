@@ -16,12 +16,14 @@
 
 import { Configuration } from "@atomist/automation-client";
 import {
+    executeTag,
     IsAtomistAutomationClient,
     IsLein,
     NeverMatch,
     not,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineOptions,
+    TagGoal,
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
@@ -111,6 +113,10 @@ export function machine(options: SoftwareDeliveryMachineOptions,
     );
 
     sdm.addSupportingCommands(enableDeploy, disableDeploy);
+
+    sdm.addGoalImplementation("tag", TagGoal,
+        executeTag(sdm.opts.projectLoader))
+
 
     addNodeSupport(sdm, configuration);
     addLeinSupport(sdm, configuration);
