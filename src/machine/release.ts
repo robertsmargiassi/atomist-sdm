@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
+import {
+    logger,
+    Success,
+} from "@atomist/automation-client";
 import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     branchFromCommit,
+    createTagForStatus,
     DockerOptions,
     ExecuteGoalResult,
     ExecuteGoalWithLog,
@@ -36,7 +40,10 @@ import {
     TagGoal,
     VersionGoal,
 } from "@atomist/sdm/common/delivery/goals/common/commonGoals";
-import { createStatus } from "@atomist/sdm/util/github/ghub";
+import {
+    createRelease,
+    createStatus,
+} from "@atomist/sdm/util/github/ghub";
 import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -60,6 +67,10 @@ async function rwlcVersion(rwlc: RunWithLogContext): Promise<string> {
         branchFromCommit(commit),
         rwlc.context);
     return version;
+}
+
+function releaseVersion(version: string): string {
+    return version.replace(/-.*/, "");
 }
 
 function npmPackageUrl(p: ProjectRegistryInfo): string {
@@ -92,7 +103,7 @@ export async function npmReleasePreparation(p: GitProject, rwlc: RunWithLogConte
         return Promise.reject(new Error(msg));
     }
     const version = await rwlcVersion(rwlc);
-    const releaseVersion = version.replace(/-.*/, "");
+    const versionRelease = releaseVersion(version);
     const npmOptions = configurationValue<NpmOptions>("sdm.npm");
     if (!npmOptions.registry) {
         return Promise.reject(new Error(`No NPM registry defined in NPM options`));
@@ -117,7 +128,7 @@ export async function npmReleasePreparation(p: GitProject, rwlc: RunWithLogConte
             command: "cp", args: ["-r", "package/.", p.baseDir],
         }, { cwd: tmpDir }, rwlc.progressLog, { errorFinder }))
         .then(() => spawnAndWatch({
-            command: "npm", args: ["--no-git-tag-version", "version", releaseVersion],
+            command: "npm", args: ["--no-git-tag-version", "version", versionRelease],
         }, { cwd: p.baseDir }, rwlc.progressLog, { errorFinder }))
         .then(() => spawnAndWatch({
             command: "rm", args: ["-rf", tmpDir],
@@ -224,7 +235,7 @@ export function executeReleaseDocker(
 
             const commit = rwlc.status.commit;
             const version = await rwlcVersion(rwlc);
-            const releaseVersion = version.replace(/-.*/, "");
+            const versionRelease = releaseVersion(version);
             const image = dockerImage({
                 registry: options.registry,
                 name: commit.repo.name,
@@ -233,7 +244,7 @@ export function executeReleaseDocker(
             const tag = dockerImage({
                 registry: options.registry,
                 name: commit.repo.name,
-                version: releaseVersion,
+                version: versionRelease,
             });
 
             return spawnAndWatch({
@@ -246,6 +257,26 @@ export function executeReleaseDocker(
                     command: "docker", args: ["rmi", tag],
                 }, {}, rwlc.progressLog, { errorFinder }));
 
+        });
+    };
+}
+
+export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoalWithLog {
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { status, credentials, id, context } = rwlc;
+
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: true }, async p => {
+            const commit = status.commit;
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            await createTagForStatus(id, commit.sha, commit.message, versionRelease, credentials);
+            const commitTitle = commit.message.replace(/\n[\S\s]*/, "");
+            const release = {
+                tag_name: versionRelease,
+                name: `${versionRelease}: ${commitTitle}`,
+            };
+            await createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release);
+            return Success;
         });
     };
 }

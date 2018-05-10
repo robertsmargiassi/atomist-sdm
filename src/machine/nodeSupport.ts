@@ -60,12 +60,14 @@ import {
     PublishGoal,
     ReleaseDockerGoal,
     ReleaseNpmGoal,
+    ReleaseTagGoal,
     StagingDeploymentGoal,
 } from "./goals";
 import {
     DockerReleasePreparations,
     executeReleaseDocker,
     executeReleaseNpm,
+    executeReleaseTag,
     NpmReleasePreparations,
 } from "./release";
 
@@ -112,7 +114,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine, configuration: Conf
                 DockerReleasePreparations,
                 {
                     ...configuration.sdm.docker.hub as DockerOptions,
-                }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) });
+                }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) })
+        .addGoalImplementation("tagRelease", ReleaseTagGoal,
+            executeReleaseTag(sdm.opts.projectLoader));
 
     sdm.goalFulfillmentMapper
         .addSideEffect({
