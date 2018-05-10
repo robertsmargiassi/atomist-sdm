@@ -261,6 +261,9 @@ export function executeReleaseDocker(
     };
 }
 
+/**
+ * Create release semantic version tag and GitHub release for that tag.
+ */
 export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { status, credentials, id, context } = rwlc;
