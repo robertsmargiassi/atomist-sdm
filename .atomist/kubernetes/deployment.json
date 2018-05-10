@@ -8,7 +8,7 @@
             "env": [
               {
                 "name": "ATOMIST_DEPLOYMENT_NAME",
-                "value": "automation-client-sdm"
+                "value": "atomist-sdm"
               },
               {
                 "name": "ATOMIST_DEPLOYMENT_NAMESPACE",
