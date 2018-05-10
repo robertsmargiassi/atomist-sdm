@@ -174,6 +174,17 @@ export const SimplifiedKubernetesDeployGoals = new Goals(
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
 );
 
+// Only deploy to staging
+export const StagingKubernetesDeployGoals = new Goals(
+    "Staging Deploy",
+    ...CheckGoals.goals,
+    BuildGoal,
+    PublishGoal,
+    DockerBuildGoal,
+    TagGoal,
+    StagingDeploymentGoal,
+);
+
 export const LibraryPublished = new Goal({
     uniqueName: "LibraryPublished",
     environment: ProductionEnvironment,

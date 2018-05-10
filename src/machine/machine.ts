@@ -50,6 +50,7 @@ import {
     KubernetesDeployGoals,
     LeinDockerGoals,
     SimplifiedKubernetesDeployGoals,
+    StagingKubernetesDeployGoals,
 } from "./goals";
 import { addLeinSupport } from "./leinSupport";
 import { addNodeSupport } from "./nodeSupport";
@@ -81,9 +82,18 @@ export function machine(options: SoftwareDeliveryMachineOptions,
         // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient,
-            IsSimplifiedDeployment("k8-automation", "automation-client-sdm", "atomist-sdm"))
+            IsSimplifiedDeployment("k8-automation", "atomist-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
+
+        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
+            .itMeans("Deploy")
+            .setGoals(KubernetesDeployGoals),
+
+        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
+            IsSimplifiedDeployment("sample-sdm"))
+            .itMeans("Staging Deploy")
+            .setGoals(StagingKubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
             .itMeans("Deploy")
