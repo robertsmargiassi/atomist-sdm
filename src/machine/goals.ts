@@ -69,9 +69,9 @@ export const ReleaseNpmGoal = new Goal({
     environment: ProductionEnvironment,
     orderedName: "3-release-npm",
     displayName: "release NPM artifacts",
-    workingDescription: "Releasing...",
-    completedDescription: "Released",
-    failedDescription: "Release failure",
+    workingDescription: "Releasing NPM...",
+    completedDescription: "Released NPM",
+    failedDescription: "Release NPM failure",
     isolated: true,
 });
 
@@ -80,9 +80,9 @@ export const ReleaseDockerGoal = new Goal({
     environment: ProductionEnvironment,
     orderedName: "3-release-docker",
     displayName: "release Docker image",
-    workingDescription: "Releasing...",
-    completedDescription: "Released",
-    failedDescription: "Release failure",
+    workingDescription: "Releasing Docker...",
+    completedDescription: "Released Docker",
+    failedDescription: "Release Docker failure",
     isolated: true,
 });
 

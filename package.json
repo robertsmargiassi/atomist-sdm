@@ -1,6 +1,6 @@
 {
   "name": "@atomist/atomist-sdm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "an Atomist SDM to deliver automation client projects",
   "author": "Atomist, Inc.",
   "license": "Apache-2.0",
@@ -18,9 +18,9 @@
     "url": "https://github.com/atomist/atomist-sdm/issues"
   },
   "dependencies": {
-    "@atomist/automation-client": "https://r.atomist.com/SkDUQkI0Tz",
+    "@atomist/automation-client": "https://r.atomist.com/Sy47cpbZCf",
     "@atomist/clj-editors": "0.0.18",
-    "@atomist/sdm": "https://atomist.jfrog.io/atomist/api/npm/npm-dev-local/@atomist/sdm/-/@atomist/sdm-0.0.1-no-env-vars.20180507233656.tgz",
+    "@atomist/sdm": "https://r.atomist.com/ByNPdRMWRf",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",

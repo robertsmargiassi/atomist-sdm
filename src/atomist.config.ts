@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { configureForSdm } from "@atomist/sdm";
+import { configureSdm } from "@atomist/sdm";
 import { machine } from "./machine/machine";
 import { configureLogzio } from "./util/logzio";
 
 export const configuration: any = {
     postProcessors: [
         configureLogzio,
-        configureForSdm(machine),
+        configureSdm(machine),
     ],
 };
