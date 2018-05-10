@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-import { configureSdm } from "@atomist/sdm";
+import { Configuration } from "@atomist/automation-client";
+import {
+    ConfigureOptions,
+    configureSdm,
+} from "@atomist/sdm";
 import { machine } from "./machine/machine";
 import { configureLogzio } from "./util/logzio";
 
-const Options = {
+const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
         "sdm.npm.npmrc",
         "sdm.npm.registry",
         "sdm.npm.access",
+        "sdm.docker.hub.registry",
+        "sdm.docker.hub.user",
+        "sdm.docker.hub.password",
     ],
 };
 
-export const configuration: any = {
+export const configuration: Configuration = {
     postProcessors: [
         configureLogzio,
-        configureSdm(machine),
+        configureSdm(machine, machineOptions),
     ],
 };
