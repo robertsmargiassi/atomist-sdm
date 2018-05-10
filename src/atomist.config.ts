@@ -18,6 +18,14 @@ import { configureSdm } from "@atomist/sdm";
 import { machine } from "./machine/machine";
 import { configureLogzio } from "./util/logzio";
 
+const Options = {
+    requiredConfigurationValues: [
+        "sdm.npm.npmrc",
+        "sdm.npm.registry",
+        "sdm.npm.access",
+    ],
+};
+
 export const configuration: any = {
     postProcessors: [
         configureLogzio,
