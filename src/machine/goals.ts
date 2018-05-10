@@ -68,10 +68,10 @@ export const ReleaseNpmGoal = new Goal({
     uniqueName: "ReleaseNpm",
     environment: ProductionEnvironment,
     orderedName: "3-release-npm",
-    displayName: "release NPM artifacts",
-    workingDescription: "Releasing NPM...",
-    completedDescription: "Released NPM",
-    failedDescription: "Release NPM failure",
+    displayName: "release NPM package",
+    workingDescription: "Releasing NPM package...",
+    completedDescription: "Released NPM package",
+    failedDescription: "Release NPM package failure",
     isolated: true,
 });
 
@@ -80,9 +80,9 @@ export const ReleaseDockerGoal = new Goal({
     environment: ProductionEnvironment,
     orderedName: "3-release-docker",
     displayName: "release Docker image",
-    workingDescription: "Releasing Docker...",
-    completedDescription: "Released Docker",
-    failedDescription: "Release Docker failure",
+    workingDescription: "Releasing Docker image...",
+    completedDescription: "Released Docker image",
+    failedDescription: "Release Docker image failure",
     isolated: true,
 });
 
@@ -92,7 +92,7 @@ export const ReleaseTagGoal = new Goal({
     orderedName: "3-release-tag",
     displayName: "create release tag",
     completedDescription: "Created release tag",
-    failedDescription: "Creating tag failed",
+    failedDescription: "Creating release tag failed",
 });
 
 // GOALSET Definition
