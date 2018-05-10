@@ -16,6 +16,7 @@
 
 import { Configuration } from "@atomist/automation-client";
 import {
+    DoNotSetAnyGoals,
     executeTag,
     IsAtomistAutomationClient,
     IsLein,
@@ -63,11 +64,11 @@ export function machine(options: SoftwareDeliveryMachineOptions,
 
         whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
             .itMeans("Non Clojure repository in Atomist team")
-            .setGoals(NoGoals),
+            .setGoals(DoNotSetAnyGoals),
 
         whenPushSatisfies(not(IsNode), IsTeam("T29E48P34"))
             .itMeans("Non Node repository in Community team")
-            .setGoals(NoGoals),
+            .setGoals(DoNotSetAnyGoals),
 
         // Node
 
