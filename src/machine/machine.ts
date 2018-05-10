@@ -43,8 +43,10 @@ import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureR
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
     BuildGoals,
+    BuildReleaseGoals,
     CheckGoals,
     DockerGoals,
+    DockerReleaseGoals,
     KubernetesDeployGoals,
     LeinDockerGoals,
     SimplifiedKubernetesDeployGoals,
@@ -87,16 +89,20 @@ export function machine(options: SoftwareDeliveryMachineOptions,
             .itMeans("Deploy")
             .setGoals(KubernetesDeployGoals),
 
+        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient)
+            .itMeans("Docker Release Build")
+            .setGoals(DockerReleaseGoals),
+
         whenPushSatisfies(IsNode, HasDockerfile, IsAtomistAutomationClient)
             .itMeans("Docker Build")
             .setGoals(DockerGoals),
 
-        whenPushSatisfies(IsNode, not(HasDockerfile), IsAtomistAutomationClient)
-            .itMeans("Build")
-            .setGoals(BuildGoals),
+        whenPushSatisfies(IsNode, not(HasDockerfile), ToDefaultBranch)
+            .itMeans("Release Build")
+            .setGoals(BuildReleaseGoals),
 
-        whenPushSatisfies(IsNode, not(HasDockerfile), not(IsAtomistAutomationClient))
-            .itMeans("Module Build")
+        whenPushSatisfies(IsNode, not(HasDockerfile))
+            .itMeans("Build")
             .setGoals(BuildGoals),
 
         // Clojure

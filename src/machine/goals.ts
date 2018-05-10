@@ -101,6 +101,15 @@ export const BuildGoals = new Goals(
     "Build",
     ...CheckGoals.goals,
     BuildGoal,
+    PublishGoal,
+    TagGoal,
+);
+
+// Just running the build and publish
+export const BuildReleaseGoals = new Goals(
+    "Build with Release",
+    ...CheckGoals.goals,
+    BuildGoal,
     new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
     TagGoal,
     new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
@@ -110,6 +119,17 @@ export const BuildGoals = new Goals(
 export const DockerGoals = new Goals(
     "Docker Build",
     ...BuildGoals.goals,
+    DockerBuildGoal,
+);
+
+// Build including docker build
+export const DockerReleaseGoals = new Goals(
+    "Docker Build with Release",
+    ...CheckGoals.goals,
+    BuildGoal,
+    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
+    new GoalWithPrecondition(TagGoal.definition, BuildGoal),
+    new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
     new GoalWithPrecondition({ ...DockerBuildGoal.definition, approvalRequired: true }, ...DockerBuildGoal.dependsOn),
     new GoalWithPrecondition(ReleaseDockerGoal.definition, DockerBuildGoal),
 );
