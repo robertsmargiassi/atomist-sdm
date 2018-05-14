@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
+// tslint:disable:max-file-line-count
+
 import {
     logger,
     Success,
 } from "@atomist/automation-client";
+import { CommandResult } from "@atomist/automation-client/action/cli/commandLine";
 import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
+import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
+import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
 import {
     branchFromCommit,
     createTagForStatus,
+    DelimitedWriteProgressLogDecorator,
     DockerOptions,
     ExecuteGoalResult,
     ExecuteGoalWithLog,
@@ -214,7 +221,6 @@ export const DockerReleasePreparations: PrepareForGoalExecution[] = [dockerRelea
 
 export function executeReleaseDocker(
     projectLoader: ProjectLoader,
-    projectIdentifier: ProjectIdentifier,
     preparations: PrepareForGoalExecution[] = DockerReleasePreparations,
     options?: DockerOptions,
 ): ExecuteGoalWithLog {
@@ -278,8 +284,142 @@ export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoalWith
                 tag_name: versionRelease,
                 name: `${versionRelease}: ${commitTitle}`,
             };
-            await createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release);
-            return Success;
+            const rrr = p.id as RemoteRepoRef;
+            const targetUrl = `${rrr.url}/releases/tag/${versionRelease}`;
+            const egr: ExecuteGoalResult = {
+                ...Success,
+                targetUrl,
+            };
+            return createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
+                .then(() => egr);
         });
     };
+}
+
+function typedocDir(baseDir: string): string {
+    return path.join(baseDir, "build", "typedoc");
+}
+
+export async function docsReleasePreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
+    return spawnAndWatch(
+        { command: "npm", args: ["ci"] },
+        { cwd: p.baseDir },
+        rwlc.progressLog,
+        { errorFinder },
+    )
+        .then(() => spawnAndWatch(
+            { command: "npm", args: ["run", "compile"] },
+            { cwd: p.baseDir },
+            rwlc.progressLog,
+            { errorFinder },
+        ))
+        .then(() => spawnAndWatch(
+            { command: "npm", args: ["run", "typedoc"] },
+            { cwd: p.baseDir },
+            rwlc.progressLog,
+            { errorFinder },
+        ))
+        .then(() => spawnAndWatch(
+            { command: "touch", args: [path.join(typedocDir(p.baseDir), ".nojekyll")] },
+            { cwd: p.baseDir },
+            rwlc.progressLog,
+            { errorFinder },
+        ));
+}
+
+export const DocsReleasePreparations: PrepareForGoalExecution[] = [docsReleasePreparation];
+
+/**
+ * Publish TypeDoc to gh-pages branch.
+ */
+export function executeReleaseDocs(
+    projectLoader: ProjectLoader,
+    preparations: PrepareForGoalExecution[] = DocsReleasePreparations,
+): ExecuteGoalWithLog {
+
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { credentials, id, context } = rwlc;
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
+
+            for (const preparation of preparations) {
+                const pResult = await preparation(project, rwlc);
+                if (pResult.code !== 0) {
+                    return pResult;
+                }
+            }
+
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            const commitMsg = `Publishing TypeDoc for version ${versionRelease}`;
+            const docDir = typedocDir(project.baseDir);
+            const docProject = await NodeFsLocalProject.fromExistingDirectory(project.id, docDir);
+            const docGitProject = GitCommandGitProject.fromProject(docProject, credentials) as GitCommandGitProject;
+            const targetUrl = `https://${docGitProject.id.owner}.github.io/${docGitProject.id.repo}`;
+            const rrr = project.id as RemoteRepoRef;
+
+            return gitCommandGoal(() => docGitProject.init(), rwlc)
+                .then(() => gitCommandGoal(() => docGitProject.commit(commitMsg), rwlc))
+                .then(() => gitCommandGoal(() => docGitProject.createBranch("gh-pages"), rwlc))
+                .then(() => gitCommandGoal(() => docGitProject.setRemote(rrr.cloneUrl(credentials)), rwlc))
+                .then(() => gitCommandGoal(() => docGitProject.push({ force: true }), rwlc))
+                .then(res => ({ ...res, targetUrl }));
+        });
+    };
+}
+
+/**
+ * Increment patch level in package.json version.
+ */
+export function executeReleaseVersion(
+    projectLoader: ProjectLoader,
+    projectIdentifier: ProjectIdentifier,
+): ExecuteGoalWithLog {
+
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { status, credentials, id, context } = rwlc;
+
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
+            const commit = rwlc.status.commit;
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            const pi = await projectIdentifier(p);
+            if (pi.version !== versionRelease) {
+                const message = `package version (${pi.version}) seems to have already been incremented ` +
+                    `after ${releaseVersion} release`;
+                console.debug(message);
+                const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
+                log.write(`${message}\n`);
+                await log.flush();
+                await log.close();
+                return { ...Success, message };
+            }
+            const gp = p as GitCommandGitProject;
+            return spawnAndWatch(
+                { command: "npm", args: ["version", "--no-git-tag-version", "patch"] },
+                { cwd: p.baseDir },
+                rwlc.progressLog,
+                { errorFinder },
+            )
+                .then(() => gitCommandGoal(() => gp.commit(`Increment version after ${releaseVersion} release`), rwlc))
+                .then(() => gitCommandGoal(() => gp.push(), rwlc));
+        });
+    };
+}
+
+async function gitCommandGoal(
+    op: () => Promise<CommandResult<GitCommandGitProject>>,
+    rwlc: RunWithLogContext,
+): Promise<ExecuteGoalResult> {
+
+    const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
+    const res = await op();
+    const egr: ExecuteGoalResult = {
+        code: res.childProcess.exitCode,
+        message: (res.error) ? res.error.message : undefined,
+    };
+    log.write(res.stdout);
+    log.write(res.stderr);
+    await log.flush();
+    await log.close();
+    return egr;
 }
