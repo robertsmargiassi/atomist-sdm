@@ -14,22 +14,30 @@
  * limitations under the License.
  */
 
+// tslint:disable:max-file-line-count
+
 import {
     logger,
     Success,
 } from "@atomist/automation-client";
+import { CommandResult } from "@atomist/automation-client/action/cli/commandLine";
 import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
+import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
+import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
 import {
     branchFromCommit,
     createTagForStatus,
+    DelimitedWriteProgressLogDecorator,
     DockerOptions,
     ExecuteGoalResult,
     ExecuteGoalWithLog,
     NpmOptions,
     PrepareForGoalExecution,
+    ProgressLog,
     ProjectIdentifier,
     ProjectLoader,
     readSdmVersion,
@@ -44,12 +52,15 @@ import {
     createRelease,
     createStatus,
 } from "@atomist/sdm/util/github/ghub";
-import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
+import {
+    ChildProcessResult,
+    spawnAndWatch,
+    SpawnCommand,
+} from "@atomist/sdm/util/misc/spawned";
+import { SpawnOptions } from "child_process";
 import * as fs from "fs-extra";
 import * as path from "path";
 import * as uuid from "uuid/v4";
-
-const errorFinder = code => code !== 0;
 
 interface ProjectRegistryInfo {
     registry: string;
@@ -79,6 +90,118 @@ function npmPackageUrl(p: ProjectRegistryInfo): string {
 
 function dockerImage(p: ProjectRegistryInfo): string {
     return `${p.registry}/${p.name}:${p.version}`;
+}
+
+type ExecuteLogger = (l: ProgressLog) => Promise<ExecuteGoalResult>;
+
+interface SpawnWatchCommand {
+    cmd: SpawnCommand;
+    cwd?: string;
+}
+
+/**
+ * Transform a SpawnWatchCommand into an ExecuteLogger suitable for
+ * execution by executeLoggers.  The operation is awaited and any
+ * thrown exceptions are caught and transformed into an error result.
+ * If an error occurs, it is logged.  The result of the operation is
+ * transformed into a ExecuteGoalResult.  If an exception is caught,
+ * the returned code is guaranteed to be non-zero.
+ */
+function spawnExecuteLogger(swc: SpawnWatchCommand): ExecuteLogger {
+
+    return async (log: ProgressLog) => {
+        const opts: SpawnOptions = {};
+        if (swc.cwd) {
+            opts.cwd = swc.cwd;
+        }
+        let res: ChildProcessResult;
+        try {
+            res = await spawnAndWatch(swc.cmd, opts, log);
+        } catch (e) {
+            res = {
+                error: true,
+                code: -1,
+                message: `Spawned command errored: ${swc.cmd.command} ${swc.cmd.args.join(" ")}: ${e.message}`,
+            };
+        }
+        if (res.error) {
+            if (!res.message) {
+                res.message = `Spawned command failed (status:${res.code}): ${swc.cmd.command} ${swc.cmd.args.join(" ")}`;
+            }
+            logger.error(res.message);
+            log.write(res.message);
+        }
+        return res;
+    };
+}
+
+/**
+ * Transform a GitCommandGitProject operation into an ExecuteLogger
+ * suitable for execution by executeLoggers.  The operation is awaited
+ * and any thrown exceptions are caught and transformed into an error
+ * result.  The returned standard out and standard error are written
+ * to the log.  If an error occurs, it is logged.  The result of the
+ * operation is transformed into a ExecuteGoalResult.  If an error is
+ * returned or exception caught, the returned code is guaranteed to be
+ * non-zero.
+ */
+function gitExecuteLogger(gp: GitCommandGitProject, op: () => Promise<CommandResult<GitCommandGitProject>>): ExecuteLogger {
+
+    return async (log: ProgressLog) => {
+        let res: CommandResult<GitCommandGitProject>;
+        try {
+            res = await op();
+        } catch (e) {
+            res = {
+                error: e,
+                success: false,
+                childProcess: {
+                    exitCode: -1,
+                    killed: true,
+                    pid: 99999,
+                },
+                stdout: `Error: ${e.message}`,
+                stderr: `Error: ${e.stack}`,
+                target: gp,
+            };
+        }
+        log.write(res.stdout);
+        log.write(res.stderr);
+        if (res.error) {
+            res.childProcess.exitCode = (res.childProcess.exitCode === 0) ? 999 : res.childProcess.exitCode;
+        }
+        const message = (res.error && res.error.message) ? res.error.message :
+            ((res.childProcess.exitCode !== 0) ? `Git command failed: ${res.stderr}` : undefined);
+        if (res.childProcess.exitCode !== 0) {
+            logger.error(message);
+            log.write(message);
+        }
+        const egr: ExecuteGoalResult = {
+            code: res.childProcess.exitCode,
+            message,
+        };
+        return egr;
+    };
+}
+
+/**
+ * Execute an array of logged commands, creating a line-delimited
+ * progress log beforehand, flushing after each command, and closing
+ * it at the end.  If any command fails, bail out and return the
+ * failure result.  Otherwise return Success.
+ */
+async function executeLoggers(els: ExecuteLogger[], progressLog: ProgressLog): Promise<ExecuteGoalResult> {
+    const log = new DelimitedWriteProgressLogDecorator(progressLog, "\n");
+    for (const cmd of els) {
+        const res = await cmd(log);
+        await log.flush();
+        if (res.code !== 0) {
+            await log.close();
+            return res;
+        }
+    }
+    await log.close();
+    return Success;
 }
 
 export async function npmReleasePreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
@@ -115,24 +238,33 @@ export async function npmReleasePreparation(p: GitProject, rwlc: RunWithLogConte
     });
     const tmpDir = path.join((process.env.TMPDIR || "/tmp"), `${p.name}-${uuid()}`);
     const tgz = path.join(tmpDir, "package.tgz");
-    return spawnAndWatch({
-        command: "curl", args: ["--output", tgz, "--silent", "--fail", "--create-dirs", pkgUrl],
-    }, {}, rwlc.progressLog, { errorFinder })
-        .then(() => spawnAndWatch({
-            command: "tar", args: ["-x", "-z", "-f", tgz],
-        }, { cwd: tmpDir }, rwlc.progressLog, { errorFinder }))
-        .then(() => spawnAndWatch({
-            command: "bash", args: ["-c", "rm -r *"],
-        }, { cwd: p.baseDir }, rwlc.progressLog, { errorFinder }))
-        .then(() => spawnAndWatch({
-            command: "cp", args: ["-r", "package/.", p.baseDir],
-        }, { cwd: tmpDir }, rwlc.progressLog, { errorFinder }))
-        .then(() => spawnAndWatch({
-            command: "npm", args: ["--no-git-tag-version", "version", versionRelease],
-        }, { cwd: p.baseDir }, rwlc.progressLog, { errorFinder }))
-        .then(() => spawnAndWatch({
-            command: "rm", args: ["-rf", tmpDir],
-        }, {}, rwlc.progressLog, { errorFinder }));
+
+    const cmds: SpawnWatchCommand[] = [
+        {
+            cmd: { command: "curl", args: ["--output", tgz, "--silent", "--fail", "--create-dirs", pkgUrl] },
+        },
+        {
+            cmd: { command: "tar", args: ["-x", "-z", "-f", tgz] },
+            cwd: tmpDir,
+        },
+        {
+            cmd: { command: "bash", args: ["-c", "rm -r *"] },
+            cwd: p.baseDir,
+        },
+        {
+            cmd: { command: "cp", args: ["-r", "package/.", p.baseDir] },
+            cwd: tmpDir,
+        },
+        {
+            cmd: { command: "npm", args: ["--no-git-tag-version", "version", versionRelease] },
+            cwd: p.baseDir,
+        },
+        {
+            cmd: { command: "rm", args: ["-rf", tmpDir] },
+        },
+    ];
+    const els = cmds.map(spawnExecuteLogger);
+    return executeLoggers(els, rwlc.progressLog);
 }
 
 export const NpmReleasePreparations: PrepareForGoalExecution[] = [npmReleasePreparation];
@@ -160,35 +292,40 @@ export function executeReleaseNpm(
                 }
             }
 
-            const result: ExecuteGoalResult = await spawnAndWatch({
+            const result = await spawnAndWatch({
                 command: "npm",
                 args: [
                     "publish",
                     "--registry", options.registry,
                     "--access", (options.access) ? options.access : "restricted",
                 ],
-            }, { cwd: project.baseDir }, rwlc.progressLog, { errorFinder });
-
-            if (result.code === 0) {
-                const pi = await projectIdentifier(project);
-                const url = npmPackageUrl({
-                    registry: options.registry,
-                    name: pi.name,
-                    version: pi.version,
-                });
-                await createStatus(
-                    (credentials as TokenCredentials).token,
-                    id as GitHubRepoRef,
-                    {
-                        context: "npm/atomist/package",
-                        description: "NPM package",
-                        target_url: url,
-                        state: "success",
-                    });
-                result.targetUrl = url;
+            }, { cwd: project.baseDir }, rwlc.progressLog);
+            if (result.error) {
+                return result;
             }
 
-            return result;
+            const pi = await projectIdentifier(project);
+            const url = npmPackageUrl({
+                registry: options.registry,
+                name: pi.name,
+                version: pi.version,
+            });
+            await createStatus(
+                (credentials as TokenCredentials).token,
+                id as GitHubRepoRef,
+                {
+                    context: "npm/atomist/package",
+                    description: "NPM package",
+                    target_url: url,
+                    state: "success",
+                });
+
+            const egr: ExecuteGoalResult = {
+                code: result.code,
+                message: result.message,
+                targetUrl: url,
+            };
+            return egr;
         });
     };
 }
@@ -201,20 +338,26 @@ export async function dockerReleasePreparation(p: GitProject, rwlc: RunWithLogCo
         name: p.name,
         version,
     });
-    return spawnAndWatch({
-        command: "docker",
-        args: ["login", "--username", dockerOptions.user, "--password", dockerOptions.password],
-    }, {}, rwlc.progressLog, { errorFinder })
-        .then(() => spawnAndWatch({
-            command: "docker", args: ["pull", image],
-        }, {}, rwlc.progressLog, { errorFinder }));
+
+    const cmds: SpawnWatchCommand[] = [
+        {
+            cmd: {
+                command: "docker",
+                args: ["login", "--username", dockerOptions.user, "--password", dockerOptions.password],
+            },
+        },
+        {
+            cmd: { command: "docker", args: ["pull", image] },
+        },
+    ];
+    const els = cmds.map(spawnExecuteLogger);
+    return executeLoggers(els, rwlc.progressLog);
 }
 
 export const DockerReleasePreparations: PrepareForGoalExecution[] = [dockerReleasePreparation];
 
 export function executeReleaseDocker(
     projectLoader: ProjectLoader,
-    projectIdentifier: ProjectIdentifier,
     preparations: PrepareForGoalExecution[] = DockerReleasePreparations,
     options?: DockerOptions,
 ): ExecuteGoalWithLog {
@@ -247,16 +390,19 @@ export function executeReleaseDocker(
                 version: versionRelease,
             });
 
-            return spawnAndWatch({
-                command: "docker", args: ["tag", image, tag],
-            }, {}, rwlc.progressLog, { errorFinder })
-                .then(() => spawnAndWatch({
-                    command: "docker", args: ["push", tag],
-                }, {}, rwlc.progressLog, { errorFinder }))
-                .then(() => spawnAndWatch({
-                    command: "docker", args: ["rmi", tag],
-                }, {}, rwlc.progressLog, { errorFinder }));
-
+            const cmds: SpawnWatchCommand[] = [
+                {
+                    cmd: { command: "docker", args: ["tag", image, tag] },
+                },
+                {
+                    cmd: { command: "docker", args: ["push", tag] },
+                },
+                {
+                    cmd: { command: "docker", args: ["rmi", tag] },
+                },
+            ];
+            const els = cmds.map(spawnExecuteLogger);
+            return executeLoggers(els, rwlc.progressLog);
         });
     };
 }
@@ -278,8 +424,139 @@ export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoalWith
                 tag_name: versionRelease,
                 name: `${versionRelease}: ${commitTitle}`,
             };
-            await createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release);
-            return Success;
+            const rrr = p.id as RemoteRepoRef;
+            const targetUrl = `${rrr.url}/releases/tag/${versionRelease}`;
+            const egr: ExecuteGoalResult = {
+                ...Success,
+                targetUrl,
+            };
+            return createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
+                .then(() => egr);
+        });
+    };
+}
+
+function typedocDir(baseDir: string): string {
+    return path.join(baseDir, "build", "typedoc");
+}
+
+export async function docsReleasePreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
+    const cmds: SpawnWatchCommand[] = [
+        {
+            cmd: { command: "npm", args: ["ci"] },
+            cwd: p.baseDir,
+        },
+        {
+            cmd: { command: "npm", args: ["run", "compile"] },
+            cwd: p.baseDir,
+        },
+        {
+            cmd: { command: "npm", args: ["run", "typedoc"] },
+            cwd: p.baseDir,
+        },
+        {
+            cmd: { command: "touch", args: [path.join(typedocDir(p.baseDir), ".nojekyll")] },
+            cwd: p.baseDir,
+        },
+    ];
+    const els = cmds.map(spawnExecuteLogger);
+    return executeLoggers(els, rwlc.progressLog);
+}
+
+export const DocsReleasePreparations: PrepareForGoalExecution[] = [docsReleasePreparation];
+
+/**
+ * Publish TypeDoc to gh-pages branch.
+ */
+export function executeReleaseDocs(
+    projectLoader: ProjectLoader,
+    preparations: PrepareForGoalExecution[] = DocsReleasePreparations,
+): ExecuteGoalWithLog {
+
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { credentials, id, context } = rwlc;
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
+
+            for (const preparation of preparations) {
+                const pResult = await preparation(project, rwlc);
+                if (pResult.code !== 0) {
+                    return pResult;
+                }
+            }
+
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            const commitMsg = `Publishing TypeDoc for version ${versionRelease}`;
+            const docDir = typedocDir(project.baseDir);
+            const docProject = await NodeFsLocalProject.fromExistingDirectory(project.id, docDir);
+            const docGitProject = GitCommandGitProject.fromProject(docProject, credentials) as GitCommandGitProject;
+            const targetUrl = `https://${docGitProject.id.owner}.github.io/${docGitProject.id.repo}`;
+            const rrr = project.id as RemoteRepoRef;
+
+            const gitOps: Array<() => Promise<CommandResult<GitCommandGitProject>>> = [
+                () => docGitProject.init(),
+                () => docGitProject.commit(commitMsg),
+                () => docGitProject.createBranch("gh-pages"),
+                () => docGitProject.setRemote(rrr.cloneUrl(credentials)),
+                () => docGitProject.push({ force: true }),
+            ];
+            const els = gitOps.map(op => gitExecuteLogger(docGitProject, op));
+            const gitRes = await executeLoggers(els, rwlc.progressLog);
+            if (gitRes.code !== 0) {
+                return gitRes;
+            }
+            return { ...Success, targetUrl };
+        });
+    };
+}
+
+/**
+ * Increment patch level in package.json version.
+ */
+export function executeReleaseVersion(
+    projectLoader: ProjectLoader,
+    projectIdentifier: ProjectIdentifier,
+): ExecuteGoalWithLog {
+
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { status, credentials, id, context } = rwlc;
+
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
+            const commit = rwlc.status.commit;
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            const gp = p as GitCommandGitProject;
+
+            const branch = "master";
+            const remote = gp.remote || "origin";
+            const preEls: ExecuteLogger[] = [
+                gitExecuteLogger(gp, () => gp.checkout(branch)),
+                spawnExecuteLogger({ cmd: { command: "git", args: ["pull", remote, branch] }, cwd: gp.baseDir }),
+            ];
+            const preRes = await executeLoggers(preEls, rwlc.progressLog);
+            if (preRes.code !== 0) {
+                return preRes;
+            }
+            gp.branch = branch;
+
+            const pi = await projectIdentifier(p);
+            if (pi.version !== versionRelease) {
+                const message = `current master package version (${pi.version}) seems to have already been ` +
+                    `incremented after ${releaseVersion} release`;
+                console.debug(message);
+                const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
+                log.write(`${message}\n`);
+                await log.flush();
+                await log.close();
+                return { ...Success, message };
+            }
+
+            const postEls: ExecuteLogger[] = [
+                spawnExecuteLogger({ cmd: { command: "npm", args: ["version", "--no-git-tag-version", "patch"] }, cwd: gp.baseDir }),
+                gitExecuteLogger(gp, () => gp.commit(`Increment version after ${versionRelease} release`)),
+                gitExecuteLogger(gp, () => gp.push()),
+            ];
+            return executeLoggers(postEls, rwlc.progressLog);
         });
     };
 }

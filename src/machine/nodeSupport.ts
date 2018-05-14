@@ -59,15 +59,20 @@ import {
     ProductionDeploymentGoal,
     PublishGoal,
     ReleaseDockerGoal,
+    ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseTagGoal,
+    ReleaseVersionGoal,
     StagingDeploymentGoal,
 } from "./goals";
 import {
     DockerReleasePreparations,
+    DocsReleasePreparations,
     executeReleaseDocker,
+    executeReleaseDocs,
     executeReleaseNpm,
     executeReleaseTag,
+    executeReleaseVersion,
     NpmReleasePreparations,
 } from "./release";
 
@@ -110,13 +115,15 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine, configuration: Conf
                 }), { pushTest: IsNode })
         .addGoalImplementation("nodeDockerRelease", ReleaseDockerGoal,
             executeReleaseDocker(sdm.opts.projectLoader,
-                NodeProjectIdentifier,
                 DockerReleasePreparations,
                 {
                     ...configuration.sdm.docker.hub as DockerOptions,
                 }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) })
-        .addGoalImplementation("tagRelease", ReleaseTagGoal,
-            executeReleaseTag(sdm.opts.projectLoader));
+        .addGoalImplementation("tagRelease", ReleaseTagGoal, executeReleaseTag(sdm.opts.projectLoader))
+        .addGoalImplementation("nodeDocsRelease", ReleaseDocsGoal,
+            executeReleaseDocs(sdm.opts.projectLoader, DocsReleasePreparations), { pushTest: IsNode })
+        .addGoalImplementation("nodeVersionRelease", ReleaseVersionGoal,
+            executeReleaseVersion(sdm.opts.projectLoader, NodeProjectIdentifier), { pushTest: IsNode });
 
     sdm.goalFulfillmentMapper
         .addSideEffect({
