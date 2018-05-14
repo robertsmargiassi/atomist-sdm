@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [Unreleased]: https://github.com/atomist/atomist-sdm/compare/0.1.1...HEAD
 
+### Changed
+
+-   Any repo ending in "-sdm" will be deployed to the SDM namespace
+
 ## [0.1.1][] - 2018-05-10
 
 [0.1.1]: https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1
