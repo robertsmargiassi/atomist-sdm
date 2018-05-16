@@ -182,7 +182,7 @@ export const StagingKubernetesDeployGoals = new Goals(
     PublishGoal,
     DockerBuildGoal,
     TagGoal,
-    StagingDeploymentGoal,
+    new GoalWithPrecondition({ ...StagingDeploymentGoal.definition, approvalRequired: false }, ...StagingDeploymentGoal.dependsOn),
 );
 
 export const LibraryPublished = new Goal({

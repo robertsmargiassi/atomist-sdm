@@ -24,6 +24,7 @@ import { configureLogzio } from "./util/logzio";
 
 const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
+        "sdm",
         "sdm.npm.npmrc",
         "sdm.npm.registry",
         "sdm.npm.access",
