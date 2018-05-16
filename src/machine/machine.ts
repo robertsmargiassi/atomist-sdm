@@ -87,14 +87,14 @@ export function machine(options: SoftwareDeliveryMachineOptions,
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
-        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
-            .itMeans("Deploy")
-            .setGoals(KubernetesDeployGoals),
-
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
             IsSimplifiedDeployment("sample-sdm"))
             .itMeans("Staging Deploy")
             .setGoals(StagingKubernetesDeployGoals),
+
+        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
+            .itMeans("Deploy")
+            .setGoals(KubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
             .itMeans("Deploy")
