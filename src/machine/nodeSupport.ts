@@ -145,8 +145,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine, configuration: Conf
 
 }
 
-function kubernetesDataCallback(options: SoftwareDeliveryMachineOptions,
-                                configuration: Configuration): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
+function kubernetesDataCallback(
+    options: SoftwareDeliveryMachineOptions,
+    configuration: Configuration,
+): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
+
     return async (goal, ctx) => {
         return options.projectLoader.doWithProject({
             credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
@@ -156,9 +159,12 @@ function kubernetesDataCallback(options: SoftwareDeliveryMachineOptions,
     };
 }
 
-function kubernetesDataFromGoal(goal: SdmGoal,
-                                p: GitProject,
-                                configuration: Configuration): Promise<SdmGoal> {
+function kubernetesDataFromGoal(
+    goal: SdmGoal,
+    p: GitProject,
+    configuration: Configuration,
+): Promise<SdmGoal> {
+
     const ns = namespaceFromGoal(goal);
     return createKubernetesData(
         goal,
@@ -175,7 +181,7 @@ function kubernetesDataFromGoal(goal: SdmGoal,
 
 function namespaceFromGoal(goal: SdmGoal): string {
     const name = goal.repo.name;
-    if (/-sdm$/.test(name)) {
+    if (name === "atomist-sdm") {
         return "sdm";
     } else if (name === "k8-automation") {
         return "k8-automation";
