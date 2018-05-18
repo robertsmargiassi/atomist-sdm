@@ -20,7 +20,7 @@
   "dependencies": {
     "@atomist/automation-client": "^0.16.0",
     "@atomist/clj-editors": "0.0.19",
-    "@atomist/sdm": "^0.1.0",
+    "@atomist/sdm": "^0.1.1",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
