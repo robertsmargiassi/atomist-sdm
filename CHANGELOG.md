@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 -   Publish TypeDoc when Node project is released
 -   Increment version after release
+-   Common build tools to Docker image
 
 ## [0.1.1][] - 2018-05-10
 
