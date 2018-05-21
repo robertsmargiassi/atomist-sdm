@@ -28,6 +28,7 @@ import * as _ from "lodash";
 
 const FilesWithExtensionToWatch = ["ts", "json", "graphql"];
 const FilesToWatch = ["Dockerfile"];
+const DirectoriesToWatch = [".atomist/"];
 
 /**
  * Veto if change to deployment unit doesn't seem important enough to
@@ -42,7 +43,8 @@ export const MaterialChangeToNodeRepo: PushTest = pushTest("Material change to N
     }
     logger.debug(`MaterialChangeToNodeRepo: Changed files are [${changedFiles.join(",")}]`);
     if (anyFileChangedWithExtension(changedFiles, FilesWithExtensionToWatch) ||
-        anyFileChangedSuchThat(changedFiles, path => FilesToWatch.some(f => path === f))) {
+        anyFileChangedSuchThat(changedFiles, path => FilesToWatch.some(f => path === f)) ||
+        anyFileChangedSuchThat(changedFiles, path => DirectoriesToWatch.some(d => path.startsWith(d)))) {
         logger.debug("Change is material on %j: changed files=[%s]", pci.id, changedFiles.join(","));
         return true;
     }
