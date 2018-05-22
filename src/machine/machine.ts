@@ -118,7 +118,7 @@ export function machine(options: SoftwareDeliveryMachineOptions,
 
         // Clojure
 
-        whenPushSatisfies(IsLein, not(MaterialChangeToClojureRepo))
+        whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))
             .itMeans("No material change")
             .setGoals(NoGoals),
 
