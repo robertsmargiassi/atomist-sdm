@@ -56,19 +56,19 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
     );
 
     sdm.addGoalImplementation("leinVersioner", VersionGoal,
+            executeVersioner(sdm.opts.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
+        .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             withFileExistenceCheck(
                 sdm.opts.projectLoader,
                 checkForDockerfile,
-                executeVersioner(sdm.opts.projectLoader, LeinProjectVersioner)), { pushTest: IsLein })
-        .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
-            executeDockerBuild(
-                sdm.opts.projectLoader,
-                DefaultDockerImageNameCreator,
-                [MetajarPreparation],
-                {
-                    ...configuration.sdm.docker.jfrog as DockerOptions,
-                    dockerfileFinder: async () => "docker/Dockerfile",
-                }), { pushTest: IsLein })
+                executeDockerBuild(
+                    sdm.opts.projectLoader,
+                    DefaultDockerImageNameCreator,
+                    [MetajarPreparation],
+                    {
+                        ...configuration.sdm.docker.jfrog as DockerOptions,
+                        dockerfileFinder: async () => "docker/Dockerfile",
+                    })), { pushTest: IsLein })
         .addAutofixes(
             editorAutofixRegistration(
               {"name": "cljformat",
