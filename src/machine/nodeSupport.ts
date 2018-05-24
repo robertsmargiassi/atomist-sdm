@@ -26,7 +26,6 @@ import {
     not,
     ProductionEnvironment,
     RepoContext,
-    SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
