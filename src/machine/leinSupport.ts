@@ -1,4 +1,4 @@
-import { Configuration, logger, FailurePromise } from "@atomist/automation-client";
+import { Configuration, logger, FailurePromise, SuccessPromise, Success } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import * as clj from "@atomist/clj-editors";
 import {
@@ -16,12 +16,34 @@ import {
     SoftwareDeliveryMachine,
     VersionGoal,
     editorAutofixRegistration,
+    ExecuteGoalWithLog,
+    ProjectLoader,
+    WithLoadedProject
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
 import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as df from "dateformat";
 import * as path from "path";
+
+function withFileExistenceCheck(projectLoader: ProjectLoader, projectPredicate: (p: GitProject) => boolean , build: ExecuteGoalWithLog): ExecuteGoalWithLog {
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { status, credentials, id, context, progressLog } = rwlc;
+        const action: WithLoadedProject = async (p) => {
+            return projectPredicate(p);
+        };
+
+        if (projectLoader.doWithProject({ credentials, id, context, readOnly: false }, action)) {
+            return build(rwlc);
+        } else {
+            return {code: 0, message: "Skipping project with no docker/Dockerfile"};
+        }
+    }
+}
+
+function checkForDockerfile(p: GitProject): boolean {
+    return p.findFileSync("docker/DockerFile") != undefined;
+}
 
 export function addLeinSupport(sdm: SoftwareDeliveryMachine,
                                configuration: Configuration) {
@@ -34,7 +56,10 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
     );
 
     sdm.addGoalImplementation("leinVersioner", VersionGoal,
-            executeVersioner(sdm.opts.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
+            withFileExistenceCheck(
+                sdm.opts.projectLoader,
+                checkForDockerfile,
+                executeVersioner(sdm.opts.projectLoader, LeinProjectVersioner)), { pushTest: IsLein })
         .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             executeDockerBuild(
                 sdm.opts.projectLoader,
