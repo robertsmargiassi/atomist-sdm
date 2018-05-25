@@ -19,7 +19,10 @@ import {
     ProjectLoader,
     WithLoadedProject,
     Builder,
-    SpawnBuilder
+    SpawnBuilder,
+    PredicatePushTest,
+    ProjectPredicate, 
+    hasFile
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
@@ -27,28 +30,7 @@ import { spawnAndWatch, asSpawnCommand } from "@atomist/sdm/util/misc/spawned";
 import * as df from "dateformat";
 import * as path from "path";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-
-function withFileExistenceCheck(projectLoader: ProjectLoader, projectPredicate: (p: GitProject) => boolean , build: ExecuteGoalWithLog): ExecuteGoalWithLog {
-    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
-        const { status, credentials, id, context, progressLog } = rwlc;
-        const action: WithLoadedProject = async (p) => {
-            return projectPredicate(p);
-        };
-        const check = await projectLoader.doWithProject({ credentials, id, context, readOnly: false }, action);
-        logger.info(`checkForDockerfile ${check}`)
-        if (check) {
-            return build(rwlc);
-        } else {
-            return {code: 0, message: "Skipping project with no docker/Dockerfile"};
-        }
-    }
-}
-
-function checkForDockerfile(p: GitProject): boolean {
-    const containsDocker = p.findFileSync("docker/DockerFile") != undefined;
-    logger.info(`checkForDockerfile ${containsDocker}`);
-    return containsDocker;
-}
+import { check } from "prettier";
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
    return new SpawnBuilder(
@@ -94,17 +76,14 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
     sdm.addGoalImplementation("leinVersioner", VersionGoal,
             executeVersioner(sdm.opts.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
         .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
-            withFileExistenceCheck(
+            executeDockerBuild(
                 sdm.opts.projectLoader,
-                checkForDockerfile,
-                executeDockerBuild(
-                    sdm.opts.projectLoader,
-                    DefaultDockerImageNameCreator,
-                    [MetajarPreparation],
-                    {
-                        ...configuration.sdm.docker.jfrog as DockerOptions,
-                        dockerfileFinder: async () => "docker/Dockerfile",
-                    })), { pushTest: IsLein })
+                DefaultDockerImageNameCreator,
+                [MetajarPreparation],
+                {
+                    ...configuration.sdm.docker.jfrog as DockerOptions,
+                    dockerfileFinder: async () => "docker/Dockerfile",
+                }), { pushTest: hasFile("docker/Dockerfile") })
         .addAutofixes(
             editorAutofixRegistration(
               {"name": "cljformat",
