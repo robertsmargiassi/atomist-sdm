@@ -111,7 +111,9 @@ interface SpawnWatchCommand {
 function spawnExecuteLogger(swc: SpawnWatchCommand): ExecuteLogger {
 
     return async (log: ProgressLog) => {
-        const opts: SpawnOptions = {};
+        const opts: SpawnOptions = {
+            ...swc.cmd.options,
+        };
         if (swc.cwd) {
             opts.cwd = swc.cwd;
         }
