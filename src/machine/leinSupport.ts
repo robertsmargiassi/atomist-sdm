@@ -1,4 +1,4 @@
-import { Configuration, logger, FailurePromise } from "@atomist/automation-client";
+import { Configuration } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import * as clj from "@atomist/clj-editors";
 import {
@@ -6,6 +6,7 @@ import {
     DefaultDockerImageNameCreator,
     DockerBuildGoal,
     DockerOptions,
+    editorAutofixRegistration,
     executeDockerBuild,
     ExecuteGoalResult,
     executeVersioner,
@@ -15,7 +16,6 @@ import {
     RunWithLogContext,
     SoftwareDeliveryMachine,
     VersionGoal,
-    editorAutofixRegistration,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
 import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
@@ -46,13 +46,13 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
                 }), { pushTest: IsLein })
         .addAutofixes(
             editorAutofixRegistration(
-              {"name": "cljformat",
-               "editor": async p => {
+              {name: "cljformat",
+               editor: async p => {
                     await clj.cljfmt(p.baseDir);
                     return p;
                 },
               }));
-    
+
 }
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
@@ -71,14 +71,13 @@ export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext)
 }
 
 export const LeinProjectVersioner: ProjectVersioner = async (status, p, log) => {
-    const file = path.join(p.baseDir,"project.clj")
+    const file = path.join(p.baseDir, "project.clj");
     const projectVersion = clj.getVersion(file);
     const branch = branchFromCommit(status.commit);
     const branchSuffix = branch !== status.commit.repo.defaultBranch ? `${branch}.` : "";
     const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
 
-    await clj.setVersion(file,version);
+    await clj.setVersion(file, version);
 
     return version;
 };
-

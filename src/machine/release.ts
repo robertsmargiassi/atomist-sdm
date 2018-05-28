@@ -32,6 +32,7 @@ import {
     branchFromCommit,
     createTagForStatus,
     DelimitedWriteProgressLogDecorator,
+    DevelopmentEnvOptions,
     DockerOptions,
     ExecuteGoalResult,
     ExecuteGoalWithLog,
@@ -443,7 +444,11 @@ function typedocDir(baseDir: string): string {
 export async function docsReleasePreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
     const cmds: SpawnWatchCommand[] = [
         {
-            cmd: { command: "npm", args: ["ci"] },
+            cmd: {
+                command: "npm",
+                args: ["ci"],
+                options: DevelopmentEnvOptions,
+            },
             cwd: p.baseDir,
         },
         {
