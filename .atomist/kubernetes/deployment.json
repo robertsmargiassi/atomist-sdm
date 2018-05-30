@@ -27,6 +27,10 @@
                 "value": "1"
               },
               {
+                "name": "BLUEBIRD_WARNINGS",
+                "value": "0"
+              },
+              {
                 "name": "ATOMIST_GOAL_LAUNCHER",
                 "value": "kubernetes"
               },
