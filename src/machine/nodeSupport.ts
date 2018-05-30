@@ -83,10 +83,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine, configuration: Conf
     sdm.addBuildRules(
         build.when(IsNode, hasPackageLock)
             .itMeans("npm run build")
-            .set(nodeBuilder(sdm.opts.projectLoader, "npm ci", "npm run build")),
+            .set(nodeBuilder(sdm.opts.projectLoader, "npm -v", "npm ci", "npm run build")),
         build.when(IsNode, not(hasPackageLock))
             .itMeans("npm run build (no package-lock.json)")
-            .set(nodeBuilder(sdm.opts.projectLoader, "npm install", "npm run build")));
+            .set(nodeBuilder(sdm.opts.projectLoader, "npm -v", "npm install", "npm run build")));
 
     sdm.addGoalImplementation("nodeVersioner", VersionGoal,
         executeVersioner(sdm.opts.projectLoader, NodeProjectVersioner), { pushTest: IsNode })
