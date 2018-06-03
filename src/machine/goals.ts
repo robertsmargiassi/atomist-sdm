@@ -31,7 +31,7 @@ import {
     DockerBuildGoal,
     TagGoal,
     VersionGoal,
-} from "@atomist/sdm/common/delivery/goals/common/commonGoals";
+} from "@atomist/sdm/goal/common/commonGoals";
 
 export const PublishGoal = new GoalWithPrecondition({
     uniqueName: "Publish",

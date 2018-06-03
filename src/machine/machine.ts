@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-import { Configuration } from "@atomist/automation-client";
 import {
     DoNotSetAnyGoals,
-    executeTag,
-    IsAtomistAutomationClient,
-    IsLein,
+    IsDeployEnabled,
     not,
     SoftwareDeliveryMachine,
-    SoftwareDeliveryMachineOptions,
-    TagGoal,
+    SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
-import { NoGoals } from "@atomist/sdm/common/delivery/goals/common/commonGoals";
-import { HasTravisFile } from "@atomist/sdm/common/listener/support/pushtest/ci/ciPushTests";
-import { IsDeployEnabled } from "@atomist/sdm/common/listener/support/pushtest/deployPushTests";
-import { HasDockerfile } from "@atomist/sdm/common/listener/support/pushtest/docker/dockerPushTests";
-import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
+import {
+    NoGoals,
+    TagGoal,
+} from "@atomist/sdm/goal/common/commonGoals";
 import {
     disableDeploy,
     enableDeploy,
 } from "@atomist/sdm/handlers/commands/SetDeployEnablement";
+import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
+import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
+import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
+import { HasDockerfile } from "@atomist/sdm/mapping/pushtest/docker/dockerPushTests";
+import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
+import {
+    IsAtomistAutomationClient,
+    IsNode,
+} from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
 import {
     IsSimplifiedDeployment,
     IsTeam,
@@ -56,12 +60,11 @@ import {
 import { addLeinSupport } from "./leinSupport";
 import { addNodeSupport } from "./nodeSupport";
 
-export function machine(options: SoftwareDeliveryMachineOptions,
-                        configuration: Configuration): SoftwareDeliveryMachine {
-    const sdm = new SoftwareDeliveryMachine(
-        "Atomist Software Delivery Machine",
-        options,
-
+export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
+    const sdm = createSoftwareDeliveryMachine({
+            name: "Atomist Software Delivery Machine",
+            configuration,
+        },
         whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
             .itMeans("Non Clojure repository in Atomist team")
             .setGoals(DoNotSetAnyGoals),
@@ -131,10 +134,11 @@ export function machine(options: SoftwareDeliveryMachineOptions,
     sdm.addSupportingCommands(enableDeploy, disableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
-        executeTag(sdm.opts.projectLoader));
+        executeTag(sdm.configuration.sdm.projectLoader));
 
-    addNodeSupport(sdm, configuration);
-    addLeinSupport(sdm, configuration);
+    // TODO Refactor to use Extension Pack API
+    addNodeSupport(sdm);
+    addLeinSupport(sdm);
 
     return sdm;
 }

@@ -15,8 +15,14 @@
  */
 
 import { logger } from "@atomist/automation-client";
-import { PushTest, pushTest } from "@atomist/sdm";
-import { anyFileChangedWithExtension, filesChangedSince } from "@atomist/sdm/util/git/filesChangedSince";
+import {
+    PushTest,
+    pushTest,
+} from "@atomist/sdm";
+import {
+    anyFileChangedWithExtension,
+    filesChangedSince,
+} from "@atomist/sdm/util/git/filesChangedSince";
 
 import * as _ from "lodash";
 

@@ -15,12 +15,13 @@
  */
 
 import { Configuration } from "@atomist/automation-client";
+import { configureLogzio } from "@atomist/automation-client-ext-logzio";
+import { configureRaven } from "@atomist/automation-client-ext-raven";
 import {
     ConfigureOptions,
     configureSdm,
-} from "@atomist/sdm";
+} from "@atomist/sdm/internal/machine/configureSdm";
 import { machine } from "./machine/machine";
-import { configureLogzio } from "./util/logzio";
 
 const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
@@ -37,6 +38,7 @@ const machineOptions: ConfigureOptions = {
 export const configuration: Configuration = {
     postProcessors: [
         configureLogzio,
+        configureRaven,
         configureSdm(machine, machineOptions),
     ],
 };
