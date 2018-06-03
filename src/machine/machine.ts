@@ -126,7 +126,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(NoGoals),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), ToDefaultBranch, MaterialChangeToClojureRepo)
-            .itMeans("Build a Clojure Service with Leinigen")
+            .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDockerGoals),
 
     );
