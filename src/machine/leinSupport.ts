@@ -3,6 +3,7 @@ import * as clj from "@atomist/clj-editors";
 import {
     editorAutofixRegistration,
     ExecuteGoalResult,
+    ExtensionPack,
     RunWithLogContext,
     SoftwareDeliveryMachine,
 } from "@atomist/sdm";
@@ -27,36 +28,41 @@ import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as df from "dateformat";
 import * as path from "path";
 
-export function addLeinSupport(sdm: SoftwareDeliveryMachine) {
+export const LeinSupport: ExtensionPack = {
+    name: "Leiningen Support",
+    vendor: "Atomist",
+    version: "0.1.0",
+    configure: sdm => {
 
-    // TODO cd atomist.sh builder
-    sdm.addBuildRules(
-        build.when(IsLein)
-            .itMeans("Lein build")
-            .set(leinBuilder(sdm.configuration.sdm.projectLoader, "lein do clean, dynamodb-local test")),
-    );
+        // TODO cd atomist.sh builder
+        sdm.addBuildRules(
+            build.when(IsLein)
+                .itMeans("Lein build")
+                .set(leinBuilder(sdm.configuration.sdm.projectLoader, "lein do clean, dynamodb-local test")),
+        );
 
-    sdm.addGoalImplementation("leinVersioner", VersionGoal,
+        sdm.addGoalImplementation("leinVersioner", VersionGoal,
             executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
-        .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
-            executeDockerBuild(
-                sdm.configuration.sdm.projectLoader,
-                DefaultDockerImageNameCreator,
-                [MetajarPreparation],
-                {
-                    ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
-                    dockerfileFinder: async () => "docker/Dockerfile",
-                }), { pushTest: IsLein })
-        .addAutofixes(
-            editorAutofixRegistration(
-              {name: "cljformat",
-               editor: async p => {
-                    await clj.cljfmt(p.baseDir);
-                    return p;
-                },
-              }));
+            .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
+                executeDockerBuild(
+                    sdm.configuration.sdm.projectLoader,
+                    DefaultDockerImageNameCreator,
+                    [MetajarPreparation],
+                    {
+                        ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
+                        dockerfileFinder: async () => "docker/Dockerfile",
+                    }), { pushTest: IsLein })
+            .addAutofixes(
+                editorAutofixRegistration(
+                    {name: "cljformat",
+                        editor: async p => {
+                            await clj.cljfmt(p.baseDir);
+                            return p;
+                        },
+                    }));
 
-}
+    },
+};
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
     const result = await spawnAndWatch({

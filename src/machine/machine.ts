@@ -57,8 +57,8 @@ import {
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
 } from "./goals";
-import { addLeinSupport } from "./leinSupport";
-import { addNodeSupport } from "./nodeSupport";
+import { LeinSupport } from "./leinSupport";
+import { NodeSupport } from "./nodeSupport";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
@@ -136,9 +136,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
 
-    // TODO Refactor to use Extension Pack API
-    addNodeSupport(sdm);
-    addLeinSupport(sdm);
+    sdm.addExtensionPacks(
+        NodeSupport,
+        LeinSupport,
+    )
 
     return sdm;
 }
