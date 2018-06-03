@@ -22,7 +22,7 @@
     "@atomist/automation-client-ext-raven": "https://r.atomist.com/S1VhRYQZl7",
     "@atomist/automation-client-ext-logzio": "https://r.atomist.com/SyVX997Zgm",
     "@atomist/clj-editors": "0.0.19",
-    "@atomist/sdm": "https://r.atomist.com/rkUxKZl5-g7",
+    "@atomist/sdm": "https://r.atomist.com/rk8l1NojbgQ",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
