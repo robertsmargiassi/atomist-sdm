@@ -1,43 +1,38 @@
-import { Configuration, logger, FailurePromise, SuccessPromise, Success } from "@atomist/automation-client";
+import { Configuration, logger } from "@atomist/automation-client";
+import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import * as clj from "@atomist/clj-editors";
 import {
+    allSatisfied,
     branchFromCommit,
+    Builder,
     DefaultDockerImageNameCreator,
     DockerBuildGoal,
     DockerOptions,
+    editorAutofixRegistration,
     executeDockerBuild,
     ExecuteGoalResult,
     executeVersioner,
+    hasFile,
     IsLein,
+    ProjectLoader,
     ProjectVersioner,
     RunWithLogContext,
     SoftwareDeliveryMachine,
-    VersionGoal,
-    editorAutofixRegistration,
-    ExecuteGoalWithLog,
-    ProjectLoader,
-    WithLoadedProject,
-    Builder,
     SpawnBuilder,
-    PredicatePushTest,
-    ProjectPredicate, 
-    hasFile
+    VersionGoal,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/blueprint/dsl/buildDsl";
-import { IsNode } from "@atomist/sdm/common/listener/support/pushtest/node/nodePushTests";
-import { spawnAndWatch, asSpawnCommand } from "@atomist/sdm/util/misc/spawned";
+import { asSpawnCommand, spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as df from "dateformat";
 import * as path from "path";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { check } from "prettier";
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
    return new SpawnBuilder(
-       {projectLoader, 
+       {projectLoader,
         options: {
             name: "atomist.sh",
-            commands: [asSpawnCommand("./atomist.sh",{})],
+            commands: [asSpawnCommand("./atomist.sh", {})],
             errorFinder: (code, signal, l) => {
                 return code !== 0;
             },
@@ -50,12 +45,10 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
             },
             projectToAppInfo: async (p: GitProject) => {
                 const projectClj = await p.findFile("project.clj");
-                const path = await projectClj.path;
-                logger.info(`run projectToAppInfo in ${p.baseDir}/${path}`);
-                const basedir = p.baseDir;
-                return {name: clj.getName(`${basedir}/${path}`),
-                        version: clj.getVersion(`${basedir}/${path}`),
-                        id: new GitHubRepoRef("owner", "repo")};},
+                logger.info(`run projectToAppInfo in ${p.baseDir}/${projectClj.path}`);
+                return {name: clj.getName(`${p.baseDir}/${projectClj.path}`),
+                        version: clj.getVersion(`${p.baseDir}/${projectClj.path}`),
+                        id: new GitHubRepoRef("owner", "repo")}; },
             options: {
                 env: {
                     ...process.env,
@@ -83,16 +76,16 @@ export function addLeinSupport(sdm: SoftwareDeliveryMachine,
                 {
                     ...configuration.sdm.docker.jfrog as DockerOptions,
                     dockerfileFinder: async () => "docker/Dockerfile",
-                }), { pushTest: hasFile("docker/Dockerfile") })
+                }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) })
         .addAutofixes(
             editorAutofixRegistration(
-              {"name": "cljformat",
-               "editor": async p => {
+              {name: "cljformat",
+               editor: async p => {
                     await clj.cljfmt(p.baseDir);
                     return p;
                 },
               }));
-    
+
 }
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
@@ -111,13 +104,13 @@ export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext)
 }
 
 export const LeinProjectVersioner: ProjectVersioner = async (status, p, log) => {
-    const file = path.join(p.baseDir,"project.clj")
+    const file = path.join(p.baseDir, "project.clj");
     const projectVersion = clj.getVersion(file);
     const branch = branchFromCommit(status.commit);
     const branchSuffix = branch !== status.commit.repo.defaultBranch ? `${branch}.` : "";
     const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
 
-    await clj.setVersion(file,version);
+    await clj.setVersion(file, version);
 
     return version;
 };
