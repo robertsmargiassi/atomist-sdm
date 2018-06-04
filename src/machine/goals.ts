@@ -221,11 +221,16 @@ export const LibraryPublished = new Goal({
     completedDescription: "Library Published",
 });
 
-export const LeinDockerGoals = new Goals(
+export const LeinBuildGoals = new Goals(
     "Lein Docker Build",
     ...CheckGoals.goals,
     BuildGoal,
-    DockerBuildGoal,
     TagGoal,
-    new GoalWithPrecondition(LibraryPublished.definition, TagGoal),
+    // new GoalWithPrecondition(LibraryPublished.definition, TagGoal),
+);
+
+export const LeinDockerGoals = new Goals(
+    "Lein Docker Build",
+    ...LeinBuildGoals.goals,
+    DockerBuildGoal,
 );

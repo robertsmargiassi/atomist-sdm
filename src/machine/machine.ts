@@ -53,6 +53,7 @@ import {
     DockerGoals,
     DockerReleaseGoals,
     KubernetesDeployGoals,
+    LeinBuildGoals,
     LeinDockerGoals,
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
@@ -62,9 +63,9 @@ import { NodeSupport } from "./nodeSupport";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
-            name: "Atomist Software Delivery Machine",
-            configuration,
-        },
+        name: "Atomist Software Delivery Machine",
+        configuration,
+    },
         whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
             .itMeans("Non Clojure repository in Atomist team")
             .setGoals(DoNotSetAnyGoals),
@@ -125,9 +126,13 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("No material change")
             .setGoals(NoGoals),
 
-        whenPushSatisfies(IsLein, not(HasTravisFile), ToDefaultBranch, MaterialChangeToClojureRepo)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasDockerfile, ToDefaultBranch, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDockerGoals),
+
+        whenPushSatisfies(IsLein, not(HasTravisFile), not(HasDockerfile), ToDefaultBranch, MaterialChangeToClojureRepo)
+            .itMeans("Build a Clojure Library with Leiningen")
+            .setGoals(LeinBuildGoals),
 
     );
 
@@ -139,7 +144,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addExtensionPacks(
         NodeSupport,
         LeinSupport,
-    )
+    );
 
     return sdm;
 }

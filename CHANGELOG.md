@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Increment version after release
 -   Common build tools to Docker image
 
+### Changed
+
+-   Lein support now uses atomist.sh to build
+
 ## [0.1.1][] - 2018-05-10
 
 [0.1.1]: https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1
