@@ -37,9 +37,8 @@ import {
 } from "@atomist/sdm/util/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
-import * as path from "path";
 import * as _ from "lodash/";
-import * as util from "util";
+import * as path from "path";
 
 export const LeinSupport: ExtensionPack = {
     name: "Leiningen Support",
@@ -98,10 +97,9 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                     };
                 },
                 enrich: async (options: SpawnOptions, p: GitProject): Promise<SpawnOptions> => {
-                    const encryptedEnv = {env: {"ARTIFACTORY_USER": clj.vault(key, `${p.baseDir}/vault.txt`)['artifactory-user'],
-                                                "ARTIFACTORY_PWD": clj.vault(key, `${p.baseDir}/vault.txt`)['artifactory-pwd']}};
+                    const encryptedEnv = {env: {ARTIFACTORY_USER: clj.vault(key, `${p.baseDir}/vault.txt`)["artifactory-user"],
+                                                ARTIFACTORY_PWD: clj.vault(key, `${p.baseDir}/vault.txt`)["artifactory-pwd"]}};
                     const enriched = _.merge(options, encryptedEnv) as SpawnOptions;
-                    console.log(util.inspect(enriched, { depth: 5, breakLength: 80 }))
                     return enriched;
                 },
                 projectToAppInfo: async (p: GitProject) => {
