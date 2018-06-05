@@ -98,10 +98,8 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                     };
                 },
                 enrich: async (options: SpawnOptions, p: GitProject): Promise<SpawnOptions> => {
-                    logger.info(`basedir:  ${p.baseDir}`)
                     const encryptedEnv = {env: {"ARTIFACTORY_USER": clj.vault(key, `${p.baseDir}/vault.txt`)['artifactory-user'],
                                                 "ARTIFACTORY_PWD": clj.vault(key, `${p.baseDir}/vault.txt`)['artifactory-pwd']}};
-                    logger.info(`secret stuff:  ${encryptedEnv.env['ARTIFACTORY_USER']} ${encryptedEnv.env['ARTIFACTORY_PWD']}`);
                     const enriched = _.merge(options, encryptedEnv) as SpawnOptions;
                     console.log(util.inspect(enriched, { depth: 5, breakLength: 80 }))
                     return enriched;
