@@ -80,7 +80,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("No Material Change")
             .setGoals(NoGoals),
 
-        whenPushSatisfies(IsNode, HasTravisFile)
+        whenPushSatisfies(HasTravisFile)
             .itMeans("Just Checking")
             .setGoals(CheckGoals),
 
