@@ -66,6 +66,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         name: "Atomist Software Delivery Machine",
         configuration,
     },
+
+        whenPushSatisfies(IsLein)
+            .itMeans("Temporarily disable Lein features of SDM")
+            .setGoals(DoNotSetAnyGoals),
+
         whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
             .itMeans("Non Clojure repository in Atomist team")
             .setGoals(DoNotSetAnyGoals),
@@ -80,7 +85,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("No Material Change")
             .setGoals(NoGoals),
 
-        whenPushSatisfies(HasTravisFile)
+        whenPushSatisfies(IsNode, HasTravisFile)
             .itMeans("Just Checking")
             .setGoals(CheckGoals),
 
