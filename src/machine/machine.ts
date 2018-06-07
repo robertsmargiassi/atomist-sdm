@@ -58,8 +58,8 @@ import {
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
 } from "./goals";
-import { LeinSupport } from "./leinSupport";
-import { NodeSupport } from "./nodeSupport";
+import { addLeinSupport } from "./leinSupport";
+import { addNodeSupport } from "./nodeSupport";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
@@ -146,10 +146,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
 
-    sdm.addExtensionPacks(
-        NodeSupport,
-        LeinSupport,
-    );
+    addNodeSupport(sdm);
+    addLeinSupport(sdm);
 
     return sdm;
 }
