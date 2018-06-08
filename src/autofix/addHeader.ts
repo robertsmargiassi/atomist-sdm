@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { HandlerContext, logger, Parameter, Parameters } from "@atomist/automation-client";
+import {
+    HandlerContext,
+    logger,
+    Parameter,
+    Parameters,
+} from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
