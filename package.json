@@ -11,7 +11,7 @@
   "keywords": [
     "atomist",
     "automation",
-    "github"
+    "sdm"
   ],
   "homepage": "https://github.com/atomist/atomist-sdm#readme",
   "bugs": {
@@ -22,7 +22,7 @@
     "@atomist/automation-client-ext-logzio": "https://r.atomist.com/HySRtF2Qg7",
     "@atomist/automation-client-ext-raven": "https://r.atomist.com/HJEc7FnQlQ",
     "@atomist/clj-editors": "0.0.20",
-    "@atomist/sdm": "https://r.atomist.com/HJrxEi1-_eX",
+    "@atomist/sdm": "https://r.atomist.com/Sy7xhirGOlX",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
