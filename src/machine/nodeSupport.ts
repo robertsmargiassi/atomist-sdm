@@ -56,6 +56,7 @@ import {
 import { PackageLockFingerprinter } from "@atomist/sdm/pack/node/PackageLockFingerprinter";
 import { tslintFix } from "@atomist/sdm/pack/node/tslint";
 import { tagRepo } from "@atomist/sdm/util/github/tagRepo";
+import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AutomationClientTagger } from "../support/tagger";
 import {
     ProductionDeploymentGoal,
@@ -152,6 +153,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             goal: ProductionDeploymentGoal,
             callback: kubernetesDataCallback(sdm.configuration),
         });
+
+    sdm.addAutofixes(AddAtomistTypeScriptHeader);
 
     sdm.addNewRepoWithCodeActions(tagRepo(AutomationClientTagger))
         .addAutofixes(tslintFix)
