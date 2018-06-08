@@ -19,29 +19,12 @@
                 }
               },
               {
-                "name": "NODE_ENV",
-                "value": "production"
-              },
-              {
                 "name": "FORCE_COLOR",
                 "value": "1"
               },
               {
-                "name": "BLUEBIRD_WARNINGS",
-                "value": "0"
-              },
-              {
                 "name": "ATOMIST_GOAL_LAUNCHER",
                 "value": "kubernetes"
-              },
-              {
-                "name": "GITHUB_TOKEN",
-                "valueFrom": {
-                  "secretKeyRef": {
-                    "name": "atomist",
-                    "key": "token"
-                  }
-                }
               },
               {
                 "name": "ATOMIST_CONFIG",

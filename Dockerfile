@@ -11,6 +11,19 @@ RUN curl -s -L -O https://github.com/Yelp/dumb-init/releases/download/v$DUMB_INI
     && dpkg -i dumb-init_${DUMB_INIT_VERSION}_amd64.deb \
     && rm -f dumb-init_${DUMB_INIT_VERSION}_amd64.deb
 
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+
+ENV BLUEBIRD_WARNINGS 0
+ENV NODE_ENV production
+ENV NPM_CONFIG_LOGLEVEL warn
+ENV SUPPRESS_NO_CONFIG_WARNING true
+
+EXPOSE 2866
+
+CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
+ENTRYPOINT [ "dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize_for_size", "--always_compact", "--max_old_space_size=384" ]
+
 RUN apt-get update && apt-get install -y \
         default-jdk \
         docker.io \
@@ -35,19 +48,6 @@ RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes
 RUN curl -sL -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein \
     && chmod 755 /usr/local/bin/lein \
     && lein version
-
-# Create app directory
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
-
-ENV NPM_CONFIG_LOGLEVEL warn
-ENV SUPPRESS_NO_CONFIG_WARNING true
-ENV NODE_ENV production
-
-EXPOSE 2866
-
-ENTRYPOINT [ "dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize_for_size", "--always_compact", "--max_old_space_size=384" ]
-CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
 
 # Install app dependencies
 COPY package.json package-lock.json ./
