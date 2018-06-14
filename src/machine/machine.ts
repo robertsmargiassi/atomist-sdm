@@ -32,6 +32,7 @@ import {
     enableDeploy,
 } from "@atomist/sdm/handlers/commands/SetDeployEnablement";
 import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goals/support/githubStatusSummarySupport";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
 import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
 import { HasDockerfile } from "@atomist/sdm/mapping/pushtest/docker/dockerPushTests";
@@ -148,6 +149,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
     addNodeSupport(sdm);
     addLeinSupport(sdm);
+
+    summarizeGoalsInGitHubStatus(sdm);
 
     return sdm;
 }
