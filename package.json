@@ -24,6 +24,7 @@
     "@atomist/clj-editors": "0.0.20",
     "@atomist/sdm": "https://r.atomist.com/Sy7xhirGOlX",
     "@atomist/slack-messages": "^0.12.1",
+    "@jessitron/git-branch-to-npm-tag": "^2.0.0",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",
