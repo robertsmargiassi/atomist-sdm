@@ -26,10 +26,10 @@ import {
     editorAutofixRegistration,
     ExecuteGoalResult,
     hasFile,
+    PredicatePushTest,
     ProjectLoader,
     RunWithLogContext,
     SoftwareDeliveryMachine,
-    PredicatePushTest,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/dsl/buildDsl";
 import {
