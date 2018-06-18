@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import { Project } from "@atomist/automation-client/project/Project";
 import * as appRoot from "app-root-path";
 import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPartyLicense";
@@ -23,7 +24,7 @@ describe("thirdPartyLicense", () => {
     it.skip("should create license file", () => {
         return addThirdPartyLicenseEditor({
             baseDir: appRoot.path,
-            addFile: (name, content) => { console.log(content) },
+            addFile: (name, content) => { logger.info(content); },
             getFile: name => true } as any as Project);
     });
 });

@@ -24,11 +24,12 @@ import {
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { IsNode } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
 import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
+import * as fs from "fs-extra";
 import * as lc from "license-checker";
 import * as _ from "lodash";
-import { promisify } from "util";
-import * as fs from "fs-extra";
 import * as path from "path";
+import * as spdx from "spdx-license-list";
+import { promisify } from "util";
 
 const LicenseMapping = {
     "Apache 2.0": "Apache-2.0",
@@ -83,18 +84,18 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
         let licenses = v.licenses;
 
         if (!Array.isArray(licenses)) {
-            licenses = [licenses];
+            if (licenses.endsWith("*")) {
+                licenses = licenses.slice(0, -1);
+            }
+
+            if (licenses.startsWith("(") && licenses.endsWith(")")) {
+                licenses = licenses.slice(1, -1);
+            }
+            licenses = [...(licenses as string).split(" OR ")];
         }
 
         licenses.forEach(l => {
             let license = l;
-            if (license.endsWith("*")) {
-                license = license.slice(0, -1);
-            }
-
-            if (license.startsWith("(") && license.endsWith(")")) {
-                license = license.slice(1, -1);
-            }
 
             if (LicenseMapping.hasOwnProperty(license)) {
                 license = LicenseMapping[license];
@@ -129,18 +130,24 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
             const ix = dep.name.lastIndexOf("@");
             const name = dep.name.slice(0, ix);
             const version = dep.name.slice(ix + 1);
-            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|[${dep.repository}](${dep.repository})|`
+            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|[${dep.repository}](${dep.repository})|`;
         });
+        let ld = "";
+
+        if (spdx[k]) {
+            ld = `${spdx[k].name} - [${spdx[k].url}](${spdx[k].url})\n`;
+        }
+
         details.push(`
 #### ${k}
-
+${ld}
 ${LicenseTableHeader}
 ${deps.join("\n")}`);
     });
 
     const content = `# ${pj.name}
-    
-This page details all runtime OSS dependencies of \`${pj.name}\. 
+
+This page details all runtime OSS dependencies of \`${pj.name}\`.
 
 ## Licenses
 

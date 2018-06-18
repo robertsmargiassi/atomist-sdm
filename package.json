@@ -31,6 +31,7 @@
     "logzio-nodejs": "^0.4.10",
     "minimatch": "^3.0.4",
     "serialize-error": "^2.1.0",
+    "spdx-license-list": "^4.0.0",
     "uuid": "^3.2.1",
     "winston-logzio": "^1.0.6"
   },
