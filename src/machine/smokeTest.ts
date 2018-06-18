@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {GitHubRepoRef} from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import {
     ProjectOperationCredentials,
     TokenCredentials,
@@ -23,7 +22,6 @@ import {GitProject} from "@atomist/automation-client/project/git/GitProject";
 import {
     ExecuteGoalResult, ExecuteGoalWithLog, ProgressLog, ProjectLoader, RunWithLogContext,
 } from "@atomist/sdm";
-import {createStatus} from "@atomist/sdm/util/github/ghub";
 import {ChildProcessResult, spawnAndWatch} from "@atomist/sdm/util/misc/spawned";
 
 import {RemoteRepoRef} from "@atomist/automation-client/operations/common/RepoId";
