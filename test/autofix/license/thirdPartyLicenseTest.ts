@@ -20,7 +20,7 @@ import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPa
 
 describe("thirdPartyLicense", () => {
 
-    it("should create license file", () => {
+    it.skip("should create license file", () => {
         return addThirdPartyLicenseEditor({ baseDir: appRoot.path, addFile: (name, content) => { /** empty */ } } as any as Project);
-    }).timeout(60000);
+    });
 });
