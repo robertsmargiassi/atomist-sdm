@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {GitHubRepoRef} from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import {
     ProjectOperationCredentials,
