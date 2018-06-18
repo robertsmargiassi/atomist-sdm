@@ -26,6 +26,7 @@
     "@atomist/slack-messages": "^0.12.1",
     "@jessitron/git-branch-to-npm-tag": "^2.0.0",
     "fs-extra": "^6.0.0",
+    "license-checker": "^20.1.0",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",
     "minimatch": "^3.0.4",
