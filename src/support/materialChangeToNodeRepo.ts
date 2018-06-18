@@ -28,7 +28,7 @@ import * as _ from "lodash";
 
 const FilesWithExtensionToWatch = ["ts", "json", "graphql"];
 const FilesToWatch = ["Dockerfile"];
-const DirectoriesToWatch = [".atomist/"];
+const DirectoriesToWatch = [".atomist/", "legal"];
 
 /**
  * Veto if change to deployment unit doesn't seem important enough to
