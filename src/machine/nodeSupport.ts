@@ -18,6 +18,7 @@ import {
     Configuration,
     logger,
 } from "@atomist/automation-client";
+import {GitHubRepoRef} from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     allSatisfied,
@@ -66,7 +67,7 @@ import {
     ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseTagGoal,
-    ReleaseVersionGoal,
+    ReleaseVersionGoal, SmokeTestGoal,
     StagingDeploymentGoal,
 } from "./goals";
 import {
@@ -79,6 +80,7 @@ import {
     executeReleaseVersion,
     NpmReleasePreparations,
 } from "./release";
+import {executeSmokeTests} from "./smokeTest";
 
 /**
  * Add Node.js implementations of goals to SDM.
@@ -122,6 +124,12 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 {
                     ...sdm.configuration.sdm.npm as NpmOptions,
                 }), { pushTest: IsNode })
+        .addGoalImplementation("nodeSmokeTest", SmokeTestGoal,
+            executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+                team: "AHF8B2MBL",
+                org: "sample-sdm-fidelity",
+                }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
+            ), { pushTest: IsNode })
         .addGoalImplementation("nodeDockerRelease", ReleaseDockerGoal,
             executeReleaseDocker(sdm.configuration.sdm.projectLoader,
                 DockerReleasePreparations,
