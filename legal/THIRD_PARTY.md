@@ -12,7 +12,7 @@
   * BSD-3-Clause 29
   * BSD-3-Clause OR MIT 1
   * CC-BY-3.0 3
-  * CC0-1.0 3
+  * CC0-1.0 4
   * Custom: https://github.com/douglascrockford/JSON-js 1
   * Custom: https://github.com/rundis/rewrite-cljs 1
   * GPL-3.0 4
@@ -155,6 +155,7 @@
   * _genfun@4.0.1_ Kat Marchán [https://github.com/zkat/genfun](https://github.com/zkat/genfun)
   * _make-fetch-happen@2.6.0_ Kat Marchán [https://github.com/zkat/make-fetch-happen](https://github.com/zkat/make-fetch-happen)
   * _spdx-license-ids@3.0.0_ Shinnosuke Watanabe [https://github.com/shinnn/spdx-license-ids](https://github.com/shinnn/spdx-license-ids)
+  * _spdx-license-list@4.0.0_ Sindre Sorhus [https://github.com/sindresorhus/spdx-license-list](https://github.com/sindresorhus/spdx-license-list)
 
 #### Custom: https://github.com/douglascrockford/JSON-js
 
