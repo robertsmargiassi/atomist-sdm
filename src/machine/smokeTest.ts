@@ -61,18 +61,6 @@ export function executeSmokeTests(
             flushLog(rwlc.progressLog);
             sdmProcess.kill();
 
-            if (id.sha) {
-                await createStatus(
-                    (credentials as TokenCredentials).token,
-                    id as GitHubRepoRef,
-                    {
-                        context: "npm/atomist/smoketest",
-                        description: "smokeTest",
-                        target_url: rwlc.progressLog.url,
-                        state: testResult.error ? "failure" : "success",
-                    });
-            }
-
             const egr: ExecuteGoalResult = {
                 code: testResult.code,
                 message: testResult.message,
