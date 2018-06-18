@@ -1,20 +1,3 @@
-/*
- * Copyright © 2018 Atomist, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import { HandlerContext } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import {
@@ -37,7 +20,7 @@ export const AddThirdPartyLicense = addThirdPartyLicense(IsNode);
 
 export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     return editorAutofixRegistration({
-        name,
+        name: "Third party licenses",
         pushTest,
         editor: addThirdPartyLicenseEditor,
     });
@@ -58,7 +41,8 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
             licenses = [licenses];
         }
 
-        licenses.forEach(license => {
+        licenses.forEach(l => {
+            let license = l;
             if (license.endsWith("*")) {
                 license = license.slice(0, -1);
             }
@@ -82,26 +66,29 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
                     name: k,
                 }];
             }
-        })
+        });
     });
 
     const summary = [];
     const counts = _.mapValues(grouped, l => (l as any).length);
-    for(const l in counts) {
-        summary.push(`  * ${l} ${counts[l]}`);
+    for (const l in counts) {
+        if (counts.hasOwnProperty(l)) {
+            summary.push(`  * ${l} ${counts[l]}`);
+        }
     }
 
     const details = [];
+    // tslint:disable-next-line:no-inferred-empty-object-type
     _.forEach(grouped, (v, k) => {
         const deps = v.map(dep => `  * _${dep.name}_${dep.publisher ? ` ${dep.publisher} ` : " "}[${dep.repository}](${dep.repository})`);
         details.push(`
 #### ${k}
 
-${deps.join("\n")}`)
-    })
+${deps.join("\n")}`);
+    });
 
     const content = `### Licenses
-    
+
 #### Summary
 
 ${summary.sort((s1, s2) => s1.localeCompare(s2)).join("\n")}
@@ -109,7 +96,7 @@ ${details.sort((s1, s2) => s1.localeCompare(s2)).join("\n")}
 
 ### Contact
 
-Please send any questions to [oss@atomist.com](mailto:oss@atomist.com).`
+Please send any questions to [oss@atomist.com](mailto:oss@atomist.com).`;
 
     await p.addFile(LicenseFileName, content);
 
