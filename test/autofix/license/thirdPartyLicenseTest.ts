@@ -21,6 +21,9 @@ import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPa
 describe("thirdPartyLicense", () => {
 
     it.skip("should create license file", () => {
-        return addThirdPartyLicenseEditor({ baseDir: appRoot.path, addFile: (name, content) => { /** empty */ } } as any as Project);
+        return addThirdPartyLicenseEditor({
+            baseDir: appRoot.path,
+            addFile: (name, content) => { console.log(content) },
+            getFile: name => true } as any as Project);
     });
 });

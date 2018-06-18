@@ -27,12 +27,20 @@ import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as lc from "license-checker";
 import * as _ from "lodash";
 import { promisify } from "util";
+import * as fs from "fs-extra";
+import * as path from "path";
 
 const LicenseMapping = {
     "Apache 2.0": "Apache-2.0",
 };
 
 const LicenseFileName = "legal/THIRD_PARTY.md";
+
+const LicenseTableHeader = `| Name | Version | Publisher | Repository |
+|------|---------|-----------|------------|`;
+
+const SummaryTableHadler = `| License | Count |
+|---------|-------|`;
 
 export const AddThirdPartyLicense = addThirdPartyLicense(IsNode);
 
@@ -46,10 +54,11 @@ export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
 
 export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     const cwd = (p as GitProject).baseDir;
+    const hasPackageLock = p.getFile("package-lock.json");
 
     const result = await spawnAndWatch({
            command: "npm",
-           args: ["ci"],
+           args: [(hasPackageLock ? "ci" : "i")],
         },
         {
             cwd,
@@ -61,6 +70,8 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     if (result.code !== 0) {
         return;
     }
+
+    const pj = JSON.parse((await fs.readFile(path.join(cwd, "package.json"))).toString());
 
     const json = await promisify(lc.init)({
             start: cwd,
@@ -107,30 +118,50 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     const counts = _.mapValues(grouped, l => (l as any).length);
     for (const l in counts) {
         if (counts.hasOwnProperty(l)) {
-            summary.push(`  * ${l} ${counts[l]}`);
+            summary.push(`|${l}|${counts[l]}|`);
         }
     }
 
     const details = [];
     // tslint:disable-next-line:no-inferred-empty-object-type
     _.forEach(grouped, (v, k) => {
-        const deps = v.map(dep => `  * _${dep.name}_${dep.publisher ? ` ${dep.publisher} ` : " "}[${dep.repository}](${dep.repository})`);
+        const deps = v.map(dep => {
+            const ix = dep.name.lastIndexOf("@");
+            const name = dep.name.slice(0, ix);
+            const version = dep.name.slice(ix + 1);
+            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|[${dep.repository}](${dep.repository})|`
+        });
         details.push(`
 #### ${k}
 
+${LicenseTableHeader}
 ${deps.join("\n")}`);
     });
 
-    const content = `### Licenses
+    const content = `# ${pj.name}
+    
+This page details all runtime OSS dependencies of \`${pj.name}\. 
 
-#### Summary
+## Licenses
 
+### Summary
+
+${SummaryTableHadler}
 ${summary.sort((s1, s2) => s1.localeCompare(s2)).join("\n")}
 ${details.sort((s1, s2) => s1.localeCompare(s2)).join("\n")}
 
-### Contact
+## Contact
 
-Please send any questions to [oss@atomist.com](mailto:oss@atomist.com).`;
+Please send any questions or inquires to [oss@atomist.com](mailto:oss@atomist.com).
+
+---
+
+Created by [Atomist][atomist].
+Need Help?  [Join our Slack team][slack].
+
+[atomist]: https://atomist.com/ (Atomist - Development Automation)
+[slack]: https://join.atomist.com/ (Atomist Community Slack)
+`;
 
     await p.deleteDirectory("node_modules");
     await p.addFile(LicenseFileName, content);
