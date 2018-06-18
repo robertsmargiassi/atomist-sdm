@@ -21,7 +21,9 @@ import {
     editorAutofixRegistration,
     PushTest,
 } from "@atomist/sdm";
+import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { IsNode } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
+import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
 import * as lc from "license-checker";
 import * as _ from "lodash";
 import { promisify } from "util";
@@ -44,6 +46,22 @@ export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
 
 export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     const cwd = (p as GitProject).baseDir;
+
+    const result = await spawnAndWatch({
+           command: "npm",
+           args: ["ci"],
+        },
+        {
+            cwd,
+        },
+        new StringCapturingProgressLog(),
+        {},
+        );
+
+    if (result.code !== 0) {
+        return;
+    }
+
     const json = await promisify(lc.init)({
             start: cwd,
             production: true,
@@ -114,6 +132,7 @@ ${details.sort((s1, s2) => s1.localeCompare(s2)).join("\n")}
 
 Please send any questions to [oss@atomist.com](mailto:oss@atomist.com).`;
 
+    await p.deleteDirectory("node_modules");
     await p.addFile(LicenseFileName, content);
 
     return p;

@@ -22,5 +22,5 @@ describe("thirdPartyLicense", () => {
 
     it("should create license file", () => {
         return addThirdPartyLicenseEditor({ baseDir: appRoot.path, addFile: (name, content) => { /** empty */ } } as any as Project);
-    }).timeout(20000);
+    }).timeout(60000);
 });
