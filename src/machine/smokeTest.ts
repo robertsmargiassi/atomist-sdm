@@ -22,10 +22,11 @@ import {GitProject} from "@atomist/automation-client/project/git/GitProject";
 import {
     ExecuteGoalResult, ExecuteGoalWithLog, ProgressLog, ProjectLoader, RunWithLogContext,
 } from "@atomist/sdm";
-import {ChildProcessResult, spawnAndWatch} from "@atomist/sdm/util/misc/spawned";
 
 import {RemoteRepoRef} from "@atomist/automation-client/operations/common/RepoId";
 import {GitCommandGitProject} from "@atomist/automation-client/project/git/GitCommandGitProject";
+import {ChildProcessResult} from "@atomist/automation-client/util/spawned";
+import {spawnAndWatch} from "@atomist/sdm/api-helper/misc/spawned";
 import * as child_process from "child_process";
 import {ChildProcess} from "child_process";
 
@@ -64,7 +65,7 @@ export function executeSmokeTests(
                 message: testResult.message,
                 targetUrl: rwlc.progressLog.url,
             };
-            rwlc.progressLog.write(`Smoke tests comple: ${egr}`);
+            rwlc.progressLog.write(`Smoke tests complete: ${egr}`);
             return egr;
         });
     };
@@ -127,7 +128,7 @@ function flushLog(progressLog: ProgressLog) {
 function installAndBuild(targetName: string, progressLog: ProgressLog, baseDir: string) {
     progressLog.write(`Installing ${targetName}...`);
     flushLog(progressLog);
-    const npmInstallResult = executeCommandAndBlock(baseDir, `npm i`);
+    const npmInstallResult = executeCommandAndBlock(baseDir, `npm ci`);
     progressLog.write(npmInstallResult);
 
     progressLog.write(`Building ${targetName} ...`);
