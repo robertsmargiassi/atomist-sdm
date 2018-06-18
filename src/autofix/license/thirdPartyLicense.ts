@@ -130,7 +130,8 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
             const ix = dep.name.lastIndexOf("@");
             const name = dep.name.slice(0, ix);
             const version = dep.name.slice(ix + 1);
-            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|${dep.repository ? `[${dep.repository}](${dep.repository})`: ""}|`;
+            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|${
+                dep.repository ? `[${dep.repository}](${dep.repository})` : ""}|`;
         });
         let ld = "";
 
