@@ -64,7 +64,7 @@ export function executeSmokeTests(
                 message: testResult.message,
                 targetUrl: rwlc.progressLog.url,
             };
-            rwlc.progressLog.write(`Smoke tests comple: ${egr}`);
+            rwlc.progressLog.write(`Smoke tests complete: ${egr}`);
             return egr;
         });
     };
@@ -127,7 +127,7 @@ function flushLog(progressLog: ProgressLog) {
 function installAndBuild(targetName: string, progressLog: ProgressLog, baseDir: string) {
     progressLog.write(`Installing ${targetName}...`);
     flushLog(progressLog);
-    const npmInstallResult = executeCommandAndBlock(baseDir, `npm i`);
+    const npmInstallResult = executeCommandAndBlock(baseDir, `npm ci`);
     progressLog.write(npmInstallResult);
 
     progressLog.write(`Building ${targetName} ...`);

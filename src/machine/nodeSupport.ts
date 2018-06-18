@@ -67,7 +67,8 @@ import {
     ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseTagGoal,
-    ReleaseVersionGoal, SmokeTestGoal,
+    ReleaseVersionGoal,
+    SmokeTestGoal,
     StagingDeploymentGoal,
 } from "./goals";
 import {
