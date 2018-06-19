@@ -36,11 +36,11 @@ import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goa
 import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
 import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
 import { HasDockerfile } from "@atomist/sdm/mapping/pushtest/docker/dockerPushTests";
-import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
 import {
     IsAtomistAutomationClient,
     IsNode,
 } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
+import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
 import {
     IsSimplifiedDeployment,
     IsTeam,
