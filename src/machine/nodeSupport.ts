@@ -202,7 +202,7 @@ function kubernetesDataFromGoal(
 
 function namespaceFromGoal(goal: SdmGoal): string {
     const name = goal.repo.name;
-    if (/-sdm$/.test(name) && name !== "sample-sdm") {
+    if (/-sdm$/.test(name) && name !== "sample-sdm" && name !== "spring-sdm") {
         return "sdm";
     } else if (name === "k8-automation") {
         return "k8-automation";
