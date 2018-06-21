@@ -59,7 +59,6 @@ import {
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
 } from "./goals";
-import { addLeinSupport } from "./leinSupport";
 import { addNodeSupport } from "./nodeSupport";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
@@ -68,20 +67,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         configuration,
     },
 
-        whenPushSatisfies(IsLein)
-            .itMeans("Temporarily disable Lein features of SDM")
-            .setGoals(DoNotSetAnyGoals),
-
-        whenPushSatisfies(not(IsLein), IsTeam("T095SFFBK"))
-            .itMeans("Non Clojure repository in Atomist team")
-            .setGoals(DoNotSetAnyGoals),
-
-        whenPushSatisfies(not(IsNode), IsTeam("T29E48P34"))
-            .itMeans("Non Node repository in Community team")
+        whenPushSatisfies(not(IsNode))
+            .itMeans("Non Node repository")
             .setGoals(DoNotSetAnyGoals),
 
         // Node
-
         whenPushSatisfies(IsNode, not(MaterialChangeToNodeRepo))
             .itMeans("No Material Change")
             .setGoals(NoGoals),
@@ -125,21 +115,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         whenPushSatisfies(IsNode, not(HasDockerfile))
             .itMeans("Build")
             .setGoals(BuildGoals),
-
-        // Clojure
-
-        whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))
-            .itMeans("No material change")
-            .setGoals(NoGoals),
-
-        whenPushSatisfies(IsLein, not(HasTravisFile), HasDockerfile, ToDefaultBranch, MaterialChangeToClojureRepo)
-            .itMeans("Build a Clojure Service with Leiningen")
-            .setGoals(LeinDockerGoals),
-
-        whenPushSatisfies(IsLein, not(HasTravisFile), not(HasDockerfile), ToDefaultBranch, MaterialChangeToClojureRepo)
-            .itMeans("Build a Clojure Library with Leiningen")
-            .setGoals(LeinBuildGoals),
-
     );
 
     sdm.addSupportingCommands(enableDeploy, disableDeploy);
@@ -148,7 +123,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         executeTag(sdm.configuration.sdm.projectLoader));
 
     addNodeSupport(sdm);
-    addLeinSupport(sdm);
 
     summarizeGoalsInGitHubStatus(sdm);
 
