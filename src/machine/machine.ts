@@ -40,12 +40,7 @@ import {
     IsAtomistAutomationClient,
     IsNode,
 } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
-import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
-import {
-    IsSimplifiedDeployment,
-    IsTeam,
-} from "../support/isSimplifiedDeployment";
-import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
+import { IsSimplifiedDeployment } from "../support/isSimplifiedDeployment";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
     BuildGoals,
@@ -54,8 +49,6 @@ import {
     DockerGoals,
     DockerReleaseGoals,
     KubernetesDeployGoals,
-    LeinBuildGoals,
-    LeinDockerGoals,
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
 } from "./goals";
