@@ -17,10 +17,9 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 |CC-BY-3.0|3|
 |CC0-1.0|4|
 |Custom: https://github.com/douglascrockford/JSON-js|1|
-|Custom: https://github.com/rundis/rewrite-cljs|1|
 |GPL-3.0|4|
 |ISC|115|
-|MIT|680|
+|MIT|679|
 |Public Domain|1|
 |Unlicense|3|
 |WTFPL|3|
@@ -39,7 +38,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |`@atomist/atomist-sdm`|`0.1.3`|Atomist, Inc.|[https://github.com/atomist/atomist-sdm](https://github.com/atomist/atomist-sdm)|
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180613131229`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
-|`@atomist/sdm`|`0.2.4-20180620134904`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
+|`@atomist/sdm`|`0.2.4-20180621141531`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
 |`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`JSONStream`|`1.3.2`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
 |`ascli`|`1.0.1`|Daniel Wirtz|[https://github.com/dcodeIO/ascli](https://github.com/dcodeIO/ascli)|
@@ -179,12 +178,6 @@ Creative Commons Zero v1.0 Universal - [http://creativecommons.org/publicdomain/
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
 |`cycle`|`1.0.3`||[https://github.com/dscape/cycle](https://github.com/dscape/cycle)|
-
-#### Custom: https://github.com/rundis/rewrite-cljs
-
-| Name | Version | Publisher | Repository |
-|------|---------|-----------|------------|
-|`@atomist/clj-editors`|`0.0.20`|||
 
 #### GPL-3.0
 GNU General Public License v3.0 only - [http://www.gnu.org/licenses/gpl-3.0-standalone.html](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
@@ -354,7 +347,6 @@ MIT License - [http://www.opensource.org/licenses/MIT](http://www.opensource.org
 |`accepts`|`1.3.5`||[https://github.com/jshttp/accepts](https://github.com/jshttp/accepts)|
 |`acorn-es7-plugin`|`1.1.7`|matatbread|[https://github.com/MatAtBread/acorn-es7-plugin](https://github.com/MatAtBread/acorn-es7-plugin)|
 |`acorn`|`4.0.13`||[https://github.com/ternjs/acorn](https://github.com/ternjs/acorn)|
-|`acorn`|`5.5.3`||[https://github.com/acornjs/acorn](https://github.com/acornjs/acorn)|
 |`agent-base`|`4.2.0`|Nathan Rajlich|[https://github.com/TooTallNate/node-agent-base](https://github.com/TooTallNate/node-agent-base)|
 |`agentkeepalive`|`3.4.0`|fengmk2|[https://github.com/node-modules/agentkeepalive](https://github.com/node-modules/agentkeepalive)|
 |`agentkeepalive`|`3.4.1`|fengmk2|[https://github.com/node-modules/agentkeepalive](https://github.com/node-modules/agentkeepalive)|
