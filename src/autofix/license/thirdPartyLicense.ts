@@ -22,8 +22,8 @@ import {
     PushTest,
 } from "@atomist/sdm";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
-import { IsNode } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
-import { spawnAndWatch } from "@atomist/sdm/util/misc/spawned";
+import { IsNode } from "@atomist/sdm-core";
+import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import * as fs from "fs-extra";
 import * as lc from "license-checker";
 import * as _ from "lodash";

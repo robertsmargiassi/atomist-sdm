@@ -26,20 +26,20 @@ import {
 import {
     NoGoals,
     TagGoal,
-} from "@atomist/sdm/goal/common/commonGoals";
+} from "@atomist/sdm-core";
 import {
     disableDeploy,
     enableDeploy,
-} from "@atomist/sdm/handlers/commands/SetDeployEnablement";
-import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
-import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goals/support/githubStatusSummarySupport";
-import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
-import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
-import { HasDockerfile } from "@atomist/sdm/mapping/pushtest/docker/dockerPushTests";
+} from "@atomist/sdm-core";
+import { executeTag } from "@atomist/sdm-core";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
+import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
+import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { HasDockerfile } from "@atomist/sdm-core";
 import {
     IsAtomistAutomationClient,
     IsNode,
-} from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
+} from "@atomist/sdm-core";
 import { IsSimplifiedDeployment } from "../support/isSimplifiedDeployment";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
