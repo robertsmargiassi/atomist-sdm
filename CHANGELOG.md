@@ -14,10 +14,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Publish TypeDoc when Node project is released
 -   Increment version after release
 -   Common build tools to Docker image
+-   Add release to change log
 
 ### Changed
 
--   Lein support now uses atomist.sh to build
+-   Lein support disabled
 
 ## [0.1.1][] - 2018-05-10
 
