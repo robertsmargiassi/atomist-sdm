@@ -89,10 +89,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Deploy")
             .setGoals(KubernetesDeployGoals),
 
-        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsDeployEnabled, IsAtomistAutomationClient)
-            .itMeans("Deploy")
-            .setGoals(KubernetesDeployGoals),
-
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient)
             .itMeans("Docker Release Build")
             .setGoals(DockerReleaseGoals),

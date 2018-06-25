@@ -25,10 +25,8 @@ CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
 ENTRYPOINT [ "dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize_for_size", "--always_compact", "--max_old_space_size=384" ]
 
 RUN apt-get update && apt-get install -y \
-        default-jdk \
         docker.io \
         git \
-        maven \
         unzip \
     && rm -rf /var/lib/apt/lists/*
 
