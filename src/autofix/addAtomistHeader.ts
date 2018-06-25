@@ -21,7 +21,7 @@ import {
     hasFileContaining,
     PushTest,
 } from "@atomist/sdm";
-import { IsTypeScript } from "@atomist/sdm/mapping/pushtest/node/tsPushTests";
+import { IsTypeScript } from "@atomist/sdm-core";
 import {
     AddHeaderParameters,
     addHeaderProjectEditor,

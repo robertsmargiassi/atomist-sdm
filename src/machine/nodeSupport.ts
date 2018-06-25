@@ -29,33 +29,33 @@ import {
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
-import * as build from "@atomist/sdm/dsl/buildDsl";
+import { tagRepo } from "@atomist/sdm-core";
 import {
     DockerBuildGoal,
     VersionGoal,
-} from "@atomist/sdm/goal/common/commonGoals";
-import { createKubernetesData } from "@atomist/sdm/handlers/events/delivery/goals/k8s/launchGoalK8";
-import { SdmGoal } from "@atomist/sdm/ingesters/sdmGoalIngester";
+} from "@atomist/sdm-core";
+import { createKubernetesData } from "@atomist/sdm-core";
+import { tslintFix } from "@atomist/sdm-core";
 import {
     executePublish,
     NpmOptions,
-} from "@atomist/sdm/internal/delivery/build/local/npm/executePublish";
-import { NodeProjectIdentifier } from "@atomist/sdm/internal/delivery/build/local/npm/nodeProjectIdentifier";
-import { NodeProjectVersioner } from "@atomist/sdm/internal/delivery/build/local/npm/nodeProjectVersioner";
+} from "@atomist/sdm-core";
+import { NodeProjectIdentifier } from "@atomist/sdm-core";
+import { NodeProjectVersioner } from "@atomist/sdm-core";
 import {
     nodeBuilder,
     NpmPreparations,
-} from "@atomist/sdm/internal/delivery/build/local/npm/npmBuilder";
-import { executeVersioner } from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
-import { IsNode } from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
+} from "@atomist/sdm-core";
+import { executeVersioner } from "@atomist/sdm-core";
+import { IsNode } from "@atomist/sdm-core";
 import {
     DefaultDockerImageNameCreator,
     DockerOptions,
     executeDockerBuild,
-} from "@atomist/sdm/pack/docker/executeDockerBuild";
-import { PackageLockFingerprinter } from "@atomist/sdm/pack/node/PackageLockFingerprinter";
-import { tslintFix } from "@atomist/sdm/pack/node/tslint";
-import { tagRepo } from "@atomist/sdm/util/github/tagRepo";
+} from "@atomist/sdm-core";
+import { PackageLockFingerprinter } from "@atomist/sdm-core";
+import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { SdmGoal } from "@atomist/sdm/api/goal/SdmGoal";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { AutomationClientTagger } from "../support/tagger";
