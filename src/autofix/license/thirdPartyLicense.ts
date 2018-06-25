@@ -21,8 +21,8 @@ import {
     editorAutofixRegistration,
     PushTest,
 } from "@atomist/sdm";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { IsNode } from "@atomist/sdm-core";
+import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import * as fs from "fs-extra";
 import * as lc from "license-checker";

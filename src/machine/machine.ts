@@ -24,22 +24,22 @@ import {
     whenPushSatisfies,
 } from "@atomist/sdm";
 import {
-    NoGoals,
-    TagGoal,
-} from "@atomist/sdm-core";
-import {
     disableDeploy,
     enableDeploy,
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
 import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
-import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import {
+    NoGoals,
+    TagGoal,
+} from "@atomist/sdm-core";
 import { HasDockerfile } from "@atomist/sdm-core";
 import {
     IsAtomistAutomationClient,
     IsNode,
 } from "@atomist/sdm-core";
+import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { IsSimplifiedDeployment } from "../support/isSimplifiedDeployment";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {

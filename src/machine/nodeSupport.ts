@@ -29,13 +29,13 @@ import {
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
-import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { tagRepo } from "@atomist/sdm-core";
 import {
     DockerBuildGoal,
     VersionGoal,
 } from "@atomist/sdm-core";
 import { createKubernetesData } from "@atomist/sdm-core";
-import { SdmGoal } from "@atomist/sdm/api/goal/SdmGoal";
+import { tslintFix } from "@atomist/sdm-core";
 import {
     executePublish,
     NpmOptions,
@@ -54,8 +54,8 @@ import {
     executeDockerBuild,
 } from "@atomist/sdm-core";
 import { PackageLockFingerprinter } from "@atomist/sdm-core";
-import { tslintFix } from "@atomist/sdm-core";
-import { tagRepo } from "@atomist/sdm-core";
+import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { SdmGoal } from "@atomist/sdm/api/goal/SdmGoal";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { AutomationClientTagger } from "../support/tagger";
