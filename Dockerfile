@@ -45,10 +45,6 @@ RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes
     && chmod +x /usr/local/bin/kubectl \
     && kubectl version --client
 
-RUN curl -sL -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein \
-    && chmod 755 /usr/local/bin/lein \
-    && lein version
-
 # Install app dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
