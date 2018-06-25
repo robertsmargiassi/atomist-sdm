@@ -106,6 +106,17 @@ export const ReleaseDocsGoal = new Goal({
     isolated: true,
 });
 
+export const ReleaseChangeLogGoal = new GoalWithPrecondition({
+    uniqueName: "ReleaseChangeLog",
+    environment: ProductionEnvironment,
+    orderedName: "3-release-change-log",
+    displayName: "update change log",
+    workingDescription: "Updating change log...",
+    completedDescription: "Updated change log",
+    failedDescription: "Updaing change log failure",
+    isolated: true,
+}, ReleaseDocsGoal);
+
 export const ReleaseVersionGoal = new GoalWithPrecondition({
     uniqueName: "ReleaseVersion",
     environment: ProductionEnvironment,
@@ -113,7 +124,7 @@ export const ReleaseVersionGoal = new GoalWithPrecondition({
     displayName: "increment version",
     completedDescription: "Incremented version",
     failedDescription: "Incrementing version failure",
-}, ReleaseDocsGoal);
+}, ReleaseChangeLogGoal);
 
 // GOALSET Definition
 
@@ -144,6 +155,7 @@ export const BuildReleaseGoals = new Goals(
     new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, PublishGoal),
+    ReleaseChangeLogGoal,
     ReleaseVersionGoal,
 );
 
@@ -166,6 +178,7 @@ export const DockerReleaseGoals = new Goals(
     new GoalWithPrecondition(ReleaseDockerGoal.definition, DockerBuildGoal),
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, DockerBuildGoal),
+    ReleaseChangeLogGoal,
     ReleaseVersionGoal,
 );
 
@@ -183,6 +196,7 @@ export const KubernetesDeployGoals = new Goals(
     new GoalWithPrecondition(ReleaseDockerGoal.definition, StagingDeploymentGoal),
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, StagingDeploymentGoal),
+    ReleaseChangeLogGoal,
     ReleaseVersionGoal,
 );
 
@@ -199,6 +213,7 @@ export const SimplifiedKubernetesDeployGoals = new Goals(
     new GoalWithPrecondition(ReleaseDockerGoal.definition, ProductionDeploymentGoal),
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, ProductionDeploymentGoal),
+    ReleaseChangeLogGoal,
     ReleaseVersionGoal,
 );
 
