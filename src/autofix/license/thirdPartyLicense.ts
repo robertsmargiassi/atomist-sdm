@@ -120,11 +120,11 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     for (const l in counts) {
         if (counts.hasOwnProperty(l)) {
             const anchor = l.toLocaleLowerCase()
-                .replace(" ", "-")
-                .replace(".", "")
-                .replace(":", "")
-                .replace("/", "");
-            summary.push(`|[${l}](${anchor})|${counts[l]}|`);
+                .replace(/ /g, "-")
+                .replace(/\./g, "")
+                .replace(/:/g, "")
+                .replace(/\//g, "");
+            summary.push(`|[${l}](#${anchor})|${counts[l]}|`);
         }
     }
 
