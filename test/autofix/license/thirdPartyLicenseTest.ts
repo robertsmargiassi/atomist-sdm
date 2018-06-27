@@ -28,5 +28,5 @@ describe("thirdPartyLicense", () => {
             getFile: name => true,
             deleteDirectory: () => "",
         } as any as Project);
-    });
+    }).timeout(1000 * 60);
 });
