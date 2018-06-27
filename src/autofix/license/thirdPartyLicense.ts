@@ -15,11 +15,9 @@
  */
 
 import {
-    ProjectEditor,
     SimpleProjectEditor,
 } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { Project } from "@atomist/automation-client/project/Project";
 import {
     AutofixRegistration,
     editorAutofixRegistration,
@@ -83,7 +81,7 @@ export function addThirdPartyLicenseEditor(runInstall: boolean = true): SimplePr
         const pj = JSON.parse((await
         fs.readFile(path.join(cwd, "package.json"))
     ).
-        toString()
+        toString(),
     )
         ;
 
@@ -196,5 +194,5 @@ Need Help?  [Join our Slack team][slack].
         p.addFile(LicenseFileName, content);
 
         return p;
-    }
+    };
 }
