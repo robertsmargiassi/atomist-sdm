@@ -115,6 +115,17 @@ export const ReleaseVersionGoal = new GoalWithPrecondition({
     failedDescription: "Incrementing version failure",
 }, ReleaseDocsGoal);
 
+export const SmokeTestGoal = new GoalWithPrecondition({
+    uniqueName: "SmokeTest",
+    environment: ProductionEnvironment,
+    orderedName: "3-smoke-test",
+    displayName: "smoke test",
+    workingDescription: "Running smoke tests...",
+    completedDescription: "Run smoke tests",
+    failedDescription: "Smoke test failure",
+    isolated: true,
+}, BuildGoal);
+
 // GOALSET Definition
 
 // Just running review and autofix
@@ -210,6 +221,7 @@ export const StagingKubernetesDeployGoals = new Goals(
     PublishGoal,
     DockerBuildGoal,
     TagGoal,
+    SmokeTestGoal,
     new GoalWithPrecondition({ ...StagingDeploymentGoal.definition, approvalRequired: false }, ...StagingDeploymentGoal.dependsOn),
 );
 
