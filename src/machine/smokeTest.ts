@@ -35,6 +35,7 @@ const localAtomistAdminPassword = "atomist123";
 export interface SmokeTestTarget {
     team: string;
     org: string;
+    sdm?: RemoteRepoRef;
 }
 
 export function executeSmokeTests(
@@ -45,7 +46,8 @@ export function executeSmokeTests(
 ): ExecuteGoalWithLog {
 
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = rwlc;
+        const { credentials, context } = rwlc;
+        const id = smokeTestTarget.sdm ? smokeTestTarget.sdm : rwlc.id;
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: false },
             async (project: GitProject) => {
