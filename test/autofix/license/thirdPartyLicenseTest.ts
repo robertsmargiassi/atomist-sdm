@@ -22,7 +22,7 @@ import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPa
 describe("thirdPartyLicense", () => {
 
     it("should create license file", () => {
-        return addThirdPartyLicenseEditor({
+        return addThirdPartyLicenseEditor(false)({
             baseDir: appRoot.path,
             addFile: (name, content) => { logger.info(content); },
             getFile: name => true,

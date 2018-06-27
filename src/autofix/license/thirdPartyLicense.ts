@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import {
+    ProjectEditor,
+    SimpleProjectEditor,
+} from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import {
@@ -49,109 +53,119 @@ export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     return editorAutofixRegistration({
         name: "Third party licenses",
         pushTest,
-        editor: addThirdPartyLicenseEditor,
+        editor: addThirdPartyLicenseEditor(true),
     });
 }
 
-export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
-    const cwd = (p as GitProject).baseDir;
-    const hasPackageLock = p.getFile("package-lock.json");
+export function addThirdPartyLicenseEditor(runInstall: boolean = true): SimpleProjectEditor {
+    return async p => {
+        const cwd = (p as GitProject).baseDir;
+        const hasPackageLock = p.getFile("package-lock.json");
 
-    const result = await spawnAndWatch({
-           command: "npm",
-           args: [(hasPackageLock ? "ci" : "i")],
-        },
-        {
-            cwd,
-        },
-        new StringCapturingProgressLog(),
-        {},
-        );
+        if (runInstall) {
+            const result = await
+            spawnAndWatch({
+                    command: "npm",
+                    args: [ (hasPackageLock ? "ci" : "i") ],
+                },
+                {
+                    cwd,
+                },
+                new StringCapturingProgressLog(),
+                {},
+            );
 
-    if (result.code !== 0) {
-        return;
-    }
+            if (result.code !== 0) {
+                return;
+            }
+        }
 
-    const pj = JSON.parse((await fs.readFile(path.join(cwd, "package.json"))).toString());
+        const pj = JSON.parse((await
+        fs.readFile(path.join(cwd, "package.json"))
+    ).
+        toString()
+    )
+        ;
 
-    const json = await promisify(lc.init)({
+        const json = await
+        promisify(lc.init)({
             start: cwd,
             production: true,
         });
 
-    const grouped = {};
-    _.forEach(json, (v, k) => {
-        let licenses = v.licenses;
+        const grouped = {};
+        _.forEach(json, (v, k) => {
+            let licenses = v.licenses;
 
-        if (!Array.isArray(licenses)) {
-            if (licenses.endsWith("*")) {
-                licenses = licenses.slice(0, -1);
+            if (!Array.isArray(licenses)) {
+                if (licenses.endsWith("*")) {
+                    licenses = licenses.slice(0, -1);
+                }
+
+                if (licenses.startsWith("(") && licenses.endsWith(")")) {
+                    licenses = licenses.slice(1, -1);
+                }
+                licenses = [ ...(licenses as string).split(" OR ") ];
             }
 
-            if (licenses.startsWith("(") && licenses.endsWith(")")) {
-                licenses = licenses.slice(1, -1);
-            }
-            licenses = [...(licenses as string).split(" OR ")];
-        }
+            licenses.forEach(l => {
+                let license = l;
 
-        licenses.forEach(l => {
-            let license = l;
+                if (LicenseMapping.hasOwnProperty(license)) {
+                    license = LicenseMapping[ license ];
+                }
 
-            if (LicenseMapping.hasOwnProperty(license)) {
-                license = LicenseMapping[license];
-            }
-
-            if (grouped.hasOwnProperty(license)) {
-                grouped[license] = [...grouped[license], {
-                    ...v,
-                    name: k,
-                }];
-            } else {
-                grouped[license] = [{
-                    ...v,
-                    name: k,
-                }];
-            }
+                if (grouped.hasOwnProperty(license)) {
+                    grouped[ license ] = [ ...grouped[ license ], {
+                        ...v,
+                        name: k,
+                    } ];
+                } else {
+                    grouped[ license ] = [ {
+                        ...v,
+                        name: k,
+                    } ];
+                }
+            });
         });
-    });
 
-    const summary = [];
-    const counts = _.mapValues(grouped, l => (l as any).length);
-    for (const l in counts) {
-        if (counts.hasOwnProperty(l)) {
-            const anchor = l.toLocaleLowerCase()
-                .replace(/ /g, "-")
-                .replace(/\./g, "")
-                .replace(/:/g, "")
-                .replace(/\//g, "");
-            summary.push(`|[${l}](#${anchor})|${counts[l]}|`);
-        }
-    }
-
-    const details = [];
-    // tslint:disable-next-line:no-inferred-empty-object-type
-    _.forEach(grouped, (v, k) => {
-        const deps = v.map(dep => {
-            const ix = dep.name.lastIndexOf("@");
-            const name = dep.name.slice(0, ix);
-            const version = dep.name.slice(ix + 1);
-            return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|${
-                dep.repository ? `[${dep.repository}](${dep.repository})` : ""}|`;
-        });
-        let ld = "";
-
-        if (spdx[k]) {
-            ld = `${spdx[k].name} - [${spdx[k].url}](${spdx[k].url})\n`;
+        const summary = [];
+        const counts = _.mapValues(grouped, l => (l as any).length);
+        for (const l in counts) {
+            if (counts.hasOwnProperty(l)) {
+                const anchor = l.toLocaleLowerCase()
+                    .replace(/ /g, "-")
+                    .replace(/\./g, "")
+                    .replace(/:/g, "")
+                    .replace(/\//g, "");
+                summary.push(`|[${l}](#${anchor})|${counts[ l ]}|`);
+            }
         }
 
-        details.push(`
+        const details = [];
+        // tslint:disable-next-line:no-inferred-empty-object-type
+        _.forEach(grouped, (v, k) => {
+            const deps = v.map(dep => {
+                const ix = dep.name.lastIndexOf("@");
+                const name = dep.name.slice(0, ix);
+                const version = dep.name.slice(ix + 1);
+                return `|\`${name}\`|\`${version}\`|${dep.publisher ? dep.publisher : ""}|${
+                    dep.repository ? `[${dep.repository}](${dep.repository})` : ""}|`;
+            });
+            let ld = "";
+
+            if (spdx[ k ]) {
+                ld = `${spdx[ k ].name} - [${spdx[ k ].url}](${spdx[ k ].url})\n`;
+            }
+
+            details.push(`
 #### ${k}
 ${ld}
 ${LicenseTableHeader}
 ${deps.join("\n")}`);
-    });
+        });
 
-    const content = `# ${pj.name}
+        const content = `# ${pj.name}
 
 This page details all runtime OSS dependencies of \`${pj.name}\`.
 
@@ -176,8 +190,11 @@ Need Help?  [Join our Slack team][slack].
 [slack]: https://join.atomist.com/ (Atomist Community Slack)
 `;
 
-    await p.deleteDirectory("node_modules");
-    await p.addFile(LicenseFileName, content);
+        await
+        p.deleteDirectory("node_modules");
+        await
+        p.addFile(LicenseFileName, content);
 
-    return p;
+        return p;
+    }
 }
