@@ -119,7 +119,12 @@ export async function addThirdPartyLicenseEditor(p: Project): Promise<Project> {
     const counts = _.mapValues(grouped, l => (l as any).length);
     for (const l in counts) {
         if (counts.hasOwnProperty(l)) {
-            summary.push(`|${l}|${counts[l]}|`);
+            const anchor = l.toLocaleLowerCase()
+                .replace(" ", "-")
+                .replace(".", "")
+                .replace(":", "")
+                .replace("/", "");
+            summary.push(`|[${l}](${anchor})|${counts[l]}|`);
         }
     }
 
