@@ -8,21 +8,21 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 
 | License | Count |
 |---------|-------|
-|[AFLv2.1](aflv21)|1|
-|[Apache-2.0](apache-20)|32|
-|[Artistic-2.0](artistic-20)|4|
-|[BSD-2-Clause](bsd-2-clause)|22|
-|[BSD-3-Clause](bsd-3-clause)|30|
-|[BSD](bsd)|8|
-|[CC-BY-3.0](cc-by-30)|3|
-|[CC0-1.0](cc0-10)|4|
-|[Custom: https://github.com/douglascrockford/JSON-js](custom-https:/githubcom/douglascrockford/json-js)|1|
-|[GPL-3.0](gpl-30)|4|
-|[ISC](isc)|113|
-|[MIT](mit)|679|
-|[Public Domain](public-domain)|1|
-|[Unlicense](unlicense)|3|
-|[WTFPL](wtfpl)|3|
+|[AFLv2.1](#aflv21)|1|
+|[Apache-2.0](#apache-20)|32|
+|[Artistic-2.0](#artistic-20)|4|
+|[BSD-2-Clause](#bsd-2-clause)|22|
+|[BSD-3-Clause](#bsd-3-clause)|30|
+|[BSD](#bsd)|8|
+|[CC-BY-3.0](#cc-by-30)|3|
+|[CC0-1.0](#cc0-10)|4|
+|[Custom: https://github.com/douglascrockford/JSON-js](#custom-httpsgithubcomdouglascrockfordjson-js)|1|
+|[GPL-3.0](#gpl-30)|4|
+|[ISC](#isc)|113|
+|[MIT](#mit)|679|
+|[Public Domain](#public-domain)|1|
+|[Unlicense](#unlicense)|3|
+|[WTFPL](#wtfpl)|3|
 
 #### AFLv2.1
 
