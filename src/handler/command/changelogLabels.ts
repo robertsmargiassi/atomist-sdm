@@ -1,0 +1,87 @@
+/*
+ * Copyright © 2018 Atomist, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+    HandleCommand,
+    HandlerContext,
+    MappedParameter,
+    MappedParameters,
+    Parameters,
+    Secret,
+    Secrets,
+    Success,
+} from "@atomist/automation-client";
+import { commandHandlerFrom } from "@atomist/automation-client/onCommand";
+import * as github from "../../support/gitHubApi";
+
+const ChangelogLabels = [
+    "changelog:added",
+    "changelog:fixed",
+    "changelog:deprecated",
+    "changelog:removed",
+    "changelog:security",
+];
+
+@Parameters()
+export class ChangelogParameters {
+
+    @MappedParameter(MappedParameters.GitHubOwner)
+    public owner: string;
+
+    @MappedParameter(MappedParameters.GitHubRepository)
+    public repo: string;
+
+    @MappedParameter(MappedParameters.GitHubApiUrl)
+    public apiUrl: string;
+
+    @Secret(Secrets.userToken("repo"))
+    public githubToken: string;
+}
+
+/**
+ * CommandHandler to add required changelog labels to a given repo.
+ * @returns {HandleCommand<ChangelogParameters>}
+ */
+export function addChangelogLabels(): HandleCommand<ChangelogParameters> {
+    return commandHandlerFrom<ChangelogParameters>(
+        async (ctx: HandlerContext, params: ChangelogParameters) => {
+            const api = github.api(params.githubToken, params.apiUrl);
+
+            ChangelogLabels.forEach(async l => {
+                try {
+                    await api.issues.getLabel({
+                        name: l,
+                        repo: params.repo,
+                        owner: params.owner,
+                    });
+                } catch (err) {
+                    await api.issues.createLabel({
+                        owner: params.owner,
+                        repo: params.repo,
+                        name: l,
+                        color: "C5DB71",
+                    });
+                }
+            });
+            return Success;
+        },
+        () => new ChangelogParameters(),
+        "AddChangelogLabels",
+        "Add changelog labels to a repo",
+        "add changelog labels",
+        ["github", "changelog", "label"],
+    );
+}

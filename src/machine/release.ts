@@ -25,7 +25,6 @@ import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
 import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { File } from "@atomist/automation-client/project/File";
 import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
@@ -607,7 +606,7 @@ export function changeLogAddRelease(changeLog: string, version: string): string 
 /**
  * Create entry in change log for release.
  */
-export function executeReleaseChangeLog(
+export function executeReleaseChangelog(
     projectLoader: ProjectLoader,
     projectIdentifier: ProjectIdentifier,
 ): ExecuteGoalWithLog {
@@ -664,7 +663,7 @@ export function executeReleaseChangeLog(
             await loglog(log, egr.message);
 
             const postEls: ExecuteLogger[] = [
-                gitExecuteLogger(gp, () => gp.commit(`Add release ${versionRelease} to change log`)),
+                gitExecuteLogger(gp, () => gp.commit(`Changelog; add release ${versionRelease}`)),
                 gitExecuteLogger(gp, () => gp.push()),
             ];
             await loglog(log, `Committing and pushing change log for ${slug} release ${versionRelease}`);

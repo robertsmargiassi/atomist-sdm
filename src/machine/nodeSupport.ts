@@ -62,6 +62,7 @@ import { AutomationClientTagger } from "../support/tagger";
 import {
     ProductionDeploymentGoal,
     PublishGoal,
+    ReleaseChangelogGoal,
     ReleaseDockerGoal,
     ReleaseDocsGoal,
     ReleaseNpmGoal,
@@ -72,6 +73,7 @@ import {
 import {
     DockerReleasePreparations,
     DocsReleasePreparations,
+    executeReleaseChangelog,
     executeReleaseDocker,
     executeReleaseDocs,
     executeReleaseNpm,
@@ -128,11 +130,13 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 {
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
                 }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) })
-        .addGoalImplementation("tagRelease", ReleaseTagGoal, executeReleaseTag(sdm.configuration.sdm.projectLoader))
+        .addGoalImplementation("nodeTagRelease", ReleaseTagGoal, executeReleaseTag(sdm.configuration.sdm.projectLoader))
         .addGoalImplementation("nodeDocsRelease", ReleaseDocsGoal,
             executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations), { pushTest: IsNode })
         .addGoalImplementation("nodeVersionRelease", ReleaseVersionGoal,
-            executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier), { pushTest: IsNode });
+            executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier), { pushTest: IsNode })
+        .addGoalImplementation("nodeReleaseChangelog", ReleaseChangelogGoal,
+            executeReleaseChangelog(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier));
 
     sdm.goalFulfillmentMapper
         .addSideEffect({
