@@ -41,6 +41,7 @@ export function executeSmokeTests(
     projectLoader: ProjectLoader,
     smokeTestTarget: SmokeTestTarget,
     smokeTestRepo: RemoteRepoRef,
+    featureName?: string,
 ): ExecuteGoalWithLog {
 
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
@@ -54,7 +55,8 @@ export function executeSmokeTests(
             // how to know when sdm is started? timeout is a hack
             await new Promise<any>(res => setTimeout(res, 10000));
 
-            const testResult = await runSmokeTests(smokeTestTarget, smokeTestRepo, rwlc.progressLog, credentials);
+            const testResult = await runSmokeTests(smokeTestTarget, smokeTestRepo, rwlc.progressLog, credentials,
+                featureName);
 
             rwlc.progressLog.write(`Stopping SDM`);
             flushLog(rwlc.progressLog);
@@ -97,7 +99,7 @@ function startSdm(baseDir: string, progressLog: ProgressLog): ChildProcess {
 }
 
 async function runSmokeTests(target: SmokeTestTarget, repo: RemoteRepoRef, progressLog: ProgressLog,
-                             credentials: ProjectOperationCredentials): Promise<ChildProcessResult> {
+                             credentials: ProjectOperationCredentials, featureName: string): Promise<ChildProcessResult> {
     progressLog.write(`Cloning ${repo.owner}:${repo.repo}`);
     flushLog(progressLog);
     const smokeTestProject = await GitCommandGitProject.cloned(credentials, repo);
@@ -110,11 +112,17 @@ async function runSmokeTests(target: SmokeTestTarget, repo: RemoteRepoRef, progr
     process.env.ATOMIST_TEAMS = target.team;
     process.env.SMOKETEST_ORG = target.org;
 
+    let command = "test:cucumber";
+    if (featureName) {
+        process.env.TEST = featureName;
+        command = "test:cucumber:one";
+    }
+
     const result = await spawnAndWatch({
         command: "npm",
         args: [
             "run",
-            "test:cucumber",
+            command,
         ],
     }, { cwd: smokeTestProject.baseDir }, progressLog);
     return result;
