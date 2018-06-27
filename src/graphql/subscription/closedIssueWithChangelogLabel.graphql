@@ -1,0 +1,18 @@
+subscription ClosedIssueWithChangelog {
+  Issue(state: closed) {
+    number
+    title
+    labels @required {
+      name @matches(re: "changelog:.*")
+    }
+    repo {
+      owner
+      name
+      org {
+        provider {
+          url
+        }
+      }
+    }
+  }
+}

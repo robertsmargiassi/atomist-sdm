@@ -17,7 +17,7 @@
 import * as assert from "power-assert";
 
 import {
-    changeLogAddRelease,
+    changelogAddRelease,
     formatDate,
 } from "../../src/machine/release";
 
@@ -34,7 +34,7 @@ describe("release", () => {
 
     });
 
-    describe("changeLogAddRelease", () => {
+    describe("changelogAddRelease", () => {
 
         const date = formatDate();
         const c = `# Change Log
@@ -129,12 +129,12 @@ Initial release
 `;
 
         it("should create a release section", () => {
-            const n = changeLogAddRelease(c, "0.2.0");
+            const n = changelogAddRelease(c, "0.2.0");
             assert(n === e);
         });
 
         it("should do nothing if section for release exists", () => {
-            const n = changeLogAddRelease(c, "0.1.1");
+            const n = changelogAddRelease(c, "0.1.1");
             assert(n === c);
         });
 
@@ -216,12 +216,12 @@ Initial release
 `;
 
         it("should create a release section with inline links", () => {
-            const n = changeLogAddRelease(ci, "0.2.0");
+            const n = changelogAddRelease(ci, "0.2.0");
             assert(n === ei);
         });
 
         it("should do nothing if section for release with inline links exists", () => {
-            const n = changeLogAddRelease(ci, "0.1.1");
+            const n = changelogAddRelease(ci, "0.1.1");
             assert(n === ci);
         });
 

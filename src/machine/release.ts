@@ -25,7 +25,6 @@ import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
 import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { File } from "@atomist/automation-client/project/File";
 import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
@@ -584,19 +583,19 @@ export function formatDate(date?: Date): string {
 }
 
 /**
- * Modify change log text to add release.
+ * Modify changelog text to add release.
  *
- * @param changeLog original change log content
+ * @param changelog original changelog content
  * @param version release version
- * @return new change log content
+ * @return new changelog content
  */
-export function changeLogAddRelease(changeLog: string, version: string): string {
+export function changelogAddRelease(changelog: string, version: string): string {
     const releaseRegExp = new RegExp(`^## \\[${version}\\]`, "m");
-    if (releaseRegExp.test(changeLog)) {
-        return changeLog;
+    if (releaseRegExp.test(changelog)) {
+        return changelog;
     }
     const date = formatDate();
-    return changeLog.replace(/^\[Unreleased\]:\s*(http.*\/compare)\/(\d+\.\d+\.\d+)\.{3}HEAD/m,
+    return changelog.replace(/^\[Unreleased\]:\s*(http.*\/compare)\/(\d+\.\d+\.\d+)\.{3}HEAD/m,
         `[Unreleased]: \$1/${version}...HEAD
 
 ## [${version}][] - ${date}
@@ -609,9 +608,9 @@ export function changeLogAddRelease(changeLog: string, version: string): string 
 }
 
 /**
- * Create entry in change log for release.
+ * Create entry in changelog for release.
  */
-export function executeReleaseChangeLog(
+export function executeReleaseChangelog(
     projectLoader: ProjectLoader,
     projectIdentifier: ProjectIdentifier,
 ): ExecuteGoalWithLog {
@@ -639,26 +638,26 @@ export function executeReleaseChangeLog(
             }
             gp.branch = branch;
 
-            const changeLogPath = "CHANGELOG.md";
-            await loglog(log, `Preparing change log in ${slug} for release ${versionRelease}`);
+            const changelogPath = "CHANGELOG.md";
+            await loglog(log, `Preparing changelog in ${slug} for release ${versionRelease}`);
             const egr: ExecuteGoalResult = { code: 0 };
             try {
-                const changeLogFile = await gp.findFile(changeLogPath);
-                const changeLog = await changeLogFile.getContent();
-                const newChangeLog = changeLogAddRelease(changeLog, versionRelease);
+                const changelogFile = await gp.findFile(changelogPath);
+                const changelog = await changelogFile.getContent();
+                const newChangelog = changelogAddRelease(changelog, versionRelease);
                 const compareUrlRegExp = new RegExp(`^\\[${versionRelease}\\]: (http\\S*)`, "m");
-                const compareUrlMatch = compareUrlRegExp.exec(newChangeLog);
+                const compareUrlMatch = compareUrlRegExp.exec(newChangelog);
                 if (compareUrlMatch && compareUrlMatch.length > 1 && compareUrlMatch[1]) {
                     egr.targetUrl = compareUrlMatch[1];
                 }
-                if (newChangeLog === changeLog) {
-                    egr.message = `Change log already contains release ${versionRelease}`;
+                if (newChangelog === changelog) {
+                    egr.message = `Changelog already contains release ${versionRelease}`;
                     return egr;
                 }
-                await changeLogFile.setContent(newChangeLog);
-                egr.message = `Successfully added release ${versionRelease} to change log`;
+                await changelogFile.setContent(newChangelog);
+                egr.message = `Successfully added release ${versionRelease} to changelog`;
             } catch (e) {
-                const message = `Failed to update change log for release ${versionRelease}: ${e.message}`;
+                const message = `Failed to update changelog for release ${versionRelease}: ${e.message}`;
                 logger.error(message);
                 log.write(`${message}\n`);
                 await log.flush();
@@ -668,10 +667,10 @@ export function executeReleaseChangeLog(
             await loglog(log, egr.message);
 
             const postEls: ExecuteLogger[] = [
-                gitExecuteLogger(gp, () => gp.commit(`Add release ${versionRelease} to change log`)),
+                gitExecuteLogger(gp, () => gp.commit(`Changelog: add release ${versionRelease}`)),
                 gitExecuteLogger(gp, () => gp.push()),
             ];
-            await loglog(log, `Committing and pushing change log for ${slug} release ${versionRelease}`);
+            await loglog(log, `Committing and pushing changelog for ${slug} release ${versionRelease}`);
             const postRes = await executeLoggers(postEls, rwlc.progressLog);
             if (postRes.code !== 0) {
                 return postRes;
