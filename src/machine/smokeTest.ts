@@ -23,7 +23,6 @@ import {
     ExecuteGoalResult, ExecuteGoalWithLog, ProgressLog, ProjectLoader, RunWithLogContext,
 } from "@atomist/sdm";
 
-import {Configuration} from "@atomist/automation-client";
 import {RemoteRepoRef} from "@atomist/automation-client/operations/common/RepoId";
 import {GitCommandGitProject} from "@atomist/automation-client/project/git/GitCommandGitProject";
 import {ChildProcessResult} from "@atomist/automation-client/util/spawned";
@@ -33,37 +32,37 @@ import {ChildProcess} from "child_process";
 
 const localAtomistAdminPassword = "atomist123";
 
-export interface SmokeTestTarget {
+export interface SdmUnderTest {
     team: string;
     org: string;
     sdm?: RemoteRepoRef;
-    config?: Configuration;
+    port?: number;
 }
 
 export function executeSmokeTests(
     projectLoader: ProjectLoader,
-    smokeTestTarget: SmokeTestTarget,
+    sdmUnderTest: SdmUnderTest,
     smokeTestRepo: RemoteRepoRef,
     featureName?: string,
 ): ExecuteGoalWithLog {
 
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { credentials, context } = rwlc;
-        const id = smokeTestTarget.sdm ? smokeTestTarget.sdm : rwlc.id;
+        const id = sdmUnderTest.sdm ? sdmUnderTest.sdm : rwlc.id;
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: false },
             async (project: GitProject) => {
 
             process.env.NODE_ENV = "development";
 
-            const sdmProcess = startSdm(project.baseDir, rwlc.progressLog, smokeTestTarget.config);
+            const sdmProcess = startSdm(project.baseDir, rwlc.progressLog, sdmUnderTest.port);
 
             // how to know when sdm is started? timeout is a hack
             await new Promise<any>(res => setTimeout(res, 10000));
 
             let testResult;
             try {
-                testResult = await runSmokeTests(smokeTestTarget, smokeTestRepo, rwlc.progressLog, credentials,
+                testResult = await runSmokeTests(sdmUnderTest, smokeTestRepo, rwlc.progressLog, credentials,
                     featureName);
             } catch (e) {
                 testResult = {
@@ -87,12 +86,12 @@ export function executeSmokeTests(
     };
 }
 
-function startSdm(baseDir: string, progressLog: ProgressLog, config?: Configuration): ChildProcess {
+function startSdm(baseDir: string, progressLog: ProgressLog, port?: number): ChildProcess {
     installAndBuild("SDM", progressLog, baseDir);
     process.env.LOCAL_ATOMIST_ADMIN_PASSWORD = localAtomistAdminPassword;
 
-    if (config) {
-        process.env.ATOMIST_CONFIG = JSON.stringify(config);
+    if (port) {
+        process.env.PORT = JSON.stringify(port);
     }
 
     progressLog.write(`Starting SDM...`);
@@ -117,7 +116,7 @@ function startSdm(baseDir: string, progressLog: ProgressLog, config?: Configurat
     return runningSdm;
 }
 
-async function runSmokeTests(target: SmokeTestTarget, repo: RemoteRepoRef, progressLog: ProgressLog,
+async function runSmokeTests(sdmUnderTest: SdmUnderTest, repo: RemoteRepoRef, progressLog: ProgressLog,
                              credentials: ProjectOperationCredentials, featureName: string): Promise<ChildProcessResult> {
     progressLog.write(`Cloning ${repo.owner}:${repo.repo}`);
     flushLog(progressLog);
@@ -128,11 +127,11 @@ async function runSmokeTests(target: SmokeTestTarget, repo: RemoteRepoRef, progr
     progressLog.write(`Smoke testing...`);
     process.env.LOCAL_ATOMIST_ADMIN_PASSWORD = localAtomistAdminPassword;
     process.env.GITHUB_TOKEN = (credentials as TokenCredentials).token;
-    process.env.ATOMIST_TEAMS = target.team;
-    process.env.SMOKETEST_ORG = target.org;
+    process.env.ATOMIST_TEAMS = sdmUnderTest.team;
+    process.env.SMOKETEST_ORG = sdmUnderTest.org;
 
-    if (target.config && target.config.http && target.config.http.port) {
-        process.env.SDM_BASE_ENDPOINT = `http://localhost:${target.config.http.port}`;
+    if (sdmUnderTest.port) {
+        process.env.SDM_BASE_ENDPOINT = `http://localhost:${sdmUnderTest.port}`;
     }
 
     let command = "test:cucumber";
