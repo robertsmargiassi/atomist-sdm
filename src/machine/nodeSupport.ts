@@ -129,6 +129,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                 team: "AHF8B2MBL",
                 org: "sample-sdm-fidelity",
+                config: {
+                    http: {
+                        port: 2867,
+                    },
+                },
                 }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
             ), { pushTest: IsNode })
         .addGoalImplementation("nodeDockerRelease", ReleaseDockerGoal,
