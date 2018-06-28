@@ -58,6 +58,12 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as uuid from "uuid/v4";
 
+async function loglog(log: ProgressLog, msg: string): Promise<void> {
+    logger.debug(msg);
+    log.write(`${msg}\n`);
+    await log.flush();
+}
+
 interface ProjectRegistryInfo {
     registry: string;
     name: string;
@@ -528,12 +534,15 @@ export function executeReleaseVersion(
             const versionRelease = releaseVersion(version);
             const gp = p as GitCommandGitProject;
 
-            const branch = "master";
+            const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
+            const slug = `${gp.id.owner}/${gp.id.repo}`;
+            const branch = branchFromCommit(rwlc.status.commit);
             const remote = gp.remote || "origin";
             const preEls: ExecuteLogger[] = [
                 gitExecuteLogger(gp, () => gp.checkout(branch)),
                 spawnExecuteLogger({ cmd: { command: "git", args: ["pull", remote, branch] }, cwd: gp.baseDir }),
             ];
+            await loglog(log, `Pulling ${branch} of ${slug}`);
             const preRes = await executeLoggers(preEls, rwlc.progressLog);
             if (preRes.code !== 0) {
                 return preRes;
@@ -544,10 +553,7 @@ export function executeReleaseVersion(
             if (pi.version !== versionRelease) {
                 const message = `current master package version (${pi.version}) seems to have already been ` +
                     `incremented after ${releaseVersion} release`;
-                console.debug(message);
-                const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
-                log.write(`${message}\n`);
-                await log.flush();
+                await loglog(log, message);
                 await log.close();
                 return { ...Success, message };
             }
@@ -557,7 +563,119 @@ export function executeReleaseVersion(
                 gitExecuteLogger(gp, () => gp.commit(`Increment version after ${versionRelease} release`)),
                 gitExecuteLogger(gp, () => gp.push()),
             ];
+            await loglog(log, `Incrementing version and committing for ${slug}`);
+            await log.close();
             return executeLoggers(postEls, rwlc.progressLog);
+        });
+    };
+}
+
+/**
+ * Return today's date in a format that does not suck.
+ *
+ * @return today's date in YYYY-MM-DD format
+ */
+export function formatDate(date?: Date): string {
+    const now = (date) ? date : new Date();
+    const year = now.getFullYear();
+    const monthDay = now.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" }).replace("/", "-");
+    return `${year}-${monthDay}`;
+}
+
+/**
+ * Modify changelog text to add release.
+ *
+ * @param changelog original changelog content
+ * @param version release version
+ * @return new changelog content
+ */
+export function changelogAddRelease(changelog: string, version: string): string {
+    const releaseRegExp = new RegExp(`^## \\[${version}\\]`, "m");
+    if (releaseRegExp.test(changelog)) {
+        return changelog;
+    }
+    const date = formatDate();
+    return changelog.replace(/^\[Unreleased\]:\s*(http.*\/compare)\/(\d+\.\d+\.\d+)\.{3}HEAD/m,
+        `[Unreleased]: \$1/${version}...HEAD
+
+## [${version}][] - ${date}
+
+[${version}]: \$1/\$2...${version}`)
+        .replace(/^##\s*\[Unreleased\]\((http.*\/compare)\/(\d+\.\d+\.\d+)\.{3}HEAD\)/m,
+            `## [Unreleased](\$1/${version}...HEAD)
+
+## [${version}](\$1/\$2...${version}) - ${date}`);
+}
+
+/**
+ * Create entry in changelog for release.
+ */
+export function executeReleaseChangelog(
+    projectLoader: ProjectLoader,
+    projectIdentifier: ProjectIdentifier,
+): ExecuteGoalWithLog {
+
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { credentials, id, context } = rwlc;
+
+        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
+            const version = await rwlcVersion(rwlc);
+            const versionRelease = releaseVersion(version);
+            const gp = p as GitCommandGitProject;
+
+            const log = new DelimitedWriteProgressLogDecorator(rwlc.progressLog, "\n");
+            const slug = `${gp.id.owner}/${gp.id.repo}`;
+            const branch = branchFromCommit(rwlc.status.commit);
+            const remote = gp.remote || "origin";
+            const preEls: ExecuteLogger[] = [
+                gitExecuteLogger(gp, () => gp.checkout(branch)),
+                spawnExecuteLogger({ cmd: { command: "git", args: ["pull", remote, branch] }, cwd: gp.baseDir }),
+            ];
+            await loglog(log, `Pulling branch ${branch} of ${slug}`);
+            const preRes = await executeLoggers(preEls, rwlc.progressLog);
+            if (preRes.code !== 0) {
+                return preRes;
+            }
+            gp.branch = branch;
+
+            const changelogPath = "CHANGELOG.md";
+            await loglog(log, `Preparing changelog in ${slug} for release ${versionRelease}`);
+            const egr: ExecuteGoalResult = { code: 0 };
+            try {
+                const changelogFile = await gp.findFile(changelogPath);
+                const changelog = await changelogFile.getContent();
+                const newChangelog = changelogAddRelease(changelog, versionRelease);
+                const compareUrlRegExp = new RegExp(`^\\[${versionRelease}\\]: (http\\S*)`, "m");
+                const compareUrlMatch = compareUrlRegExp.exec(newChangelog);
+                if (compareUrlMatch && compareUrlMatch.length > 1 && compareUrlMatch[1]) {
+                    egr.targetUrl = compareUrlMatch[1];
+                }
+                if (newChangelog === changelog) {
+                    egr.message = `Changelog already contains release ${versionRelease}`;
+                    return egr;
+                }
+                await changelogFile.setContent(newChangelog);
+                egr.message = `Successfully added release ${versionRelease} to changelog`;
+            } catch (e) {
+                const message = `Failed to update changelog for release ${versionRelease}: ${e.message}`;
+                logger.error(message);
+                log.write(`${message}\n`);
+                await log.flush();
+                await log.close();
+                return { code: 1, message };
+            }
+            await loglog(log, egr.message);
+
+            const postEls: ExecuteLogger[] = [
+                gitExecuteLogger(gp, () => gp.commit(`Changelog: add release ${versionRelease}`)),
+                gitExecuteLogger(gp, () => gp.push()),
+            ];
+            await loglog(log, `Committing and pushing changelog for ${slug} release ${versionRelease}`);
+            const postRes = await executeLoggers(postEls, rwlc.progressLog);
+            if (postRes.code !== 0) {
+                return postRes;
+            }
+            return egr;
         });
     };
 }

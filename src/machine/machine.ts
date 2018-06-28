@@ -24,22 +24,21 @@ import {
     whenPushSatisfies,
 } from "@atomist/sdm";
 import {
+    createSoftwareDeliveryMachine,
     disableDeploy,
     enableDeploy,
-} from "@atomist/sdm-core";
-import { executeTag } from "@atomist/sdm-core";
-import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
-import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
-import {
-    NoGoals,
-    TagGoal,
-} from "@atomist/sdm-core";
-import { HasDockerfile } from "@atomist/sdm-core";
-import {
+    executeTag,
+    HasDockerfile,
     IsAtomistAutomationClient,
     IsNode,
+    NoGoals,
+    summarizeGoalsInGitHubStatus,
+    TagGoal,
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { addChangelogLabels } from "../handler/command/changelogLabels";
+import { UpdateChangelogOnIssue } from "../handler/event/UpdateChangelogOnIssue";
+import { UpdateChangelogOnPullRequest } from "../handler/event/UpdateChangelogOnPullRequest";
 import { IsSimplifiedDeployment } from "../support/isSimplifiedDeployment";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
@@ -106,7 +105,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(BuildGoals),
     );
 
-    sdm.addSupportingCommands(enableDeploy, disableDeploy);
+    sdm.addSupportingCommands(enableDeploy, disableDeploy, addChangelogLabels);
 
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
@@ -114,6 +113,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addNodeSupport(sdm);
 
     summarizeGoalsInGitHubStatus(sdm);
+
+    sdm.addSupportingEvents(
+        () => new UpdateChangelogOnIssue(),
+        () => new UpdateChangelogOnPullRequest(),
+    );
 
     return sdm;
 }
