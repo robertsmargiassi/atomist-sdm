@@ -44,6 +44,7 @@ export interface ChangelogEntry {
     title: string;
     issue: number;
     url: string;
+    qualifiers?: string[];
 }
 
 /**
@@ -60,16 +61,17 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
 
     const url = `https://github.com/${issue.repo.owner}/${issue.repo.name}/issues/${issue.number}`;
     const categories = issue.labels.filter(l => l.name.startsWith("changelog:")).map(l => l.name.split(":")[1]);
+    const qualifiers = issue.labels.some(l => l.name.toLocaleLowerCase() === "breaking") ? ["breaking"] : [];
 
     const cl = await p.getFile("CHANGELOG.md");
     if (cl) {
         // If changelog exists make sure it doesn't already contain the issue
         const content = await cl.getContent();
         if (!content.includes(url)) {
-            await updateAndWriteChangelog(p, categories, url, issue);
+            await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
         }
     } else {
-        await updateAndWriteChangelog(p, categories, url, issue);
+        await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
     }
 
     if (!(await p.isClean()).success) {
@@ -81,12 +83,13 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
 
 async function updateAndWriteChangelog(p: GitProject,
                                        categories: string[],
+                                       qualifiers: string[],
                                        url: string,
                                        issue: ClosedIssueWithChangelog.Issue): Promise<any> {
     let changelog = await readChangelog(p);
     for (const category of categories) {
         changelog = addEntryToChangelog(
-            { title: issue.title, url, issue: issue.number, category },
+            { title: issue.title, url, issue: issue.number, category, qualifiers },
             changelog,
             p);
     }
@@ -142,7 +145,8 @@ export function addEntryToChangelog(entry: ChangelogEntry,
 
     // Add the entry to the correct section
     const category = _.upperFirst(entry.category || "changed");
-    const line = `-   ${entry.title} [#${entry.issue}](${entry.url})`;
+    const qualifiers = (entry.qualifiers || []).map(q => `**${q.toLocaleUpperCase()}**`).join(" ");
+    const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${entry.title} [#${entry.issue}](${entry.url})`;
     if (version.parsed[category]) {
         version.parsed[category] = [line, ...version.parsed[category]];
 

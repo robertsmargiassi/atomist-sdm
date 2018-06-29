@@ -114,6 +114,7 @@ describe("changelog", () => {
             title: "This is a test issue with some really long text and some more bla bla bla. And even some more and more and more.",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
+            qualifiers: ["breaking"],
         };
         return readChangelog(p).then(result => {
             const cl = addEntryToChangelog(entry, result, p);
