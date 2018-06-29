@@ -5,12 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased][]
-
-[Unreleased]: https://github.com/atomist/atomist-sdm/compare/0.1.1...HEAD
+## [Unreleased](https://github.com/atomist/atomist-sdm/compare/0.1.1...HEAD)
 
 ### Added
 
+-   Mark changelog entry breaking if breaking label is used [#18](https://github.com/atomist/atomist-sdm/issues/18)
 -   Publish TypeDoc when Node project is released
 -   Increment version after release
 -   Common build tools to Docker image
@@ -20,21 +19,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 -   Lein support disabled
 
-## [0.1.1][] - 2018-05-10
-
-[0.1.1]: https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1
-
-Trigger release
+## [0.1.1](https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1) - 2018-05-10
 
 ### Changed
 
 -   Version
 
-## [0.1.0][] - 2018-05-10
-
-Initial release
-
-[0.1.0]: https://github.com/atomist/atomist-sdm/tree/0.1.0
+## [0.1.0](https://github.com/atomist/atomist-sdm/tree/0.1.0) - 2018-05-10
 
 ### Added
 
