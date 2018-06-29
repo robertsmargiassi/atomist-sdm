@@ -126,22 +126,7 @@ export async function readChangelog(p: GitProject): Promise<any> {
 export function addEntryToChangelog(entry: ChangelogEntry,
                                     cl: any,
                                     p: GitProject): any {
-    let version;
-
-    // Get Unreleased section or create if not already available
-    if (cl && cl.versions && cl.versions.length > 0
-        // This github.com version is really odd. Not sure what the parser thinks here
-        && (!cl.versions[0].version || cl.versions[0].version === "github.com")) {
-        version = cl.versions[0];
-    } else {
-        version = {
-            title: `[Unreleased](https://github.com/${p.id.owner}/${p.id.repo}/${
-                cl.versions && cl.versions.filter(v => v.version !== "0.0.0").length > 0 ?
-                    `compare/${cl.versions[0].version}...HEAD` : "tree/HEAD"})`,
-            parsed: {},
-        };
-        cl.versions = [version, ...cl.versions];
-    }
+    const version = readUnreleasedVersion(cl, p);
 
     // Add the entry to the correct section
     const category = _.upperFirst(entry.category || "changed");
@@ -202,4 +187,23 @@ export async function writeChangelog(changelog: any,
     const content = changelogToString(changelog);
     const changelogFile = path.join(p.baseDir, "CHANGELOG.md");
     return fs.writeFile(changelogFile, content);
+}
+
+function readUnreleasedVersion(cl: any, p: GitProject): any {
+    let version;
+    // Get Unreleased section or create if not already available
+    if (cl && cl.versions && cl.versions.length > 0
+        // This github.com version is really odd. Not sure what the parser thinks here
+        && (!cl.versions[ 0 ].version || cl.versions[ 0 ].version === "github.com")) {
+        version = cl.versions[ 0 ];
+    } else {
+        version = {
+            title: `[Unreleased](https://github.com/${p.id.owner}/${p.id.repo}/${
+                cl.versions && cl.versions.filter(v => v.version !== "0.0.0").length > 0 ?
+                    `compare/${cl.versions[ 0 ].version}...HEAD` : "tree/HEAD"})`,
+            parsed: {},
+        };
+        cl.versions = [ version, ...cl.versions ];
+    }
+    return version;
 }
