@@ -31,9 +31,13 @@ export class TokenParameters {
     public orgToken: string;
 }
 
-export const UpdateChangelog: OnEvent<ClosedIssueWithChangelog.Subscription, TokenParameters> =
-    (e: EventFired<ClosedIssueWithChangelog.Subscription>,
+export const UpdateChangelog: OnEvent<any, TokenParameters> =
+    (e: EventFired<any>,
      ctx: HandlerContext,
      params: TokenParameters): Promise<HandlerResult> => {
-    return addChangelogEntryForClosedIssue(e.data.Issue[0], params.orgToken);
+    if (e.data.Issue) {
+        return addChangelogEntryForClosedIssue(e.data.Issue[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
+    } else if (e.data.PullRequest){
+        return addChangelogEntryForClosedIssue(e.data.PullRequest[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
+    }
 };
