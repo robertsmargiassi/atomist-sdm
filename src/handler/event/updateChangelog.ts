@@ -37,7 +37,7 @@ export const UpdateChangelog: OnEvent<any, TokenParameters> =
      params: TokenParameters): Promise<HandlerResult> => {
     if (e.data.Issue) {
         return addChangelogEntryForClosedIssue(e.data.Issue[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
-    } else if (e.data.PullRequest){
+    } else if (e.data.PullRequest) {
         return addChangelogEntryForClosedIssue(e.data.PullRequest[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
     }
 };
