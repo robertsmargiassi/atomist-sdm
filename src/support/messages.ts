@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-import * as GitHubApi from "@octokit/rest";
+import { guid } from "@atomist/automation-client/internal/util/string";
+import {
+    Action,
+    SlackMessage,
+} from "@atomist/slack-messages";
 
-export const DefaultGitHubApiUrl = "https://api.github.com/";
-
-export function api(token: string, apiUrl: string = DefaultGitHubApiUrl): GitHubApi {
-    let baseUrl = apiUrl;
-    if (apiUrl.endsWith("/")) {
-        baseUrl = apiUrl.slice(0, -1);
-    }
-    const gitHubApi = new GitHubApi({
-       baseUrl,
-    });
-
-    gitHubApi.authenticate({ type: "token", token });
-    return gitHubApi;
+export function success(title: string, text: string, actions?: Action[]): SlackMessage {
+    const msg: SlackMessage = {
+        attachments: [{
+            author_icon: `https://images.atomist.com/rug/check-circle.gif?gif=${guid()}`,
+            author_name: title,
+            text,
+            fallback: text,
+            color: "#45B254",
+            mrkdwn_in: [ "text" ],
+            actions,
+        }],
+    };
+    return msg;
 }

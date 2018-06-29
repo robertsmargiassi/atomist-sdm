@@ -15,7 +15,6 @@
  */
 
 import {
-    HandleCommand,
     HandlerContext,
     MappedParameter,
     MappedParameters,
@@ -24,8 +23,10 @@ import {
     Secrets,
     Success,
 } from "@atomist/automation-client";
-import { commandHandlerFrom } from "@atomist/automation-client/onCommand";
+import { CommandHandlerRegistration } from "@atomist/sdm";
+import { bold } from "@atomist/slack-messages";
 import * as github from "../../support/gitHubApi";
+import { success } from "../../support/messages";
 
 const ChangelogLabels = [
     "changelog:added",
@@ -55,33 +56,34 @@ export class ChangelogParameters {
  * CommandHandler to add required changelog labels to a given repo.
  * @returns {HandleCommand<ChangelogParameters>}
  */
-export function addChangelogLabels(): HandleCommand<ChangelogParameters> {
-    return commandHandlerFrom<ChangelogParameters>(
-        async (ctx: HandlerContext, params: ChangelogParameters) => {
-            const api = github.api(params.githubToken, params.apiUrl);
+export const AddChangelogLabels: CommandHandlerRegistration<ChangelogParameters> = {
+    name: "AddChangelogLabels",
+    intent: "add changelog labels",
+    description: "Add changelog labels to a GitHub repo",
+    tags: ["github", "changelog", "label"],
+    paramsMaker: ChangelogParameters,
+    createCommand: sdm => async (ctx: HandlerContext, params: ChangelogParameters) => {
+        const api = github.api(params.githubToken, params.apiUrl);
 
-            ChangelogLabels.forEach(async l => {
-                try {
-                    await api.issues.getLabel({
-                        name: l,
-                        repo: params.repo,
-                        owner: params.owner,
-                    });
-                } catch (err) {
-                    await api.issues.createLabel({
-                        owner: params.owner,
-                        repo: params.repo,
-                        name: l,
-                        color: "C5DB71",
-                    });
-                }
-            });
-            return Success;
-        },
-        () => new ChangelogParameters(),
-        "AddChangelogLabels",
-        "Add changelog labels to a repo",
-        "add changelog labels",
-        ["github", "changelog", "label"],
-    );
-}
+        ChangelogLabels.forEach(async l => {
+            try {
+                await api.issues.getLabel({
+                    name: l,
+                    repo: params.repo,
+                    owner: params.owner,
+                });
+            } catch (err) {
+                await api.issues.createLabel({
+                    owner: params.owner,
+                    repo: params.repo,
+                    name: l,
+                    color: "C5DB71",
+                });
+            }
+        });
+        await ctx.messageClient.respond(success(
+            "Changelog",
+            `Successfully added changelog labels to ${bold(`${params.owner}/${params.repo}`)}`));
+        return Success;
+    },
+};

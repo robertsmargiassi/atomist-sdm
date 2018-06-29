@@ -72,11 +72,10 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
         await updateAndWriteChangelog(p, categories, url, issue);
     }
 
-    if (!(await p.isClean())) {
+    if (!(await p.isClean()).success) {
         await p.commit(`Changelog: #${issue.number} to ${categories.join(", ")}`);
         await p.push();
     }
-
     return Success;
 }
 

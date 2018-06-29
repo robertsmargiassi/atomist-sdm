@@ -169,14 +169,12 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             callback: kubernetesDataCallback(sdm.configuration),
         });
 
-    sdm.addAutofixes(
-        AddAtomistTypeScriptHeader,
-        AddThirdPartyLicense,
-    );
+    sdm.addAutofix(AddAtomistTypeScriptHeader)
+        .addAutofix(AddThirdPartyLicense);
 
-    sdm.addNewRepoWithCodeActions(tagRepo(AutomationClientTagger))
-        .addAutofixes(tslintFix)
-        .addFingerprinterRegistrations(new PackageLockFingerprinter());
+    sdm.addNewRepoWithCodeAction(tagRepo(AutomationClientTagger))
+        .addAutofix(tslintFix)
+        .addFingerprinterRegistration(new PackageLockFingerprinter());
 
     return sdm;
 }

@@ -19,8 +19,7 @@ import {
 } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
-    AutofixRegistration,
-    editorAutofixRegistration,
+    EditorAutofixRegistration,
     PushTest,
 } from "@atomist/sdm";
 import { IsNode } from "@atomist/sdm-core";
@@ -47,12 +46,12 @@ const SummaryTableHadler = `| License | Count |
 
 export const AddThirdPartyLicense = addThirdPartyLicense(IsNode);
 
-export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
-    return editorAutofixRegistration({
+export function addThirdPartyLicense(pushTest: PushTest): EditorAutofixRegistration {
+    return {
         name: "Third party licenses",
         pushTest,
         editor: addThirdPartyLicenseEditor(true),
-    });
+    };
 }
 
 export function addThirdPartyLicenseEditor(runInstall: boolean = true): SimpleProjectEditor {
@@ -142,7 +141,7 @@ export function addThirdPartyLicenseEditor(runInstall: boolean = true): SimplePr
 
         const details = [];
         // tslint:disable-next-line:no-inferred-empty-object-type
-        _.forEach(grouped, (v, k) => {
+        _.forEach(grouped, (v: any, k) => {
             const deps = v.map(dep => {
                 const ix = dep.name.lastIndexOf("@");
                 const name = dep.name.slice(0, ix);
