@@ -99,7 +99,7 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
             },
         },
         token: (credentials as TokenCredentials).token,
-    }
+    };
     const env: {[k: string]: any}  = {
         LOCAL_ATOMIST_ADMIN_PASSWORD: localAtomistAdminPassword,
         GITHUB_TOKEN: (credentials as TokenCredentials).token,
