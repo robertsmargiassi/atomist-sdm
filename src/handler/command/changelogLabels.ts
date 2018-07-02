@@ -62,7 +62,7 @@ export const AddChangelogLabels: CommandHandlerRegistration<ChangelogParameters>
     description: "Add changelog labels to a GitHub repo",
     tags: ["github", "changelog", "label"],
     paramsMaker: ChangelogParameters,
-    createCommand: sdm => async (ctx: HandlerContext, params: ChangelogParameters) => {
+    createCommand: () => async (ctx: HandlerContext, params: ChangelogParameters) => {
         const api = github.api(params.githubToken, params.apiUrl);
 
         ChangelogLabels.forEach(async l => {
