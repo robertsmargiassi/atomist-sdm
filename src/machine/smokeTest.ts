@@ -55,7 +55,7 @@ export function executeSmokeTests(
 
             process.env.NODE_ENV = "development";
 
-            const sdmProcess = startSdm(project.baseDir, rwlc.progressLog, credentials, sdmUnderTest.port);
+            const sdmProcess = startSdm(sdmUnderTest, project.baseDir, rwlc.progressLog, credentials);
 
             // how to know when sdm is started? timeout is a hack
             await new Promise<any>(res => setTimeout(res, 10000));
@@ -86,22 +86,29 @@ export function executeSmokeTests(
     };
 }
 
-function startSdm(baseDir: string, progressLog: ProgressLog, credentials: ProjectOperationCredentials,
-                  port?: number): ChildProcess {
+function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: ProgressLog,
+                  credentials: ProjectOperationCredentials): ChildProcess {
     installAndBuild("SDM", progressLog, baseDir);
+    const config = {
+        teamIds: [
+            sdmUnderTest.team,
+        ],
+        sdm: {
+            rolar: {
+                url: "https://rolar.cfapps.io",
+            },
+        },
+        token: (credentials as TokenCredentials).token,
+    }
     const env: {[k: string]: any}  = {
         LOCAL_ATOMIST_ADMIN_PASSWORD: localAtomistAdminPassword,
         GITHUB_TOKEN: (credentials as TokenCredentials).token,
         HOME: process.env.HOME,
         PATH: process.env.PATH,
+        ATOMIST_CONFIG: JSON.stringify(config),
     };
-    if (port) {
-        env.PORT = JSON.stringify(port);
-    }
-
-    process.env.LOCAL_ATOMIST_ADMIN_PASSWORD = localAtomistAdminPassword;
-    if (port) {
-        process.env.PORT = JSON.stringify(port);
+    if (sdmUnderTest.port) {
+        env.PORT = JSON.stringify(sdmUnderTest.port);
     }
 
     progressLog.write(`Starting SDM...`);
