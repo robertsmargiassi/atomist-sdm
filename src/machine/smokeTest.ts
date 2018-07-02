@@ -55,7 +55,7 @@ export function executeSmokeTests(
 
             process.env.NODE_ENV = "development";
 
-            const sdmProcess = startSdm(project.baseDir, rwlc.progressLog, sdmUnderTest.port);
+            const sdmProcess = startSdm(project.baseDir, rwlc.progressLog, credentials, sdmUnderTest.port);
 
             // how to know when sdm is started? timeout is a hack
             await new Promise<any>(res => setTimeout(res, 10000));
@@ -86,10 +86,20 @@ export function executeSmokeTests(
     };
 }
 
-function startSdm(baseDir: string, progressLog: ProgressLog, port?: number): ChildProcess {
+function startSdm(baseDir: string, progressLog: ProgressLog, credentials: ProjectOperationCredentials,
+                  port?: number): ChildProcess {
     installAndBuild("SDM", progressLog, baseDir);
-    process.env.LOCAL_ATOMIST_ADMIN_PASSWORD = localAtomistAdminPassword;
+    const env: {[k: string]: any}  = {
+        LOCAL_ATOMIST_ADMIN_PASSWORD: localAtomistAdminPassword,
+        GITHUB_TOKEN: (credentials as TokenCredentials).token,
+        HOME: process.env.HOME,
+        PATH: process.env.PATH,
+    };
+    if (port) {
+        env.PORT = JSON.stringify(port);
+    }
 
+    process.env.LOCAL_ATOMIST_ADMIN_PASSWORD = localAtomistAdminPassword;
     if (port) {
         process.env.PORT = JSON.stringify(port);
     }
@@ -98,7 +108,7 @@ function startSdm(baseDir: string, progressLog: ProgressLog, port?: number): Chi
     flushLog(progressLog);
     const runningSdm = child_process.spawn("node",
         ["node_modules/@atomist/automation-client/start.client.js"],
-        {cwd: baseDir, env: process.env});
+        {cwd: baseDir, env});
     progressLog.write(`Started SDM with PID=${runningSdm.pid}`);
     flushLog(progressLog);
 
