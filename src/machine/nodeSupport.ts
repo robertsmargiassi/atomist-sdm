@@ -199,6 +199,7 @@ function kubernetesDataFromGoal(
 ): Promise<SdmGoal> {
 
     const ns = namespaceFromGoal(goal);
+    const host = hostFromGoal(goal);
     return createKubernetesData(
         goal,
         {
@@ -208,6 +209,7 @@ function kubernetesDataFromGoal(
             ns,
             imagePullSecret: "atomistjfrog",
             replicas: ns === "production" ? 3 : 1,
+            host,
         },
         p);
 }
@@ -225,5 +227,14 @@ function namespaceFromGoal(goal: SdmGoal): string {
     } else {
         logger.debug(`Unmatched goal.environment using default namespace: ${goal.environment}`);
         return "default";
+    }
+}
+
+function hostFromGoal(goal: SdmGoal): string {
+    const name = goal.repo.name;
+    if (name === "card-automation") {
+        return "pusher";
+    } else {
+        return undefined;
     }
 }
