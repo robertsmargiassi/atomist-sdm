@@ -3,7 +3,7 @@ subscription ClosedIssueWithChangelog {
     number
     title
     labels @required {
-      name @matches(re: "changelog:.*")
+      name @matches(re: "(changelog:.*|breaking)")
     }
     repo {
       owner
