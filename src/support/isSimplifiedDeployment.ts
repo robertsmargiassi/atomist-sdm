@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import {
     PushTest,
     pushTest,
@@ -21,7 +22,13 @@ import {
 
 export function IsSimplifiedDeployment(...names: string[]): PushTest {
     return pushTest("Simplified deployment required", async pci => {
-        return names.includes(pci.project.name);
+        if (names.includes(pci.project.name)) {
+            logger.info("True: Project %s (in repo %s) in my list of names, which is %s", pci.project.name, pci.id.repo, names);
+            return true;
+        } else {
+            logger.info("False: Project %s (in repo %s) is not in my list of names, which is %s", pci.project.name, pci.id.repo, names);
+            return false;
+        }
     });
 }
 
