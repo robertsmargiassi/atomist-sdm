@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { IsNamed } from "../../src/support/identityPushTests";
 import * as assert from "assert";
+import { IsNamed } from "../../src/support/identityPushTests";
 
 describe("IsNamed push test", () => {
 
@@ -26,5 +26,5 @@ describe("IsNamed push test", () => {
         const pt2 = IsNamed("No");
 
         assert(pt1.name !== pt2.name, `${pt1.name} = ${pt2.name}`);
-    })
+    });
 });
