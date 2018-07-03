@@ -42,7 +42,7 @@ import {
     TokenParameters,
     UpdateChangelog,
 } from "../handler/event/updateChangelog";
-import { IsSimplifiedDeployment } from "../support/isSimplifiedDeployment";
+import { IsNamed } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
     BuildGoals,
@@ -78,12 +78,12 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         // Simplified deployment goalset for automation-client-sdm and k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            IsSimplifiedDeployment("k8-automation", "atomist-sdm", "clojure-sdm"))
+            IsNamed("k8-automation", "atomist-sdm", "clojure-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            IsSimplifiedDeployment("sample-sdm"))
+            IsNamed("sample-sdm"))
             .itMeans("Staging Deploy")
             .setGoals(StagingKubernetesDeployGoals),
 
