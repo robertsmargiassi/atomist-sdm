@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import {
     PushTest,
     pushTest,
 } from "@atomist/sdm";
-import { logger } from "@atomist/automation-client";
 
 export function IsSimplifiedDeployment(...names: string[]): PushTest {
     return pushTest("Simplified deployment required", async pci => {
