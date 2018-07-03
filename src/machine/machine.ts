@@ -42,7 +42,7 @@ import {
     TokenParameters,
     UpdateChangelog,
 } from "../handler/event/updateChangelog";
-import { IsNamed } from "../support/isSimplifiedDeployment";
+import { IsNamed } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
     BuildGoals,
