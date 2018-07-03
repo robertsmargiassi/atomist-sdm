@@ -19,9 +19,10 @@ import {
     PushTest,
     pushTest,
 } from "@atomist/sdm";
+import * as sprintf from "sprintf-js";
 
-export function IsSimplifiedDeployment(...names: string[]): PushTest {
-    return pushTest("Simplified deployment required", async pci => {
+export function IsNamed(...names: string[]): PushTest {
+    return pushTest(sprintf("Project name is one of these: %s", names), async pci => {
         if (names.includes(pci.project.name)) {
             logger.info("True: Project %s (in repo %s) in my list of names, which is %s", pci.project.name, pci.id.repo, names);
             return true;
