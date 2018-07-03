@@ -37,6 +37,7 @@ export interface SdmUnderTest {
     org: string;
     sdm?: RemoteRepoRef;
     port?: number;
+    api?: string;
 }
 
 export function executeSmokeTests(
@@ -89,7 +90,7 @@ export function executeSmokeTests(
 function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: ProgressLog,
                   credentials: ProjectOperationCredentials): ChildProcess {
     installAndBuild("SDM", progressLog, baseDir);
-    const config = {
+    const config: {[k: string]: any} = {
         teamIds: [
             sdmUnderTest.team,
         ],
@@ -100,7 +101,12 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
         },
         token: (credentials as TokenCredentials).token,
     };
-    const env: {[k: string]: any}  = {
+    if (sdmUnderTest.api) {
+        config.endpoints = {
+            api: sdmUnderTest.api,
+        };
+    }
+    const env: {[k: string]: any} = {
         LOCAL_ATOMIST_ADMIN_PASSWORD: localAtomistAdminPassword,
         GITHUB_TOKEN: (credentials as TokenCredentials).token,
         HOME: process.env.HOME,
