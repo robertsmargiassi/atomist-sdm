@@ -38,6 +38,7 @@ export interface SdmUnderTest {
     sdm?: RemoteRepoRef;
     port?: number;
     api?: string;
+    graphql?: string;
 }
 
 export function executeSmokeTests(
@@ -101,9 +102,10 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
         },
         token: (credentials as TokenCredentials).token,
     };
-    if (sdmUnderTest.api) {
+    if (sdmUnderTest.api || sdmUnderTest.graphql) {
         config.endpoints = {
             api: sdmUnderTest.api,
+            graphql: sdmUnderTest.graphql,
         };
     }
     const env: {[k: string]: any} = {
