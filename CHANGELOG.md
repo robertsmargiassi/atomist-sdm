@@ -9,26 +9,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--   Mark changelog entry breaking if breaking label is used [#18](https://github.com/atomist/atomist-sdm/issues/18)
--   Publish TypeDoc when Node project is released
--   Increment version after release
--   Common build tools to Docker image
--   Add release to change log
+-   Mark changelog entry breaking if breaking label is used. [#18](https://github.com/atomist/atomist-sdm/issues/18)
+-   Publish TypeDoc when Node project is released.
+-   Increment version after release.
+-   Common build tools to Docker image.
+-   Add release to change log.
 
 ### Changed
 
--   Lein support disabled
+-   Lein support disabled.
 
 ## [0.1.1](https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1) - 2018-05-10
 
 ### Changed
 
--   Version
+-   Version.
 
 ## [0.1.0](https://github.com/atomist/atomist-sdm/tree/0.1.0) - 2018-05-10
 
 ### Added
 
--   Build, deploy, and release automation-client/SDM projects
--   Build and deploy lein projects
--   Build TypeScript projects
+-   Build, deploy, and release automation-client/SDM projects.
+-   Build and deploy lein projects.
+-   Build TypeScript projects.
