@@ -76,7 +76,7 @@ describe("changelog", () => {
         return readChangelog(p).then(result => {
             const cl = addEntryToChangelog(entry, result, p);
             assert.equal(cl.versions[0].parsed.Added[0],
-                "-   This is a test issue [#1](https://github.com/atomist/test/issues/1)");
+                "-   This is a test issue. [#1](https://github.com/atomist/test/issues/1)");
         });
     });
 
@@ -97,7 +97,7 @@ describe("changelog", () => {
         const result = await readChangelog(p);
         const cl = addEntryToChangelog(entry, result, p);
         const out = changelogToString(cl);
-        assert(/^### Added\s+^-   Something useful was added \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
+        assert(/^### Added\s+^-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
         assert(/\n$/.test(out));
     });
 
