@@ -26,6 +26,7 @@ import * as fs from "fs-extra";
 import * as _ from "lodash";
 import * as path from "path";
 import { promisify } from "util";
+import { ChangelogLabels } from "../../handler/command/changelogLabels";
 import { ClosedIssueWithChangelog } from "../../typings/types";
 import * as parseChangelog from "./changelogParser";
 
@@ -131,7 +132,8 @@ export function addEntryToChangelog(entry: ChangelogEntry,
     // Add the entry to the correct section
     const category = _.upperFirst(entry.category || "changed");
     const qualifiers = (entry.qualifiers || []).map(q => `**${q.toLocaleUpperCase()}**`).join(" ");
-    const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${entry.title} [#${entry.issue}](${entry.url})`;
+    const title = entry.title.endsWith(".") ? entry.title : `${entry.title}.`;
+    const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${title} [#${entry.issue}](${entry.url})`;
     if (version.parsed[category]) {
         version.parsed[category] = [line, ...version.parsed[category]];
 
@@ -161,15 +163,19 @@ ${changelog.description}`;
 
 ## ${v.title}`;
 
-        for (const category in v.parsed) {
-            if (category !== "_" && v.parsed.hasOwnProperty(category)) {
+        const keys = Object.keys(v.parsed)
+            .filter(k => k !== "_")
+            .sort((k1, k2) =>
+                ChangelogLabels.indexOf(k1.toLocaleLowerCase()) - ChangelogLabels.indexOf(k2.toLocaleLowerCase()));
+
+
+        for (const category of keys) {
                 content += `
 
 ### ${category}
 
 ${v.parsed[category].join("\n")}`;
             }
-        }
 
     });
 

@@ -28,12 +28,13 @@ import { bold } from "@atomist/slack-messages";
 import * as github from "../../support/gitHubApi";
 import { success } from "../../support/messages";
 
-const ChangelogLabels = [
-    "changelog:added",
-    "changelog:fixed",
-    "changelog:deprecated",
-    "changelog:removed",
-    "changelog:security",
+export const ChangelogLabels = [
+    "added",
+    "changed",
+    "deprecated",
+    "removed",
+    "fixed",
+    "security",
 ];
 
 @Parameters()
@@ -66,9 +67,10 @@ export const AddChangelogLabels: CommandHandlerRegistration<ChangelogParameters>
         const api = github.api(params.githubToken, params.apiUrl);
 
         ChangelogLabels.forEach(async l => {
+            const name = `changelog:${l}`;
             try {
                 await api.issues.getLabel({
-                    name: l,
+                    name,
                     repo: params.repo,
                     owner: params.owner,
                 });
@@ -76,7 +78,7 @@ export const AddChangelogLabels: CommandHandlerRegistration<ChangelogParameters>
                 await api.issues.createLabel({
                     owner: params.owner,
                     repo: params.repo,
-                    name: l,
+                    name,
                     color: "C5DB71",
                 });
             }
