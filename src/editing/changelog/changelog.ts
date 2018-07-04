@@ -168,7 +168,6 @@ ${changelog.description}`;
             .sort((k1, k2) =>
                 ChangelogLabels.indexOf(k1.toLocaleLowerCase()) - ChangelogLabels.indexOf(k2.toLocaleLowerCase()));
 
-
         for (const category of keys) {
                 content += `
 
