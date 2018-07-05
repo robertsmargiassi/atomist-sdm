@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { subscription } from "@atomist/automation-client/graph/graphQL";
 import {
     DoNotSetAnyGoals,
     IsDeployEnabled,
@@ -37,11 +36,6 @@ import {
     TagGoal,
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
-import { AddChangelogLabels } from "../handler/command/changelogLabels";
-import {
-    TokenParameters,
-    UpdateChangelog,
-} from "../handler/event/updateChangelog";
 import { IsNamed } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
@@ -109,8 +103,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addCommand(EnableDeploy)
-        .addCommand(DisableDeploy)
-        .addCommand(AddChangelogLabels);
+        .addCommand(DisableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
@@ -118,23 +111,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addNodeSupport(sdm);
 
     summarizeGoalsInGitHubStatus(sdm);
-
-    sdm.addEvent({
-            name: "UpdateChangelogOnIssue",
-            description: "Update CHANGELOG.md on a closed issue",
-            tags: ["github", "changelog", "issue"],
-            subscription: subscription("closedIssueWithChangelogLabel"),
-            paramsMaker: TokenParameters,
-            listener: UpdateChangelog,
-        })
-        .addEvent({
-            name: "UpdateChangelogOnPullRequest",
-            description: "Update CHANGELOG.md on a closed pull request",
-            tags: ["github", "changelog", "pr"],
-            subscription: subscription("closedPullRequestWithChangelogLabel"),
-            paramsMaker: TokenParameters,
-            listener: UpdateChangelog,
-        });
 
     return sdm;
 }
