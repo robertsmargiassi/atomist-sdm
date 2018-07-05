@@ -99,6 +99,15 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
             rolar: {
                 url: "https://rolar.cfapps.io",
             },
+            cloudfoundry: {
+                user: "pcf@atomist.com",
+                password: "covfefe",
+                org: "atomist",
+                spaces: {
+                    staging: "staging",
+                    production: "production",
+                },
+            },
         },
         token: (credentials as TokenCredentials).token,
     };
