@@ -51,6 +51,7 @@ import {
     tslintFix,
     VersionGoal,
 } from "@atomist/sdm-core";
+import { changelogSupport } from "@atomist/sdm-pack-changelog";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
@@ -72,7 +73,6 @@ import {
 import {
     DockerReleasePreparations,
     DocsReleasePreparations,
-    executeReleaseChangelog,
     executeReleaseDocker,
     executeReleaseDocs,
     executeReleaseNpm,
@@ -97,26 +97,26 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     const hasPackageLock = hasFile("package-lock.json");
 
     sdm.addGoalImplementation(
-        "npm run build",
-        BuildGoal,
-        executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
-        {
-            pushTest: allSatisfied(IsNode, not(hasPackageLock)),
-            logInterpreter: NodeDefaultOptions.logInterpreter,
-        },
-    )
+            "npm run build",
+            BuildGoal,
+            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
+            {
+                pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+                logInterpreter: NodeDefaultOptions.logInterpreter,
+            },
+        )
         .addGoalImplementation(
             "npm run build (no package-lock.json)",
             BuildGoal,
             executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
             NodeDefaultOptions,
-    )
+         )
         .addGoalImplementation(
             "nodeVersioner",
             VersionGoal,
             executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDockerBuild",
             DockerBuildGoal,
@@ -129,7 +129,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     dockerfileFinder: async () => "Dockerfile",
                 }),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodePublish",
             PublishGoal,
@@ -140,7 +140,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     ...sdm.configuration.sdm.npm as NpmOptions,
                 }),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeNpmRelease",
             ReleaseNpmGoal,
@@ -151,7 +151,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     ...sdm.configuration.sdm.npm as NpmOptions,
                 }),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeSmokeTest",
             SmokeTestGoal,
@@ -163,7 +163,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 "nodeBuild",
             ),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDockerRelease",
             ReleaseDockerGoal,
@@ -176,33 +176,28 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
                 logInterpreter: NodeDefaultOptions.logInterpreter,
             },
-    )
+        )
         .addGoalImplementation(
             "nodeTagRelease",
             ReleaseTagGoal,
             executeReleaseTag(sdm.configuration.sdm.projectLoader),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDocsRelease",
             ReleaseDocsGoal,
             executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeVersionRelease",
             ReleaseVersionGoal,
             executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier),
             NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeReleaseChangelog",
-            ReleaseChangelogGoal,
-            executeReleaseChangelog(sdm.configuration.sdm.projectLoader),
-            NodeDefaultOptions,
-    );
+        );
 
     sdm.addExtensionPacks(
+        changelogSupport(ReleaseChangelogGoal),
         kubernetesSupport({
             deployments: [{
                 goal: StagingDeploymentGoal,

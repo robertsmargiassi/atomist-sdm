@@ -32,6 +32,7 @@ import {
     TagGoal,
     VersionGoal,
 } from "@atomist/sdm-core";
+import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
 
 export const PublishGoal = new GoalWithPrecondition({
     uniqueName: "Publish",
@@ -106,16 +107,7 @@ export const ReleaseDocsGoal = new Goal({
     isolated: true,
 });
 
-export const ReleaseChangelogGoal = new GoalWithPrecondition({
-    uniqueName: "ReleaseChangeLog",
-    environment: ProductionEnvironment,
-    orderedName: "3-release-change-log",
-    displayName: "update changelog",
-    workingDescription: "Updating changelog...",
-    completedDescription: "Updated changelog",
-    failedDescription: "Updaing changelog failure",
-    isolated: true,
-}, ReleaseDocsGoal);
+export const ReleaseChangelogGoal = releaseChangelogGoal(ReleaseDocsGoal);
 
 export const ReleaseVersionGoal = new GoalWithPrecondition({
     uniqueName: "ReleaseVersion",
