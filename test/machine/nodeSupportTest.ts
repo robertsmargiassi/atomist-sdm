@@ -30,11 +30,13 @@ describe("nodeSupport", () => {
             const i = ingressFromGoal(r, n);
             assert(i.host === "pusher.atomist.com");
             assert(i.path === "/");
+            assert(i.tlsSecret === "star-atomist-com");
             const s = { name: r, ...i };
             const e = {
                 name: r,
                 host: "pusher.atomist.com",
                 path: "/",
+                tlsSecret: "star-atomist-com",
             };
             assert.deepStrictEqual(s, e);
         });
@@ -45,6 +47,7 @@ describe("nodeSupport", () => {
             const i = ingressFromGoal(r, n);
             assert(i.host === "pusher.atomist.services");
             assert(i.path === "/");
+            assert(i.tlsSecret === "star-atomist-services");
         });
 
         it("should return undefined", () => {
