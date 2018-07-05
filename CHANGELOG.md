@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 -   Lein support disabled.
+-   Breakout changelog support into extension pack. [#22](https://github.com/atomist/atomist-sdm/issues/22)
 
 ## [0.1.1](https://github.com/atomist/atomist-sdm/compare/0.1.0...0.1.1) - 2018-05-10
 
