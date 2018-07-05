@@ -171,6 +171,9 @@ async function runSmokeTests(sdmUnderTest: SdmUnderTest, repo: RemoteRepoRef, pr
     if (sdmUnderTest.port) {
         process.env.SDM_BASE_ENDPOINT = `http://localhost:${sdmUnderTest.port}`;
     }
+    if (sdmUnderTest.graphql) {
+        process.env.GRAPH_CLIENT_ENDPOINT = sdmUnderTest.graphql;
+    }
 
     let command = "test:cucumber";
     if (featureName) {
