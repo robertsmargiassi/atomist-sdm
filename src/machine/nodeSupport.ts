@@ -22,6 +22,7 @@ import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitH
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     allSatisfied,
+    BuildGoal,
     hasFile,
     not,
     ProductionEnvironment,
@@ -51,7 +52,8 @@ import {
     VersionGoal,
 } from "@atomist/sdm-core";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
-import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
+import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { AutomationClientTagger } from "../support/tagger";
@@ -80,6 +82,11 @@ import {
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
 
+const NodeDefaultOptions = {
+    pushTest: IsNode,
+    logInterpreter: LogSuppressor,
+};
+
 /**
  * Add Node.js implementations of goals to SDM.
  *
@@ -89,17 +96,30 @@ import { executeSmokeTests } from "./smokeTest";
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
     const hasPackageLock = hasFile("package-lock.json");
 
-    sdm.addBuildRules(
-        build.when(IsNode, hasPackageLock)
-            .itMeans("npm run build")
-            .set(nodeBuilder(sdm, "npm -v", "npm ci", "npm run build")),
-        build.when(IsNode, not(hasPackageLock))
-            .itMeans("npm run build (no package-lock.json)")
-            .set(nodeBuilder(sdm, "npm -v", "npm install", "npm run build")));
-
-    sdm.addGoalImplementation("nodeVersioner", VersionGoal,
-        executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner), { pushTest: IsNode })
-        .addGoalImplementation("nodeDockerBuild", DockerBuildGoal,
+    sdm.addGoalImplementation(
+            "npm run build",
+            BuildGoal,
+            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
+            {
+                pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+                logInterpreter: NodeDefaultOptions.logInterpreter,
+            },
+        )
+        .addGoalImplementation(
+            "npm run build (no package-lock.json)",
+            BuildGoal,
+            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeVersioner",
+            VersionGoal,
+            executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeDockerBuild",
+            DockerBuildGoal,
             executeDockerBuild(
                 sdm.configuration.sdm.projectLoader,
                 DefaultDockerImageNameCreator,
@@ -107,47 +127,84 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 {
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
-                }), { pushTest: IsNode })
-        .addGoalImplementation("nodePublish", PublishGoal,
+                }),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodePublish",
+            PublishGoal,
             executePublish(sdm.configuration.sdm.projectLoader,
                 NodeProjectIdentifier,
                 NpmPreparations,
                 {
                     ...sdm.configuration.sdm.npm as NpmOptions,
-                }), { pushTest: IsNode })
-        .addGoalImplementation("nodeNpmRelease", ReleaseNpmGoal,
+                }),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeNpmRelease",
+            ReleaseNpmGoal,
             executeReleaseNpm(sdm.configuration.sdm.projectLoader,
                 NodeProjectIdentifier,
                 NpmReleasePreparations,
                 {
                     ...sdm.configuration.sdm.npm as NpmOptions,
-                }), { pushTest: IsNode })
-        .addGoalImplementation("nodeSmokeTest", SmokeTestGoal,
+                }),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeSmokeTest",
+            SmokeTestGoal,
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
-                team: "AHF8B2MBL",
-                org: "sample-sdm-fidelity",
-                port: 2867,
+                    team: "AHF8B2MBL",
+                    org: "sample-sdm-fidelity",
+                    port: 2867,
                 }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
                 "nodeBuild",
-            ), { pushTest: IsNode })
-        .addGoalImplementation("nodeDockerRelease", ReleaseDockerGoal,
+            ),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeDockerRelease",
+            ReleaseDockerGoal,
             executeReleaseDocker(sdm.configuration.sdm.projectLoader,
                 DockerReleasePreparations,
                 {
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) })
-        .addGoalImplementation("nodeTagRelease", ReleaseTagGoal,
-            executeReleaseTag(sdm.configuration.sdm.projectLoader))
-        .addGoalImplementation("nodeDocsRelease", ReleaseDocsGoal,
-            executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations), { pushTest: IsNode })
-        .addGoalImplementation("nodeVersionRelease", ReleaseVersionGoal,
-            executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier), { pushTest: IsNode })
-        .addGoalImplementation("nodeReleaseChangelog", ReleaseChangelogGoal,
-            executeReleaseChangelog(sdm.configuration.sdm.projectLoader));
+                }),
+            {
+                pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
+                logInterpreter: NodeDefaultOptions.logInterpreter,
+            },
+        )
+        .addGoalImplementation(
+            "nodeTagRelease",
+            ReleaseTagGoal,
+            executeReleaseTag(sdm.configuration.sdm.projectLoader),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeDocsRelease",
+            ReleaseDocsGoal,
+            executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeVersionRelease",
+            ReleaseVersionGoal,
+            executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier),
+            NodeDefaultOptions,
+        )
+        .addGoalImplementation(
+            "nodeReleaseChangelog",
+            ReleaseChangelogGoal,
+            executeReleaseChangelog(sdm.configuration.sdm.projectLoader),
+            NodeDefaultOptions,
+        );
 
     sdm.addExtensionPacks(
         kubernetesSupport({
-            deployments: [{
+            deployments: [ {
                 goal: StagingDeploymentGoal,
                 pushTest: IsNode,
                 callback: kubernetesDataCallback(sdm.configuration),
@@ -155,7 +212,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 goal: ProductionDeploymentGoal,
                 pushTest: IsNode,
                 callback: kubernetesDataCallback(sdm.configuration),
-            }],
+            } ],
         }),
     );
 
