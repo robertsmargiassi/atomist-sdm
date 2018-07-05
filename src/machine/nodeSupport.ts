@@ -246,7 +246,7 @@ function kubernetesDataFromGoal(
 ): Promise<SdmGoalEvent> {
 
     const ns = namespaceFromGoal(goal);
-    const host = hostFromGoal(goal, ns);
+    const ingress = ingressFromGoal(goal.repo.name, ns);
     return createKubernetesData(
         goal,
         {
@@ -256,7 +256,7 @@ function kubernetesDataFromGoal(
             ns,
             imagePullSecret: "atomistjfrog",
             replicas: ns === "production" ? 3 : 1,
-            host,
+            ...ingress,
         },
         p);
 }
@@ -277,15 +277,21 @@ function namespaceFromGoal(goal: SdmGoalEvent): string {
     }
 }
 
-function hostFromGoal(goal: SdmGoalEvent, ns: string): string {
-    const name = goal.repo.name;
-    let host: string;
-    switch (name) {
-        case "card-automation":
-            host = "pusher";
-            break;
-        default:
-            return undefined;
+export interface Ingress {
+    host: string;
+    path: string;
+}
+
+export function ingressFromGoal(repo: string, ns: string): Ingress {
+    let ingress: Ingress;
+    if (repo === "card-automation") {
+        ingress = {
+            host: "pusher",
+            path: "/",
+        };
+    } else {
+        return undefined;
     }
-    return host + ((ns === "production") ? ".atomist.com" : ".atomist.services");
+    ingress.host += ".atomist." + ((ns === "production") ? "com" : "services");
+    return ingress;
 }

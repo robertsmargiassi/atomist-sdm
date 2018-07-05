@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
+import * as assert from "power-assert";
+
 import { Project } from "@atomist/automation-client/project/Project";
 import * as appRoot from "app-root-path";
 import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPartyLicense";
@@ -22,11 +23,39 @@ import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPa
 describe("thirdPartyLicense", () => {
 
     it("should create license file", () => {
+        let fc: string;
         return addThirdPartyLicenseEditor(false)({
             baseDir: appRoot.path,
-            addFile: (name, content) => { logger.info(content); },
+            addFile: (name, content) => { fc = content; },
             getFile: name => true,
             deleteDirectory: () => "",
-        } as any as Project);
-    }).timeout(1000 * 60);
+        } as any as Project)
+            .then(() => {
+                assert(fc.startsWith(`# @atomist/atomist-sdm
+
+This page details all runtime OSS dependencies of \`@atomist/atomist-sdm\`.
+
+## Licenses
+
+### Summary
+
+| License | Count |
+|---------|-------|
+`));
+                assert(fc.endsWith(`
+## Contact
+
+Please send any questions or inquires to [oss@atomist.com](mailto:oss@atomist.com).
+
+---
+
+Created by [Atomist][atomist].
+Need Help?  [Join our Slack team][slack].
+
+[atomist]: https://atomist.com/ (Atomist - Development Automation)
+[slack]: https://join.atomist.com/ (Atomist Community Slack)
+`));
+            });
+    }).timeout(1000 * 5);
+
 });
