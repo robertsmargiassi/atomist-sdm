@@ -97,6 +97,7 @@ describe("changelog", () => {
         const result = await readChangelog(p);
         const cl = addEntryToChangelog(entry, result, p);
         const out = changelogToString(cl);
+        // tslint:disable:max-line-length
         assert(/^-   Add release to change log.\s+^-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
         assert(/\n$/.test(out));
     });
