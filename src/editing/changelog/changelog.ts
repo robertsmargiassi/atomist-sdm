@@ -137,7 +137,7 @@ export function addEntryToChangelog(entry: ChangelogEntry,
     const title = entry.title.endsWith(".") ? entry.title : `${entry.title}.`;
     const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${title} [#${entry.issue}](${entry.url})`;
     if (version.parsed[category]) {
-        version.parsed[category] = [line, ...version.parsed[category]];
+        version.parsed[category].push(line);
 
     } else {
         version.parsed[category] = [line];
