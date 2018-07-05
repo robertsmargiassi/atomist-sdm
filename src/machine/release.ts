@@ -491,7 +491,7 @@ export function executeReleaseDocs(
             const version = await rwlcVersion(gi);
             const versionRelease = releaseVersion(version);
             const commitMsg = `TypeDoc: publishing for version ${versionRelease}
-            
+
 [atomist:generated]`;
             const docDir = typedocDir(project.baseDir);
             const docProject = await NodeFsLocalProject.fromExistingDirectory(project.id, docDir);
@@ -559,7 +559,7 @@ export function executeReleaseVersion(
             const postEls: ExecuteLogger[] = [
                 spawnExecuteLogger({ cmd: { command: "npm", args: ["version", "--no-git-tag-version", "patch"] }, cwd: gp.baseDir }),
                 gitExecuteLogger(gp, () => gp.commit(`Version: increment after ${versionRelease} release
-                
+
 [atomist:generated]`)),
                 gitExecuteLogger(gp, () => gp.push()),
             ];
@@ -667,7 +667,7 @@ export function executeReleaseChangelog(
 
             const postEls: ExecuteLogger[] = [
                 gitExecuteLogger(gp, () => gp.commit(`Changelog: add release ${versionRelease}
-                
+
 [atomist:generated]`)),
                 gitExecuteLogger(gp, () => gp.push()),
             ];
