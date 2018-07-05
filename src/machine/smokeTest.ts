@@ -18,17 +18,21 @@ import {
     ProjectOperationCredentials,
     TokenCredentials,
 } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-import {GitProject} from "@atomist/automation-client/project/git/GitProject";
-import {
-    ExecuteGoalResult, ExecuteGoalWithLog, ProgressLog, ProjectLoader, RunWithLogContext,
-} from "@atomist/sdm";
 
-import {RemoteRepoRef} from "@atomist/automation-client/operations/common/RepoId";
-import {GitCommandGitProject} from "@atomist/automation-client/project/git/GitCommandGitProject";
-import {ChildProcessResult} from "@atomist/automation-client/util/spawned";
-import {spawnAndWatch} from "@atomist/sdm/api-helper/misc/spawned";
+import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
+import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { ChildProcessResult } from "@atomist/automation-client/util/spawned";
+import {
+    ExecuteGoal,
+    ExecuteGoalResult,
+    GoalInvocation,
+    ProgressLog,
+    ProjectLoader,
+} from "@atomist/sdm";
+import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import * as child_process from "child_process";
-import {ChildProcess} from "child_process";
+import { ChildProcess } from "child_process";
 
 const localAtomistAdminPassword = "atomist123";
 
@@ -46,25 +50,25 @@ export function executeSmokeTests(
     sdmUnderTest: SdmUnderTest,
     smokeTestRepo: RemoteRepoRef,
     featureName?: string,
-): ExecuteGoalWithLog {
+): ExecuteGoal {
 
-    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
-        const { credentials, context } = rwlc;
-        const id = sdmUnderTest.sdm ? sdmUnderTest.sdm : rwlc.id;
+    return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
+        const { credentials, context } = gi;
+        const id = sdmUnderTest.sdm ? sdmUnderTest.sdm : gi.id;
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: false },
             async (project: GitProject) => {
 
             process.env.NODE_ENV = "development";
 
-            const sdmProcess = startSdm(sdmUnderTest, project.baseDir, rwlc.progressLog, credentials);
+            const sdmProcess = startSdm(sdmUnderTest, project.baseDir, gi.progressLog, credentials);
 
             // how to know when sdm is started? timeout is a hack
             await new Promise<any>(res => setTimeout(res, 10000));
 
             let testResult;
             try {
-                testResult = await runSmokeTests(sdmUnderTest, smokeTestRepo, rwlc.progressLog, credentials,
+                testResult = await runSmokeTests(sdmUnderTest, smokeTestRepo, gi.progressLog, credentials,
                     featureName);
             } catch (e) {
                 testResult = {
@@ -73,16 +77,16 @@ export function executeSmokeTests(
                 };
             }
 
-            rwlc.progressLog.write(`Stopping SDM`);
-            flushLog(rwlc.progressLog);
+            gi.progressLog.write(`Stopping SDM`);
+            flushLog(gi.progressLog);
             sdmProcess.kill();
 
             const egr: ExecuteGoalResult = {
                 code: testResult.code,
                 message: testResult.message,
-                targetUrl: rwlc.progressLog.url,
+                targetUrl: gi.progressLog.url,
             };
-            rwlc.progressLog.write(`Smoke tests complete: ${egr}`);
+            gi.progressLog.write(`Smoke tests complete: ${egr}`);
             return egr;
         });
     };

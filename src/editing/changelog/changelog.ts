@@ -76,7 +76,9 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
     }
 
     if (!(await p.isClean()).success) {
-        await p.commit(`Changelog: #${issue.number} to ${categories.join(", ")}`);
+        await p.commit(`Changelog: #${issue.number} to ${categories.join(", ")}
+        
+[atomist:generated]`);
         await p.push();
     }
     return Success;

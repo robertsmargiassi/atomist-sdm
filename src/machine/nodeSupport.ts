@@ -18,7 +18,7 @@ import {
     Configuration,
     logger,
 } from "@atomist/automation-client";
-import {GitHubRepoRef} from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     allSatisfied,
@@ -26,37 +26,32 @@ import {
     not,
     ProductionEnvironment,
     RepoContext,
+    SdmGoalEvent,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
-import { tagRepo } from "@atomist/sdm-core";
 import {
-    DockerBuildGoal,
-    VersionGoal,
-} from "@atomist/sdm-core";
-import { createKubernetesData } from "@atomist/sdm-core";
-import { tslintFix } from "@atomist/sdm-core";
-import {
-    executePublish,
-    NpmOptions,
-} from "@atomist/sdm-core";
-import { NodeProjectIdentifier } from "@atomist/sdm-core";
-import { NodeProjectVersioner } from "@atomist/sdm-core";
-import {
-    nodeBuilder,
-    NpmPreparations,
-} from "@atomist/sdm-core";
-import { executeVersioner } from "@atomist/sdm-core";
-import { IsNode } from "@atomist/sdm-core";
-import {
+    createKubernetesData,
     DefaultDockerImageNameCreator,
+    DockerBuildGoal,
     DockerOptions,
     executeDockerBuild,
+    executePublish,
+    executeVersioner,
+    IsNode,
+    nodeBuilder,
+    NodeProjectIdentifier,
+    NodeProjectVersioner,
+    NpmOptions,
+    NpmPreparations,
+    PackageLockFingerprinter,
+    tagRepo,
+    tslintFix,
+    VersionGoal,
 } from "@atomist/sdm-core";
-import { PackageLockFingerprinter } from "@atomist/sdm-core";
+import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
-import { SdmGoal } from "@atomist/sdm/api/goal/SdmGoal";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { AutomationClientTagger } from "../support/tagger";
@@ -83,7 +78,7 @@ import {
     executeReleaseVersion,
     NpmReleasePreparations,
 } from "./release";
-import {executeSmokeTests} from "./smokeTest";
+import { executeSmokeTests } from "./smokeTest";
 
 /**
  * Add Node.js implementations of goals to SDM.
@@ -97,10 +92,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addBuildRules(
         build.when(IsNode, hasPackageLock)
             .itMeans("npm run build")
-            .set(nodeBuilder(sdm.configuration.sdm.projectLoader, "npm -v", "npm ci", "npm run build")),
+            .set(nodeBuilder(sdm, "npm -v", "npm ci", "npm run build")),
         build.when(IsNode, not(hasPackageLock))
             .itMeans("npm run build (no package-lock.json)")
-            .set(nodeBuilder(sdm.configuration.sdm.projectLoader, "npm -v", "npm install", "npm run build")));
+            .set(nodeBuilder(sdm, "npm -v", "npm install", "npm run build")));
 
     sdm.addGoalImplementation("nodeVersioner", VersionGoal,
         executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner), { pushTest: IsNode })
@@ -141,34 +136,28 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 {
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
                 }), { pushTest: allSatisfied(IsNode, hasFile("Dockerfile")) })
-        .addGoalImplementation("nodeTagRelease", ReleaseTagGoal, executeReleaseTag(sdm.configuration.sdm.projectLoader))
+        .addGoalImplementation("nodeTagRelease", ReleaseTagGoal,
+            executeReleaseTag(sdm.configuration.sdm.projectLoader))
         .addGoalImplementation("nodeDocsRelease", ReleaseDocsGoal,
             executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations), { pushTest: IsNode })
         .addGoalImplementation("nodeVersionRelease", ReleaseVersionGoal,
             executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier), { pushTest: IsNode })
         .addGoalImplementation("nodeReleaseChangelog", ReleaseChangelogGoal,
-            executeReleaseChangelog(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier));
+            executeReleaseChangelog(sdm.configuration.sdm.projectLoader));
 
-    sdm.goalFulfillmentMapper
-        .addSideEffect({
-            goal: StagingDeploymentGoal,
-            pushTest: IsNode,
-            sideEffectName: "@atomist/k8-automation",
-        })
-        .addSideEffect({
-            goal: ProductionDeploymentGoal,
-            pushTest: IsNode,
-            sideEffectName: "@atomist/k8-automation",
-        })
-
-        .addFullfillmentCallback({
-            goal: StagingDeploymentGoal,
-            callback: kubernetesDataCallback(sdm.configuration),
-        })
-        .addFullfillmentCallback({
-            goal: ProductionDeploymentGoal,
-            callback: kubernetesDataCallback(sdm.configuration),
-        });
+    sdm.addExtensionPacks(
+        kubernetesSupport({
+            deployments: [{
+                goal: StagingDeploymentGoal,
+                pushTest: IsNode,
+                callback: kubernetesDataCallback(sdm.configuration),
+            }, {
+                goal: ProductionDeploymentGoal,
+                pushTest: IsNode,
+                callback: kubernetesDataCallback(sdm.configuration),
+            }],
+        }),
+    );
 
     sdm.addAutofix(AddAtomistTypeScriptHeader)
         .addAutofix(AddThirdPartyLicense);
@@ -182,7 +171,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
 function kubernetesDataCallback(
     configuration: SoftwareDeliveryMachineConfiguration,
-): (goal: SdmGoal, context: RepoContext) => Promise<SdmGoal> {
+): (goal: SdmGoalEvent, context: RepoContext) => Promise<SdmGoalEvent> {
 
     return async (goal, ctx) => {
         return configuration.sdm.projectLoader.doWithProject({
@@ -194,10 +183,10 @@ function kubernetesDataCallback(
 }
 
 function kubernetesDataFromGoal(
-    goal: SdmGoal,
+    goal: SdmGoalEvent,
     p: GitProject,
     configuration: Configuration,
-): Promise<SdmGoal> {
+): Promise<SdmGoalEvent> {
 
     const ns = namespaceFromGoal(goal);
     const host = hostFromGoal(goal);
@@ -215,7 +204,7 @@ function kubernetesDataFromGoal(
         p);
 }
 
-function namespaceFromGoal(goal: SdmGoal): string {
+function namespaceFromGoal(goal: SdmGoalEvent): string {
     const name = goal.repo.name;
     if (/-sdm$/.test(name) && name !== "sample-sdm" && name !== "spring-sdm") {
         return "sdm";
@@ -231,7 +220,7 @@ function namespaceFromGoal(goal: SdmGoal): string {
     }
 }
 
-function hostFromGoal(goal: SdmGoal): string {
+function hostFromGoal(goal: SdmGoalEvent): string {
     const name = goal.repo.name;
     if (name === "card-automation") {
         return "pusher";
