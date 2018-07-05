@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {
-    SimpleProjectEditor,
-} from "@atomist/automation-client/operations/edit/projectEditor";
+import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
-    EditorAutofixRegistration,
+    CodeTransformAutofixRegistration,
     PushTest,
 } from "@atomist/sdm";
 import { IsNode } from "@atomist/sdm-core";
@@ -46,7 +44,7 @@ const SummaryTableHadler = `| License | Count |
 
 export const AddThirdPartyLicense = addThirdPartyLicense(IsNode);
 
-export function addThirdPartyLicense(pushTest: PushTest): EditorAutofixRegistration {
+export function addThirdPartyLicense(pushTest: PushTest): CodeTransformAutofixRegistration {
     return {
         name: "Third party licenses",
         pushTest,

@@ -16,20 +16,21 @@
 
 import {
     allSatisfied,
-    EditorAutofixRegistration,
     hasFileContaining,
     PushTest,
 } from "@atomist/sdm";
 import { IsTypeScript } from "@atomist/sdm-core";
+import { CodeTransformAutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import {
     AddHeaderParameters,
     addHeaderProjectEditor,
 } from "./addHeader";
 
 export const LicenseFilename = "LICENSE";
-export const AddAtomistTypeScriptHeader: EditorAutofixRegistration = addAtomistHeader("TypeScript header", "**/*.ts", IsTypeScript);
+export const AddAtomistTypeScriptHeader: CodeTransformAutofixRegistration =
+    addAtomistHeader("TypeScript header", "**/*.ts", IsTypeScript);
 
-export function addAtomistHeader(name: string, glob: string, pushTest: PushTest): EditorAutofixRegistration {
+export function addAtomistHeader(name: string, glob: string, pushTest: PushTest): CodeTransformAutofixRegistration {
     const parameters = new AddHeaderParameters();
     parameters.glob = glob;
     // Stop it continually editing the barrel and graphql types
