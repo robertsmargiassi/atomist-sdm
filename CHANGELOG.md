@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Increment version after release.
 -   Common build tools to Docker image.
 -   Add release to change log.
+-   Configure ingress for card-automation. [#21](https://github.com/atomist/atomist-sdm/issues/21)
 
 ### Changed
 
