@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 -   Respect `#!` lines when adding license header
+-   Double approval required for non-automation-client Node.js builds. [#23](https://github.com/atomist/atomist-sdm/issues/23)
 
 ## [0.1.3](https://github.com/atomist/atomist-sdm/compare/0.1.1...0.1.3) - 2018-07-05
 
