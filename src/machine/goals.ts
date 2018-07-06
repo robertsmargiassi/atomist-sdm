@@ -43,7 +43,7 @@ export const PublishGoal = new GoalWithPrecondition({
     completedDescription: "Published",
     failedDescription: "Published failed",
     isolated: true,
-}, BuildGoal);
+}, BuildGoal, DockerBuildGoal);
 
 export const StagingDeploymentGoal = new GoalWithPrecondition({
     uniqueName: "DeployToTest",
@@ -153,11 +153,11 @@ export const BuildReleaseGoals = new Goals(
     "Build with Release",
     ...CheckGoals.goals,
     BuildGoal,
-    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
     TagGoal,
+    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
     new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, PublishGoal),
+    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal),
     ReleaseChangelogGoal,
     ReleaseVersionGoal,
 );
@@ -174,13 +174,13 @@ export const DockerReleaseGoals = new Goals(
     "Docker Build with Release",
     ...CheckGoals.goals,
     BuildGoal,
+    DockerBuildGoal,
+    TagGoal,
     new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
-    new GoalWithPrecondition(TagGoal.definition, BuildGoal),
     new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
-    new GoalWithPrecondition({ ...DockerBuildGoal.definition, approvalRequired: true }, ...DockerBuildGoal.dependsOn),
-    new GoalWithPrecondition(ReleaseDockerGoal.definition, DockerBuildGoal),
+    new GoalWithPrecondition(ReleaseDockerGoal.definition, PublishGoal),
+    new GoalWithPrecondition(ReleaseDocsGoal.definition, PublishGoal),
     new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
-    new GoalWithPrecondition(ReleaseDocsGoal.definition, DockerBuildGoal),
     ReleaseChangelogGoal,
     ReleaseVersionGoal,
 );
@@ -188,17 +188,13 @@ export const DockerReleaseGoals = new Goals(
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = new Goals(
     "Deploy",
-    ...CheckGoals.goals,
-    BuildGoal,
-    PublishGoal,
-    DockerBuildGoal,
-    TagGoal,
+    ...DockerGoals.goals,
     StagingDeploymentGoal,
     new GoalWithPrecondition(ProductionDeploymentGoal.definition, StagingDeploymentGoal),
     new GoalWithPrecondition(ReleaseNpmGoal.definition, StagingDeploymentGoal),
     new GoalWithPrecondition(ReleaseDockerGoal.definition, StagingDeploymentGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, StagingDeploymentGoal),
+    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     ReleaseChangelogGoal,
     ReleaseVersionGoal,
 );
@@ -206,16 +202,12 @@ export const KubernetesDeployGoals = new Goals(
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = new Goals(
     "Simplified Deploy",
-    ...CheckGoals.goals,
-    BuildGoal,
-    PublishGoal,
-    DockerBuildGoal,
-    TagGoal,
+    ...DockerGoals.goals,
     new GoalWithPrecondition({ ...ProductionDeploymentGoal.definition, approvalRequired: true }, DockerBuildGoal),
     new GoalWithPrecondition(ReleaseNpmGoal.definition, ProductionDeploymentGoal),
     new GoalWithPrecondition(ReleaseDockerGoal.definition, ProductionDeploymentGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     new GoalWithPrecondition(ReleaseDocsGoal.definition, ProductionDeploymentGoal),
+    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
     ReleaseChangelogGoal,
     ReleaseVersionGoal,
 );
@@ -223,33 +215,7 @@ export const SimplifiedKubernetesDeployGoals = new Goals(
 // Only deploy to staging
 export const StagingKubernetesDeployGoals = new Goals(
     "Staging Deploy",
-    ...CheckGoals.goals,
-    BuildGoal,
-    PublishGoal,
-    DockerBuildGoal,
-    TagGoal,
+    ...DockerGoals.goals,
     SmokeTestGoal,
     new GoalWithPrecondition({ ...StagingDeploymentGoal.definition, approvalRequired: false }, ...StagingDeploymentGoal.dependsOn),
-);
-
-export const LibraryPublished = new Goal({
-    uniqueName: "LibraryPublished",
-    environment: ProductionEnvironment,
-    orderedName: "3-prod-library-published",
-    displayName: "publish library",
-    completedDescription: "Library Published",
-});
-
-export const LeinBuildGoals = new Goals(
-    "Lein Docker Build",
-    ...CheckGoals.goals,
-    BuildGoal,
-    TagGoal,
-    // new GoalWithPrecondition(LibraryPublished.definition, TagGoal),
-);
-
-export const LeinDockerGoals = new Goals(
-    "Lein Docker Build",
-    ...LeinBuildGoals.goals,
-    DockerBuildGoal,
 );
