@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/atomist/atomist-sdm/compare/0.1.3...HEAD)
 
+### Changed
+
+-   Support building non-client TypeScript projects
+
 ## [0.1.3](https://github.com/atomist/atomist-sdm/compare/0.1.1...0.1.3) - 2018-07-05
 
 ### Added
