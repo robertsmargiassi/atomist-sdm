@@ -34,13 +34,13 @@ import { RequestedCommitParameters } from "./RequestedCommitParameters";
 @Parameters()
 export class AddHeaderParameters extends RequestedCommitParameters {
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     public glob: string = CFamilyLanguageSourceFiles;
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     public excludeGlob: string;
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     public license: "apache" = "apache";
 
     constructor() {
@@ -49,9 +49,9 @@ export class AddHeaderParameters extends RequestedCommitParameters {
 
     get header(): string {
         switch (this.license) {
-            case "apache" :
+            case "apache":
                 return ApacheHeader;
-            default :
+            default:
                 throw new Error(`'${this.license}' is not a supported license`);
         }
     }
@@ -72,7 +72,8 @@ export const ApacheHeader = `/*
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */`;
+ */
+`;
 
 export const AddApacheLicenseHeaderEditor: EditorRegistration = {
     createEditor: () => addHeaderProjectEditor,
@@ -82,13 +83,13 @@ export const AddApacheLicenseHeaderEditor: EditorRegistration = {
 };
 
 export async function addHeaderProjectEditor(p: Project,
-                                             ctx: HandlerContext,
-                                             params: AddHeaderParameters): Promise<Project> {
+    ctx: HandlerContext,
+    params: AddHeaderParameters): Promise<Project> {
     let headersAdded = 0;
     let matchingFiles = 0;
     let filesWithDifferentHeaders = [];
     await doWithFiles(p, params.glob, async f => {
-        if (params.excludeGlob && params.excludeGlob.split(",").some(p => minimatch(f.path, p))) {
+        if (params.excludeGlob && minimatch(f.path, params.excludeGlob)) {
             return;
         }
         ++matchingFiles;
@@ -108,9 +109,15 @@ export async function addHeaderProjectEditor(p: Project,
     return p;
 }
 
-function hasDifferentHeader(header: string, content: string): boolean {
-    if (content.startsWith("/*")) {
-        if (content.startsWith(header) || content.startsWith("/* tslint:disable */")) {
+export function hasDifferentHeader(header: string, content: string): boolean {
+    let checkContent: string = content;
+    if (content.startsWith("#!")) {
+        checkContent = content.split("\n").slice(1).join("\n");
+    } else {
+        checkContent = content;
+    }
+    if (checkContent.startsWith("/*")) {
+        if (checkContent.startsWith(header) || checkContent.startsWith("/* tslint:disable */")) {
             // great
             return false;
         }

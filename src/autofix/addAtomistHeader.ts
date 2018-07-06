@@ -34,7 +34,7 @@ export function addAtomistHeader(name: string, glob: string, pushTest: PushTest)
     const parameters = new AddHeaderParameters();
     parameters.glob = glob;
     // Stop it continually editing the barrel and graphql types
-    parameters.excludeGlob = "src/typings/types.ts,src/index.ts";
+    parameters.excludeGlob = "src/{typings/types,index}.ts";
     return {
         name,
         pushTest: allSatisfied(pushTest, hasFileContaining(LicenseFilename, /Apache License/)),
