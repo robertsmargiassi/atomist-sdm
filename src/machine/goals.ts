@@ -20,6 +20,7 @@ import {
     AutofixGoal,
     BuildGoal,
     Goal,
+    goals,
     Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
@@ -132,90 +133,49 @@ export const SmokeTestGoal = new GoalWithPrecondition({
 // GOALSET Definition
 
 // Just running review and autofix
-export const CheckGoals = new Goals(
-    "Check",
-    VersionGoal,
-    ReviewGoal,
-    AutofixGoal,
-);
+export const CheckGoals = goals("Check")
+    .plan(VersionGoal, ReviewGoal, AutofixGoal);
 
 // Just running the build and publish
-export const BuildGoals = new Goals(
-    "Build",
-    ...CheckGoals.goals,
-    BuildGoal,
-    PublishGoal,
-    TagGoal,
-);
+export const BuildGoals = goals("Build")
+    .plan(CheckGoals, BuildGoal, PublishGoal, TagGoal)
 
 // Just running the build and publish
-export const BuildReleaseGoals = new Goals(
-    "Build with Release",
-    ...CheckGoals.goals,
-    BuildGoal,
-    TagGoal,
-    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
-    new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseDocsGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal),
-    ReleaseChangelogGoal,
-    ReleaseVersionGoal,
-);
+export const BuildReleaseGoals = goals("Build with Release")
+    .plan(CheckGoals, BuildGoal, TagGoal)
+    .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal)
+    .plan(ReleaseNpmGoal, ReleaseDocsGoal).after(PublishGoal)
+    .plan(ReleaseTagGoal).after(ReleaseNpmGoal)
+    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 
 // Build including docker build
-export const DockerGoals = new Goals(
-    "Docker Build",
-    ...BuildGoals.goals,
-    DockerBuildGoal,
-);
+export const DockerGoals = goals("Docker Build")
+    .plan(BuildGoals, DockerBuildGoal);
 
 // Build including docker build
-export const DockerReleaseGoals = new Goals(
-    "Docker Build with Release",
-    ...CheckGoals.goals,
-    BuildGoal,
-    DockerBuildGoal,
-    TagGoal,
-    new GoalWithPrecondition({ ...PublishGoal.definition, approvalRequired: true }, ...PublishGoal.dependsOn),
-    new GoalWithPrecondition(ReleaseNpmGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseDockerGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseDocsGoal.definition, PublishGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
-    ReleaseChangelogGoal,
-    ReleaseVersionGoal,
-);
+export const DockerReleaseGoals = goals("Docker Build with Release")
+    .plan(CheckGoals, BuildGoal, DockerBuildGoal, TagGoal,)
+    .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal, DockerBuildGoal)
+    .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(PublishGoal)
+    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDocker)
+    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 
 // Docker build and testing and production kubernetes deploy
-export const KubernetesDeployGoals = new Goals(
-    "Deploy",
-    ...DockerGoals.goals,
-    StagingDeploymentGoal,
-    new GoalWithPrecondition(ProductionDeploymentGoal.definition, StagingDeploymentGoal),
-    new GoalWithPrecondition(ReleaseNpmGoal.definition, StagingDeploymentGoal),
-    new GoalWithPrecondition(ReleaseDockerGoal.definition, StagingDeploymentGoal),
-    new GoalWithPrecondition(ReleaseDocsGoal.definition, StagingDeploymentGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
-    ReleaseChangelogGoal,
-    ReleaseVersionGoal,
-);
+export const KubernetesDeployGoals = goals("Deploy")
+    .plan(DockerGoals, StagingDeploymentGoal)
+    .plan(ProductionDeploymentGoal, ReleaseNpmGoal, ReleaseDockerGoal , ReleaseDocsGoal).after(StagingDeploymentGoal)
+    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
+    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 
 // Docker build and testing and production kubernetes deploy
-export const SimplifiedKubernetesDeployGoals = new Goals(
-    "Simplified Deploy",
-    ...DockerGoals.goals,
-    new GoalWithPrecondition({ ...ProductionDeploymentGoal.definition, approvalRequired: true }, DockerBuildGoal),
-    new GoalWithPrecondition(ReleaseNpmGoal.definition, ProductionDeploymentGoal),
-    new GoalWithPrecondition(ReleaseDockerGoal.definition, ProductionDeploymentGoal),
-    new GoalWithPrecondition(ReleaseDocsGoal.definition, ProductionDeploymentGoal),
-    new GoalWithPrecondition(ReleaseTagGoal.definition, ReleaseNpmGoal, ReleaseDockerGoal),
-    ReleaseChangelogGoal,
-    ReleaseVersionGoal,
-);
+export const SimplifiedKubernetesDeployGoals = goals("Simplified Deploy")
+    .plan(DockerGoals)
+    .plan({ ...ProductionDeploymentGoal.definition, approvalRequired: true }).after(DockerBuildGoal)
+    .plan((ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(ProductionDeploymentGoal)
+    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
+    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 
 // Only deploy to staging
-export const StagingKubernetesDeployGoals = new Goals(
-    "Staging Deploy",
-    ...DockerGoals.goals,
-    SmokeTestGoal,
-    new GoalWithPrecondition({ ...StagingDeploymentGoal.definition, approvalRequired: false }, ...StagingDeploymentGoal.dependsOn),
-);
+export const StagingKubernetesDeployGoals = goals("Staging Deploy")
+    .plan(DockerGoals, SmokeTestGoal)
+    .plan({ ...StagingDeploymentGoal.definition, approvalRequired: false }).after(DockerBuildGoal);
