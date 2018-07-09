@@ -16,13 +16,11 @@
 
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import {
-    CodeTransformAutofixRegistration,
-    PushTest,
-} from "@atomist/sdm";
+import { PushTest } from "@atomist/sdm";
 import { IsNode } from "@atomist/sdm-core";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
+import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import * as fs from "fs-extra";
 import * as lc from "license-checker";
 import * as _ from "lodash";
@@ -44,15 +42,15 @@ const SummaryTableHadler = `| License | Count |
 
 export const AddThirdPartyLicense = addThirdPartyLicense(IsNode);
 
-export function addThirdPartyLicense(pushTest: PushTest): CodeTransformAutofixRegistration {
+export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     return {
         name: "Third party licenses",
         pushTest,
-        editor: addThirdPartyLicenseEditor(true),
+        transform: addThirdPartyLicenseTransform(true),
     };
 }
 
-export function addThirdPartyLicenseEditor(runInstall: boolean = true): SimpleProjectEditor {
+export function addThirdPartyLicenseTransform(runInstall: boolean = true): SimpleProjectEditor {
     return async p => {
         const cwd = (p as GitProject).baseDir;
         const hasPackageLock = p.getFile("package-lock.json");

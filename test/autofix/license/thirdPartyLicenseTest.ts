@@ -18,13 +18,13 @@ import * as assert from "power-assert";
 
 import { Project } from "@atomist/automation-client/project/Project";
 import * as appRoot from "app-root-path";
-import { addThirdPartyLicenseEditor } from "../../../src/autofix/license/thirdPartyLicense";
+import { addThirdPartyLicenseTransform } from "../../../src/autofix/license/thirdPartyLicense";
 
 describe("thirdPartyLicense", () => {
 
     it("should create license file", () => {
         let fc: string;
-        return addThirdPartyLicenseEditor(false)({
+        return addThirdPartyLicenseTransform(false)({
             baseDir: appRoot.path,
             addFile: (name, content) => { fc = content; },
             getFile: name => true,

@@ -23,7 +23,10 @@ import {
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
-import { EditorRegistration } from "@atomist/sdm";
+import {
+    CodeTransformRegistration,
+    CommandListenerInvocation,
+} from "@atomist/sdm";
 import * as minimatch from "minimatch";
 import { CFamilyLanguageSourceFiles } from "./GlobPatterns";
 import { RequestedCommitParameters } from "./RequestedCommitParameters";
@@ -75,37 +78,37 @@ export const ApacheHeader = `/*
  */
 `;
 
-export const AddApacheLicenseHeaderEditor: EditorRegistration = {
-    createEditor: () => addHeaderProjectEditor,
+export const AddApacheLicenseHeaderEditor: CodeTransformRegistration = {
+    transform: addHeaderProjectEditor,
     name: "addHeader",
     paramsMaker: AddHeaderParameters,
-    editMode: ahp => ahp.editMode
+    editMode: ahp => ahp.editMode,
 };
 
 export async function addHeaderProjectEditor(p: Project,
     ctx: HandlerContext,
-    params: AddHeaderParameters): Promise<Project> {
+    ci: CommandListenerInvocation): Promise<Project> {
     let headersAdded = 0;
     let matchingFiles = 0;
     let filesWithDifferentHeaders = [];
-    await doWithFiles(p, params.glob, async f => {
-        if (params.excludeGlob && minimatch(f.path, params.excludeGlob)) {
+    await doWithFiles(p, ci.parameters.glob, async f => {
+        if (ci.parameters.excludeGlob && minimatch(f.path, ci.parameters.excludeGlob)) {
             return;
         }
         ++matchingFiles;
         const content = await f.getContent();
-        if (content.includes(params.header)) {
+        if (content.includes(ci.parameters.header)) {
             return;
         }
-        if (hasDifferentHeader(params.header, content)) {
+        if (hasDifferentHeader(ci.parameters.header, content)) {
             filesWithDifferentHeaders.push(f);
             return;
         }
         ++headersAdded;
-        return f.setContent(params.header + "\n\n" + content);
+        return f.setContent(ci.parameters.header + "\n\n" + content);
     });
     const sha: string = !!(p as GitProject).gitStatus ? (await (p as GitProject).gitStatus()).sha : p.id.sha;
-    logger.info("%d files matched [%s]. %s headers added. %d files skipped", matchingFiles, params.glob, headersAdded, matchingFiles - headersAdded);
+    logger.info("%d files matched [%s]. %s headers added. %d files skipped", matchingFiles, ci.parameters.glob, headersAdded, matchingFiles - headersAdded);
     return p;
 }
 

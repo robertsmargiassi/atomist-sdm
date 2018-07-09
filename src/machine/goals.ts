@@ -21,7 +21,6 @@ import {
     BuildGoal,
     Goal,
     goals,
-    Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
@@ -138,7 +137,7 @@ export const CheckGoals = goals("Check")
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
-    .plan(CheckGoals, BuildGoal, PublishGoal, TagGoal)
+    .plan(CheckGoals, BuildGoal, PublishGoal, TagGoal);
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
@@ -154,10 +153,10 @@ export const DockerGoals = goals("Docker Build")
 
 // Build including docker build
 export const DockerReleaseGoals = goals("Docker Build with Release")
-    .plan(CheckGoals, BuildGoal, DockerBuildGoal, TagGoal,)
+    .plan(CheckGoals, BuildGoal, DockerBuildGoal, TagGoal)
     .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal, DockerBuildGoal)
     .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(PublishGoal)
-    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDocker)
+    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
     .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 
 // Docker build and testing and production kubernetes deploy
@@ -171,7 +170,7 @@ export const KubernetesDeployGoals = goals("Deploy")
 export const SimplifiedKubernetesDeployGoals = goals("Simplified Deploy")
     .plan(DockerGoals)
     .plan({ ...ProductionDeploymentGoal.definition, approvalRequired: true }).after(DockerBuildGoal)
-    .plan((ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(ProductionDeploymentGoal)
+    .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(ProductionDeploymentGoal)
     .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
     .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
 

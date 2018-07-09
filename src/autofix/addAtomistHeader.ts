@@ -20,17 +20,17 @@ import {
     PushTest,
 } from "@atomist/sdm";
 import { IsTypeScript } from "@atomist/sdm-core";
-import { CodeTransformAutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
+import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import {
     AddHeaderParameters,
     addHeaderProjectEditor,
 } from "./addHeader";
 
 export const LicenseFilename = "LICENSE";
-export const AddAtomistTypeScriptHeader: CodeTransformAutofixRegistration =
+export const AddAtomistTypeScriptHeader: AutofixRegistration =
     addAtomistHeader("TypeScript header", "**/*.ts", IsTypeScript);
 
-export function addAtomistHeader(name: string, glob: string, pushTest: PushTest): CodeTransformAutofixRegistration {
+export function addAtomistHeader(name: string, glob: string, pushTest: PushTest): AutofixRegistration {
     const parameters = new AddHeaderParameters();
     parameters.glob = glob;
     // Stop it continually editing the barrel and graphql types
@@ -39,7 +39,7 @@ export function addAtomistHeader(name: string, glob: string, pushTest: PushTest)
         name,
         pushTest: allSatisfied(pushTest, hasFileContaining(LicenseFilename, /Apache License/)),
         // Ignored any parameters passed in, which will be undefined in an autofix, and provide predefined parameters
-        editor: addHeaderProjectEditor,
+        transform: addHeaderProjectEditor,
         parameters,
     };
 }
