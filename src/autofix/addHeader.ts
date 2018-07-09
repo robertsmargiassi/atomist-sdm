@@ -15,12 +15,9 @@
  */
 
 import {
-    HandlerContext,
-    logger,
     Parameter,
     Parameters,
 } from "@atomist/automation-client";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import {
@@ -78,15 +75,14 @@ export const ApacheHeader = `/*
  */
 `;
 
-export const AddApacheLicenseHeaderEditor: CodeTransformRegistration = {
-    transform: addHeaderProjectEditor,
+export const AddApacheLicenseTransform: CodeTransformRegistration = {
+    transform: addHeaderTransform,
     name: "addHeader",
     paramsMaker: AddHeaderParameters,
     editMode: ahp => ahp.editMode,
 };
 
-export async function addHeaderProjectEditor(p: Project,
-    ctx: HandlerContext,
+export async function addHeaderTransform(p: Project,
     ci: CommandListenerInvocation): Promise<Project> {
     let headersAdded = 0;
     let matchingFiles = 0;
@@ -107,8 +103,6 @@ export async function addHeaderProjectEditor(p: Project,
         ++headersAdded;
         return f.setContent(ci.parameters.header + "\n\n" + content);
     });
-    const sha: string = !!(p as GitProject).gitStatus ? (await (p as GitProject).gitStatus()).sha : p.id.sha;
-    logger.info("%d files matched [%s]. %s headers added. %d files skipped", matchingFiles, ci.parameters.glob, headersAdded, matchingFiles - headersAdded);
     return p;
 }
 

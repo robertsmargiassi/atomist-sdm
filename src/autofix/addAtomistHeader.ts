@@ -23,7 +23,7 @@ import { IsTypeScript } from "@atomist/sdm-core";
 import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import {
     AddHeaderParameters,
-    addHeaderProjectEditor,
+    addHeaderTransform,
 } from "./addHeader";
 
 export const LicenseFilename = "LICENSE";
@@ -39,7 +39,7 @@ export function addAtomistHeader(name: string, glob: string, pushTest: PushTest)
         name,
         pushTest: allSatisfied(pushTest, hasFileContaining(LicenseFilename, /Apache License/)),
         // Ignored any parameters passed in, which will be undefined in an autofix, and provide predefined parameters
-        transform: addHeaderProjectEditor,
+        transform: addHeaderTransform,
         parameters,
     };
 }
