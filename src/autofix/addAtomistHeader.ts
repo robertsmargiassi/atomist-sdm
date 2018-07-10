@@ -30,7 +30,9 @@ export const LicenseFilename = "LICENSE";
 export const AddAtomistTypeScriptHeader: AutofixRegistration =
     addAtomistHeader("TypeScript header", "**/*.ts", IsTypeScript);
 
-export function addAtomistHeader(name: string, glob: string, pushTest: PushTest): AutofixRegistration {
+export function addAtomistHeader(name: string,
+                                 glob: string,
+                                 pushTest: PushTest): AutofixRegistration<AddHeaderParameters> {
     const parameters = new AddHeaderParameters();
     parameters.glob = glob;
     // Stop it continually editing the barrel and graphql types
