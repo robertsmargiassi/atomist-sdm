@@ -30,7 +30,6 @@ import {
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
-import { isUpperCase } from "tslint/lib/utils";
 
 export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>) {
 
