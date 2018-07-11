@@ -19,7 +19,7 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 |[Custom: https://github.com/douglascrockford/JSON-js](#custom-httpsgithubcomdouglascrockfordjson-js)|1|
 |[GPL-3.0](#gpl-30)|4|
 |[ISC](#isc)|115|
-|[MIT](#mit)|737|
+|[MIT](#mit)|739|
 |[Public Domain](#public-domain)|1|
 |[Unlicense](#unlicense)|3|
 |[WTFPL](#wtfpl)|3|
@@ -39,9 +39,9 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |`@atomist/automation-client-ext-dashboard`|`0.1.0-20180705210657`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-dashboard](https://github.com/atomist/automation-client-ext-dashboard)|
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180628224529`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
-|`@atomist/sdm-core`|`0.3.2-20180710130029`|Atomist, Inc.|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
-|`@atomist/sdm-pack-changelog`|`0.1.0`|Atomist, Inc.|[https://github.com/atomist/sdm-pack-changelog](https://github.com/atomist/sdm-pack-changelog)|
-|`@atomist/sdm-pack-k8`|`0.1.1`|Atomist, Inc.|[https://github.com/atomist/sdm-pack-k8](https://github.com/atomist/sdm-pack-k8)|
+|`@atomist/sdm-core`|`0.3.2-20180711102505`|Atomist, Inc.|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
+|`@atomist/sdm-pack-changelog`|`0.1.1-20180705163621`|Atomist, Inc.|[https://github.com/atomist/sdm-pack-changelog](https://github.com/atomist/sdm-pack-changelog)|
+|`@atomist/sdm-pack-k8`|`0.1.2-20180705162518`|Atomist, Inc.|[https://github.com/atomist/sdm-pack-k8](https://github.com/atomist/sdm-pack-k8)|
 |`@atomist/sdm`|`0.3.2-20180710050414`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
 |`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`JSONStream`|`1.3.2`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
@@ -188,7 +188,7 @@ GNU General Public License v3.0 only - [http://www.gnu.org/licenses/gpl-3.0-stan
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/automation-client`|`0.18.0-20180710091719`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
+|`@atomist/automation-client`|`0.18.0-20180710131258`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
 |`@atomist/microgrammar`|`0.7.0`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/microgrammar`|`0.7.0-20180528084001`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/tree-path`|`0.1.9`|Atomist, Inc.|[https://github.com/atomist/tree-path-ts](https://github.com/atomist/tree-path-ts)|
@@ -353,6 +353,7 @@ MIT License - [http://www.opensource.org/licenses/MIT](http://www.opensource.org
 |`acorn-es7-plugin`|`1.1.7`|matatbread|[https://github.com/MatAtBread/acorn-es7-plugin](https://github.com/MatAtBread/acorn-es7-plugin)|
 |`acorn`|`4.0.13`||[https://github.com/ternjs/acorn](https://github.com/ternjs/acorn)|
 |`agent-base`|`4.2.0`|Nathan Rajlich|[https://github.com/TooTallNate/node-agent-base](https://github.com/TooTallNate/node-agent-base)|
+|`agent-base`|`4.2.1`|Nathan Rajlich|[https://github.com/TooTallNate/node-agent-base](https://github.com/TooTallNate/node-agent-base)|
 |`agentkeepalive`|`3.4.0`|fengmk2|[https://github.com/node-modules/agentkeepalive](https://github.com/node-modules/agentkeepalive)|
 |`agentkeepalive`|`3.4.1`|fengmk2|[https://github.com/node-modules/agentkeepalive](https://github.com/node-modules/agentkeepalive)|
 |`ajv`|`5.5.2`|Evgeny Poberezkin|[https://github.com/epoberezkin/ajv](https://github.com/epoberezkin/ajv)|
@@ -377,6 +378,7 @@ MIT License - [http://www.opensource.org/licenses/MIT](http://www.opensource.org
 |`apollo-utilities`|`1.0.13`|James Baxley|[https://github.com/apollographql/apollo-client](https://github.com/apollographql/apollo-client)|
 |`apollo-utilities`|`1.0.16`|James Baxley|[https://github.com/apollographql/apollo-client](https://github.com/apollographql/apollo-client)|
 |`app-root-path`|`2.0.1`|Chris Morrell|[https://github.com/inxilpro/node-app-root-path](https://github.com/inxilpro/node-app-root-path)|
+|`app-root-path`|`2.1.0`|Chris Morrell|[https://github.com/inxilpro/node-app-root-path](https://github.com/inxilpro/node-app-root-path)|
 |`archiver-utils`|`1.3.0`|Chris Talkington|[https://github.com/archiverjs/archiver-utils](https://github.com/archiverjs/archiver-utils)|
 |`archiver`|`2.1.1`|Chris Talkington|[https://github.com/archiverjs/node-archiver](https://github.com/archiverjs/node-archiver)|
 |`archy`|`1.0.0`|James Halliday|[https://github.com/substack/node-archy](https://github.com/substack/node-archy)|
