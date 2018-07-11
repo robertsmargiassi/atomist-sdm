@@ -39,6 +39,7 @@ import {
     DockerOptions,
     executeDockerBuild,
     executePublish,
+    executeTag,
     executeVersioner,
     IsNode,
     nodeBuilder,
@@ -47,6 +48,7 @@ import {
     NpmOptions,
     NpmPreparations,
     PackageLockFingerprinter,
+    TagGoal,
     tagRepo,
     tslintFix,
     VersionGoal,
@@ -195,7 +197,13 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ReleaseVersionGoal,
             executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier),
             NodeDefaultOptions,
-    );
+    )
+        .addGoalImplementation(
+            "nodeTag",
+            TagGoal,
+            executeTag(sdm.configuration.sdm.projectLoader),
+            NodeDefaultOptions,
+        );
 
     sdm.addExtensionPacks(
         changelogSupport(ReleaseChangelogGoal),

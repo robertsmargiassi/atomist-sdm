@@ -27,13 +27,11 @@ import {
     createSoftwareDeliveryMachine,
     DisableDeploy,
     EnableDeploy,
-    executeTag,
     HasDockerfile,
     IsAtomistAutomationClient,
     IsNode,
     NoGoals,
     summarizeGoalsInGitHubStatus,
-    TagGoal,
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { IsNamed } from "../support/identityPushTests";
@@ -49,6 +47,7 @@ import {
     StagingKubernetesDeployGoals,
 } from "./goals";
 import { addNodeSupport } from "./nodeSupport";
+import { addTeamPolicies } from "./teamPolicies";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
@@ -105,10 +104,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addCommand(EnableDeploy)
         .addCommand(DisableDeploy);
 
-    sdm.addGoalImplementation("tag", TagGoal,
-        executeTag(sdm.configuration.sdm.projectLoader));
-
     addNodeSupport(sdm);
+    addTeamPolicies(sdm);
 
     summarizeGoalsInGitHubStatus(sdm);
 
