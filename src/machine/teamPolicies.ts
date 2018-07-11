@@ -25,8 +25,12 @@ import {
 import { updateIssue } from "@atomist/sdm-core";
 import { truncateCommitMessage } from "@atomist/sdm-core/util/lifecycleHelpers";
 import { warning } from "@atomist/sdm-core/util/slack/messages";
-import { codeLine } from "@atomist/slack-messages";
+import {
+    bold,
+    codeLine,
+} from "@atomist/slack-messages";
 import * as _ from "lodash";
+import { isUpperCase } from "tslint/lib/utils";
 
 export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>) {
 
@@ -50,7 +54,8 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
                 "Commit Message",
                 `Please make sure that your commit messages start with an upper case letter.
 
-The following commits don't follow that standard:
+The following ${commits.length > 1 ? "commits" : "commit"} in ${bold(`${l.push.repo.owner}/${l.push.repo.name}`)} ${
+                    commits.length > 1 ? "don't" : "doesn't"} follow that standard:
 
 ${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.message, l.push.repo)}`).join("\n")}`,
                 l.context, {
