@@ -24,6 +24,7 @@ import {
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
+    PushReactionGoal,
     ReviewGoal,
     StagingEnvironment,
 } from "@atomist/sdm";
@@ -133,7 +134,7 @@ export const SmokeTestGoal = new GoalWithPrecondition({
 
 // Just running review and autofix
 export const CheckGoals = goals("Check")
-    .plan(VersionGoal, ReviewGoal, AutofixGoal);
+    .plan(VersionGoal, ReviewGoal, AutofixGoal, PushReactionGoal);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
