@@ -48,6 +48,10 @@ export const MaterialChangeToNodeRepo: PushTest = pushTest("Material change to N
         logger.debug("Change is material on %j: changed files=[%s]", pci.id, changedFiles.join(","));
         return true;
     }
+    const repoName: string = _.get(pci, "push.repo.name");
+    if (repoName === "developer-tutorials") {
+        return true;
+    }
     logger.debug("Change is immaterial on %j: changed files=[%s]", pci.id, changedFiles.join(","));
     return false;
 });
