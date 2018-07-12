@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 -   Add team policy checks for issue and PR titles and commit messages. [#25](https://github.com/atomist/atomist-sdm/issues/25)
+-   Making sure the developer tutorials get built. [#26](https://github.com/atomist/atomist-sdm/issues/26)
 
 ### Changed
 
