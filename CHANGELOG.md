@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/atomist/atomist-sdm/compare/0.1.3...HEAD)
 
+### Added
+
+-   Add team policy checks for issue and PR titles and commit messages. [#25](https://github.com/atomist/atomist-sdm/issues/25)
+
 ### Changed
 
 -   Support building non-client TypeScript projects.
