@@ -35,13 +35,12 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
 
     // Upper case the title of a new issue
     sdm.addNewIssueListener(async l => {
-        return upperCaseTitle(l.issue, l.credentials, l.id, l.issue.number);
+        return upperCaseTitle(l.issue, l.credentials, l.id);
     });
 
     // Upper case the title of a new pull request
     sdm.addPullRequestListener(async l => {
-        const pr = l.pullRequest;
-        return upperCaseTitle(pr, l.credentials, l.id, pr.number);
+        return upperCaseTitle(l.pullRequest, l.credentials, l.id);
     });
 
     // Check case of commit message; they should use upper case too
@@ -71,17 +70,16 @@ ${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.mes
     });
 }
 
-async function upperCaseTitle(issueOrPr: { title?: string, body?: string },
+async function upperCaseTitle(issueOrPr: { title?: string, body?: string, number?: number },
                               credentials: string | ProjectOperationCredentials,
-                              rr: RemoteRepoRef,
-                              issueNumber: number) {
+                              rr: RemoteRepoRef) {
     const title = issueOrPr.title;
     if (!isUpperCase(title)) {
         const newIssue: Issue = {
             title: _.upperFirst(title),
             body: issueOrPr.body,
         };
-        await updateIssue(credentials, rr, issueNumber, newIssue);
+        await updateIssue(credentials, rr, issueOrPr.number, newIssue);
     }
     return Success;
 }
