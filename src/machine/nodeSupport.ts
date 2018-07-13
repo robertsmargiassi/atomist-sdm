@@ -54,6 +54,7 @@ import {
     VersionGoal,
 } from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
+import { NpmProgressReporter } from "@atomist/sdm-core/internal/delivery/build/local/npm/npmProgressReporter";
 import { changelogSupport } from "@atomist/sdm-pack-changelog";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
@@ -93,7 +94,7 @@ const NodeDefaultOptions = {
 /**
  * Add Node.js implementations of goals to SDM.
  *
- * @param sdm Softare Delivery machine to modify
+ * @param sdm Software Delivery machine to modify
  * @return modified software delivery machine
  */
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
@@ -104,15 +105,20 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         BuildGoal,
         executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
         {
-            pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+            pushTest: allSatisfied(IsNode, hasPackageLock),
             logInterpreter: NodeDefaultOptions.logInterpreter,
+            progressReporter: NpmProgressReporter,
         },
     )
         .addGoalImplementation(
             "npm run build (no package-lock.json)",
             BuildGoal,
             executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
-            NodeDefaultOptions,
+            {
+                pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+                logInterpreter: NodeDefaultOptions.logInterpreter,
+                progressReporter: NpmProgressReporter,
+            },
     )
         .addGoalImplementation(
             "nodeVersioner",
@@ -131,7 +137,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
                     dockerfileFinder: async () => "Dockerfile",
                 }),
-            NodeDefaultOptions,
+            {
+                ...NodeDefaultOptions,
+                progressReporter: NpmProgressReporter,
+            },
     )
         .addGoalImplementation(
             "nodePublish",
@@ -303,3 +312,5 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
         tlsSecret: `star-atomist-${tail}`,
     };
 }
+
+

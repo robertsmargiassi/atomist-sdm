@@ -52,7 +52,7 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
                 "Commit Message",
                 `Please make sure that your commit messages start with an upper case letter.
 
-The following ${commits.length > 1 ? "commits" : "commit"} in ${bold(`${l.push.repo.owner}/${l.push.repo.name}`)} ${
+The following ${commits.length > 1 ? "commits" : "commit"} in ${bold(`${l.push.repo.owner}/${l.push.repo.name}/${l.push.branch}`)} ${
                     commits.length > 1 ? "don't" : "doesn't"} follow that standard:
 
 ${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.message, l.push.repo)}`).join("\n")}`,
