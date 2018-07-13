@@ -9,7 +9,7 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 | License | Count |
 |---------|-------|
 |[AFLv2.1](#aflv21)|1|
-|[Apache-2.0](#apache-20)|35|
+|[Apache-2.0](#apache-20)|34|
 |[Artistic-2.0](#artistic-20)|4|
 |[BSD-2-Clause](#bsd-2-clause)|22|
 |[BSD-3-Clause](#bsd-3-clause)|30|
@@ -17,9 +17,10 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 |[CC-BY-3.0](#cc-by-30)|3|
 |[CC0-1.0](#cc0-10)|4|
 |[Custom: https://github.com/douglascrockford/JSON-js](#custom-httpsgithubcomdouglascrockfordjson-js)|1|
+|[Custom: https://travis-ci.org/ember-cli/ember-cli.svg](#custom-httpstravis-ciorgember-cliember-clisvg)|1|
 |[GPL-3.0](#gpl-30)|4|
-|[ISC](#isc)|117|
-|[MIT](#mit)|738|
+|[ISC](#isc)|116|
+|[MIT](#mit)|737|
 |[Public Domain](#public-domain)|1|
 |[Unlicense](#unlicense)|3|
 |[WTFPL](#wtfpl)|3|
@@ -35,7 +36,6 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/atomist-sdm`|`0.1.4`|Atomist, Inc.|[https://github.com/atomist/atomist-sdm](https://github.com/atomist/atomist-sdm)|
 |`@atomist/automation-client-ext-dashboard`|`0.1.0-20180705210657`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-dashboard](https://github.com/atomist/automation-client-ext-dashboard)|
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180628224529`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
@@ -106,7 +106,7 @@ BSD 2-Clause "Simplified" License - [http://www.opensource.org/licenses/BSD-2-Cl
 |`dotenv`|`5.0.1`|scottmotte|[https://github.com/motdotla/dotenv](https://github.com/motdotla/dotenv)|
 |`emitter-listener`|`1.1.1`|Forrest L Norvell|[https://github.com/othiym23/emitter-listener](https://github.com/othiym23/emitter-listener)|
 |`esprima`|`2.7.3`|Ariya Hidayat|[https://github.com/jquery/esprima](https://github.com/jquery/esprima)|
-|`esprima`|`4.0.0`|Ariya Hidayat|[https://github.com/jquery/esprima](https://github.com/jquery/esprima)|
+|`esprima`|`4.0.1`|Ariya Hidayat|[https://github.com/jquery/esprima](https://github.com/jquery/esprima)|
 |`estraverse`|`4.2.0`||[https://github.com/estools/estraverse](https://github.com/estools/estraverse)|
 |`http-cache-semantics`|`3.8.1`|Kornel Lesiński|[https://github.com/pornel/http-cache-semantics](https://github.com/pornel/http-cache-semantics)|
 |`mississippi`|`1.3.1`|max ogden|[https://github.com/maxogden/mississippi](https://github.com/maxogden/mississippi)|
@@ -183,12 +183,18 @@ Creative Commons Zero v1.0 Universal - [http://creativecommons.org/publicdomain/
 |------|---------|-----------|------------|
 |`cycle`|`1.0.3`||[https://github.com/dscape/cycle](https://github.com/dscape/cycle)|
 
+#### Custom: https://travis-ci.org/ember-cli/ember-cli.svg
+
+| Name | Version | Publisher | Repository |
+|------|---------|-----------|------------|
+|`get-caller-file`|`1.0.2`|||
+
 #### GPL-3.0
 GNU General Public License v3.0 only - [http://www.gnu.org/licenses/gpl-3.0-standalone.html](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/automation-client`|`0.18.0-20180713091022`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
+|`@atomist/automation-client`|`0.18.0-20180713094517`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
 |`@atomist/microgrammar`|`0.7.0`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/microgrammar`|`0.7.0-20180528084001`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/tree-path`|`0.1.9`|Atomist, Inc.|[https://github.com/atomist/tree-path-ts](https://github.com/atomist/tree-path-ts)|
@@ -225,7 +231,6 @@ ISC License - [https://www.isc.org/downloads/software-support-policy/isc-license
 |`fs.realpath`|`1.0.0`|Isaac Z. Schlueter|[https://github.com/isaacs/fs.realpath](https://github.com/isaacs/fs.realpath)|
 |`fstream`|`1.0.11`|Isaac Z. Schlueter|[https://github.com/npm/fstream](https://github.com/npm/fstream)|
 |`gauge`|`2.7.4`|Rebecca Turner|[https://github.com/iarna/gauge](https://github.com/iarna/gauge)|
-|`get-caller-file`|`1.0.2`|Stefan Penner|[https://github.com/stefanpenner/get-caller-file](https://github.com/stefanpenner/get-caller-file)|
 |`get-caller-file`|`1.0.3`|Stefan Penner|[https://github.com/stefanpenner/get-caller-file](https://github.com/stefanpenner/get-caller-file)|
 |`glob-parent`|`3.1.0`|Elan Shanker|[https://github.com/es128/glob-parent](https://github.com/es128/glob-parent)|
 |`glob-promise`|`3.4.0`|Ahmad Nassri|[https://github.com/ahmadnassri/glob-promise](https://github.com/ahmadnassri/glob-promise)|
@@ -327,28 +332,27 @@ MIT License - [http://www.opensource.org/licenses/MIT](http://www.opensource.org
 |`@octokit/rest`|`15.9.4`|Gregor Martynus|[https://github.com/octokit/rest.js](https://github.com/octokit/rest.js)|
 |`@sindresorhus/is`|`0.7.0`|Sindre Sorhus|[https://github.com/sindresorhus/is](https://github.com/sindresorhus/is)|
 |`@typed/curry`|`1.0.1`|Tylor Steinberger|[https://github.com/TylorS/typed-curry](https://github.com/TylorS/typed-curry)|
-|`@types/async`|`2.0.49`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/body-parser`|`1.17.0`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/connect`|`3.4.32`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/continuation-local-storage`|`3.2.1`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/cors`|`2.8.4`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/events`|`1.2.0`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/async`|`2.0.49`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/body-parser`|`1.17.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/connect`|`3.4.32`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/continuation-local-storage`|`3.2.1`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/cors`|`2.8.4`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/events`|`1.2.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`@types/express-serve-static-core`|`4.16.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`@types/express`|`4.16.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/glob`|`5.0.35`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/graphql`|`0.12.6`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/graphql`|`0.12.7`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/handlebars`|`4.0.36`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/helmet`|`0.0.37`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/mime`|`2.0.0`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/minimatch`|`3.0.3`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/glob`|`5.0.35`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/graphql`|`0.12.6`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/graphql`|`0.12.7`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/handlebars`|`4.0.36`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/helmet`|`0.0.37`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/mime`|`2.0.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/minimatch`|`3.0.3`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`@types/node`|`10.5.2`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/node`|`9.6.23`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/prettier`|`1.10.0`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/prettier`|`1.10.0`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`@types/range-parser`|`1.2.2`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/retry`|`0.10.2`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/serve-static`|`1.13.2`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
-|`@types/ws`|`4.0.2`||[https://www.github.com/DefinitelyTyped/DefinitelyTyped](https://www.github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/retry`|`0.10.2`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/serve-static`|`1.13.2`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
+|`@types/ws`|`4.0.2`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`@types/zen-observable`|`0.5.4`||[https://github.com/DefinitelyTyped/DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped)|
 |`JSONStream`|`1.3.2`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
 |`accepts`|`1.3.5`||[https://github.com/jshttp/accepts](https://github.com/jshttp/accepts)|
