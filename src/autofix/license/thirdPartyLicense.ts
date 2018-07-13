@@ -87,7 +87,7 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
             if (k === ownModule) {
                 return;
             }
-            
+
             let licenses = v.licenses;
 
             if (!Array.isArray(licenses)) {
