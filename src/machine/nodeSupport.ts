@@ -312,5 +312,3 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
         tlsSecret: `star-atomist-${tail}`,
     };
 }
-
-
