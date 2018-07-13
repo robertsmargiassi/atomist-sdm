@@ -57,37 +57,37 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
 
         if (runInstall) {
             const result = await
-            spawnAndWatch({
-                    command: "npm",
-                    args: [ (hasPackageLock ? "ci" : "i") ],
-                },
-                {
-                    cwd,
-                },
-                new StringCapturingProgressLog(),
-                {},
-            );
+                spawnAndWatch({
+                        command: "npm",
+                        args: [ (hasPackageLock ? "ci" : "i") ],
+                    },
+                    {
+                        cwd,
+                    },
+                    new StringCapturingProgressLog(),
+                    {},
+                );
 
             if (result.code !== 0) {
                 return;
             }
         }
 
-        const pj = JSON.parse((await
-        fs.readFile(path.join(cwd, "package.json"))
-    ).
-        toString(),
-    )
-        ;
+        const pj = JSON.parse((await fs.readFile(path.join(cwd, "package.json"))).toString());
+        const ownModule = `${pj.name}@${pj.version}`;
 
         const json = await
-        promisify(lc.init)({
-            start: cwd,
-            production: true,
-        });
+            promisify(lc.init)({
+                start: cwd,
+                production: true,
+            });
 
         const grouped = {};
         _.forEach(json, (v, k) => {
+            if (k === ownModule) {
+                return;
+            }
+            
             let licenses = v.licenses;
 
             if (!Array.isArray(licenses)) {
@@ -183,10 +183,8 @@ Need Help?  [Join our Slack team][slack].
 [slack]: https://join.atomist.com/ (Atomist Community Slack)
 `;
 
-        await
-        p.deleteDirectory("node_modules");
-        await
-        p.addFile(LicenseFileName, content);
+        await p.deleteDirectory("node_modules");
+        await p.addFile(LicenseFileName, content);
 
         return p;
     };
