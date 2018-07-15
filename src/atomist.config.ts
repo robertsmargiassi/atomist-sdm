@@ -42,3 +42,4 @@ export const configuration: Configuration = {
         configureSdm(machine, machineOptions),
     ],
 };
+
