@@ -34,7 +34,10 @@ import {
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
-import { IsNamed } from "../support/identityPushTests";
+import {
+    IsNamed,
+    IsTeam,
+} from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
     BuildGoals,
@@ -57,6 +60,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
+            .setGoals(DoNotSetAnyGoals),
+
+        whenPushSatisfies(not(IsNamed("feedback-automation", "intercom-automation")), IsTeam("T095SFFBK"))
+            .itMeans("Node repository in atomist team that we are building community")
             .setGoals(DoNotSetAnyGoals),
 
         // Node
