@@ -63,7 +63,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(DoNotSetAnyGoals),
 
         whenPushSatisfies(not(IsNamed("feedback-automation", "intercom-automation")), IsTeam("T095SFFBK"))
-            .itMeans("Node repository in atomist team that we are building community")
+            .itMeans("Node repository in atomist team that we are already building community")
             .setGoals(DoNotSetAnyGoals),
 
         // Node
