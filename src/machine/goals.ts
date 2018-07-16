@@ -42,7 +42,7 @@ export const PublishGoal = new GoalWithPrecondition({
     displayName: "publish",
     workingDescription: "Publishing",
     completedDescription: "Published",
-    failedDescription: "Published failed",
+    failedDescription: "Publish failed",
     isolated: true,
 }, BuildGoal, DockerBuildGoal);
 
