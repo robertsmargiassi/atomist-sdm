@@ -15,15 +15,15 @@
  */
 
 import * as assert from "assert";
-import { IsNamed } from "../../src/support/identityPushTests";
+import { isNamed } from "../../src/support/identityPushTests";
 
-describe("IsNamed push test", () => {
+describe("isNamed push test", () => {
 
     it("Names itself uniquely for unique input", () => {
 
-        const pt1 = IsNamed("Yes", "No");
+        const pt1 = isNamed("Yes", "No");
 
-        const pt2 = IsNamed("No");
+        const pt2 = isNamed("No");
 
         assert(pt1.name !== pt2.name, `${pt1.name} = ${pt2.name}`);
     });

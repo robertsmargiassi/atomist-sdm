@@ -20,7 +20,7 @@ import {
     pushTest,
 } from "@atomist/sdm";
 
-export function IsNamed(...names: string[]): PushTest {
+export function isNamed(...names: string[]): PushTest {
     return pushTest(`Project name is one of these '${names.join(", ")}'`, async pci => {
         if (names.includes(pci.project.name)) {
             logger.info("True: Project %s (in repo %s) in my list of names, which is %s", pci.project.name, pci.id.repo, names);
@@ -32,7 +32,7 @@ export function IsNamed(...names: string[]): PushTest {
     });
 }
 
-export function IsTeam(...teams: string[]): PushTest {
+export function isTeam(...teams: string[]): PushTest {
     return pushTest(`Atomist team is one of these '${teams.join(", ")}'`, async pci => {
         return teams.includes(pci.context.teamId);
     });

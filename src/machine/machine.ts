@@ -34,9 +34,10 @@ import {
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
 import {
-    IsNamed,
-    IsTeam,
+    isNamed,
+    isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import {
@@ -62,7 +63,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Non Node repository")
             .setGoals(DoNotSetAnyGoals),
 
-        whenPushSatisfies(not(IsNamed("feedback-automation", "intercom-automation")), IsTeam("T095SFFBK"))
+        whenPushSatisfies(not(isSdmEnabled(configuration.name)), isTeam("T095SFFBK"))
             .itMeans("Node repository in atomist team that we are already building in atomist-community")
             .setGoals(DoNotSetAnyGoals),
 
@@ -78,12 +79,12 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         // Simplified deployment goal set for atomist-sdm, k8-automation and clojure-sdm; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            IsNamed("k8-automation", "atomist-sdm", "clojure-sdm"))
+            isNamed("k8-automation", "atomist-sdm", "clojure-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            IsNamed("sample-sdm"))
+            isNamed("sample-sdm"))
             .itMeans("Staging Deploy")
             .setGoals(StagingKubernetesDeployGoals),
 
