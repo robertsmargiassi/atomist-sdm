@@ -16,6 +16,7 @@
 
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { Project } from "@atomist/automation-client/project/Project";
 import { PushTest } from "@atomist/sdm";
 import { IsNode } from "@atomist/sdm-core";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
@@ -33,6 +34,7 @@ const LicenseMapping = {
 };
 
 const LicenseFileName = "legal/THIRD_PARTY.md";
+const GitattributesFileName = ".gitattributes";
 
 const LicenseTableHeader = `| Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|`;
@@ -183,9 +185,26 @@ Need Help?  [Join our Slack team][slack].
 [slack]: https://join.atomist.com/ (Atomist Community Slack)
 `;
 
+        await addGitattribute(p);
         await p.deleteDirectory("node_modules");
         await p.addFile(LicenseFileName, content);
 
         return p;
     };
+}
+
+async function addGitattribute(p: Project): Promise<void> {
+    const attribute = `${LicenseFileName} linguist-generated=true
+`;
+    const ga = await p.getFile(GitattributesFileName);
+    if (ga) {
+        let c = await ga.getContent();
+        if (!c.includes(LicenseFileName)) {
+            c += `
+${attribute}`;
+            await ga.setContent(c);
+        }
+    } else {
+        await p.addFile(GitattributesFileName, attribute);
+    }
 }

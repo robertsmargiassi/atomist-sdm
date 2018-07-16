@@ -18,6 +18,7 @@ import * as assert from "power-assert";
 
 import { Project } from "@atomist/automation-client/project/Project";
 import * as appRoot from "app-root-path";
+import { LicenseFilename } from "../../../src/autofix/addAtomistHeader";
 import { addThirdPartyLicenseTransform } from "../../../src/autofix/license/thirdPartyLicense";
 
 describe("thirdPartyLicense", () => {
@@ -27,7 +28,11 @@ describe("thirdPartyLicense", () => {
         return addThirdPartyLicenseTransform(false)({
             baseDir: appRoot.path,
             addFile: (name, content) => { fc = content; },
-            getFile: name => true,
+            getFile: name => {
+                if (name === ".gitattributes") {
+                    return false;
+                }
+            },
             deleteDirectory: () => "",
         } as any as Project)
             .then(() => {
