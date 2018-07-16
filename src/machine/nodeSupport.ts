@@ -89,6 +89,7 @@ import { executeSmokeTests } from "./smokeTest";
 const NodeDefaultOptions = {
     pushTest: IsNode,
     logInterpreter: LogSuppressor,
+    progressReporter: NpmProgressReporter,
 };
 
 /**
@@ -105,9 +106,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         BuildGoal,
         executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
         {
+            ...NodeDefaultOptions,
             pushTest: allSatisfied(IsNode, hasPackageLock),
-            logInterpreter: NodeDefaultOptions.logInterpreter,
-            progressReporter: NpmProgressReporter,
         },
     )
         .addGoalImplementation(
@@ -115,9 +115,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             BuildGoal,
             executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
             {
+                ...NodeDefaultOptions,
                 pushTest: allSatisfied(IsNode, not(hasPackageLock)),
-                logInterpreter: NodeDefaultOptions.logInterpreter,
-                progressReporter: NpmProgressReporter,
             },
     )
         .addGoalImplementation(
@@ -139,7 +138,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 }),
             {
                 ...NodeDefaultOptions,
-                progressReporter: NpmProgressReporter,
             },
     )
         .addGoalImplementation(
