@@ -79,7 +79,7 @@ export const AddApacheLicenseTransform: CodeTransformRegistration<AddHeaderParam
     transform: addHeaderTransform,
     name: "addHeader",
     paramsMaker: AddHeaderParameters,
-    editMode: ahp => ahp.editMode,
+    transformPresentation: ahp => ahp.parameters.editMode,
 };
 
 export async function addHeaderTransform(p: Project,

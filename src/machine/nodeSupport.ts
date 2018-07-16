@@ -230,7 +230,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addAutofix(AddAtomistTypeScriptHeader)
         .addAutofix(AddThirdPartyLicense);
 
-    sdm.addNewRepoWithCodeAction(tagRepo(AutomationClientTagger))
+    sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
         .addAutofix(tslintFix)
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 

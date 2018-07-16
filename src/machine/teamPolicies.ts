@@ -44,7 +44,7 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
     });
 
     // Check case of commit message; they should use upper case too
-    sdm.addPushReaction(async l => {
+    sdm.addPushImpactListener(async l => {
         const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         const commits = l.push.commits.filter(c => !isUpperCase(c.message));
         if (screenName && commits.length > 0) {
