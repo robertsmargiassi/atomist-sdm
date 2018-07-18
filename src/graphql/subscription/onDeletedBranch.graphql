@@ -1,0 +1,16 @@
+subscription OnDeletedBranch {
+  DeletedBranch {
+    name
+    repo {
+      owner
+      name
+      defaultBranch
+      org {
+        provider {
+          providerId
+          apiUrl
+        }
+      }
+    }
+  }
+}

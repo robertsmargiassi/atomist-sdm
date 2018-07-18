@@ -61,6 +61,7 @@ import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
+import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { AutomationClientTagger } from "../support/tagger";
 import {
     ProductionDeploymentGoal,
@@ -102,14 +103,14 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     const hasPackageLock = hasFile("package-lock.json");
 
     sdm.addGoalImplementation(
-        "npm run build",
-        BuildGoal,
-        executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
-        {
-            ...NodeDefaultOptions,
-            pushTest: allSatisfied(IsNode, hasPackageLock),
-        },
-    )
+            "npm run build",
+            BuildGoal,
+            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
+            {
+                ...NodeDefaultOptions,
+                pushTest: allSatisfied(IsNode, hasPackageLock),
+            },
+        )
         .addGoalImplementation(
             "npm run build (no package-lock.json)",
             BuildGoal,
@@ -118,13 +119,13 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 ...NodeDefaultOptions,
                 pushTest: allSatisfied(IsNode, not(hasPackageLock)),
             },
-    )
+        )
         .addGoalImplementation(
             "nodeVersioner",
             VersionGoal,
             executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDockerBuild",
             DockerBuildGoal,
@@ -139,7 +140,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             {
                 ...NodeDefaultOptions,
             },
-    )
+        )
         .addGoalImplementation(
             "nodePublish",
             PublishGoal,
@@ -150,7 +151,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     ...sdm.configuration.sdm.npm as NpmOptions,
                 }),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeNpmRelease",
             ReleaseNpmGoal,
@@ -161,19 +162,19 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                     ...sdm.configuration.sdm.npm as NpmOptions,
                 }),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeSmokeTest",
             SmokeTestGoal,
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
-                team: "AHF8B2MBL",
-                org: "sample-sdm-fidelity",
-                port: 2867,
-            }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
+                    team: "AHF8B2MBL",
+                    org: "sample-sdm-fidelity",
+                    port: 2867,
+                }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
                 "nodeBuild",
             ),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDockerRelease",
             ReleaseDockerGoal,
@@ -186,25 +187,25 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
                 logInterpreter: NodeDefaultOptions.logInterpreter,
             },
-    )
+        )
         .addGoalImplementation(
             "nodeTagRelease",
             ReleaseTagGoal,
             executeReleaseTag(sdm.configuration.sdm.projectLoader),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeDocsRelease",
             ReleaseDocsGoal,
             executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeVersionRelease",
             ReleaseVersionGoal,
             executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier),
             NodeDefaultOptions,
-    )
+        )
         .addGoalImplementation(
             "nodeTag",
             TagGoal,
@@ -233,6 +234,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
         .addAutofix(tslintFix)
         .addFingerprinterRegistration(new PackageLockFingerprinter());
+
+    sdm.addEvent(deleteDistTagOnBranchDeletion(
+        sdm.configuration.sdm.projectLoader,
+        sdm.configuration.sdm.npm as NpmOptions));
 
     return sdm;
 }
