@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {
     Parameters,
     Secret,
@@ -41,7 +40,7 @@ export class TokenParameters {
 
 function deleteDistTagOnBranchDeletionHandle(
     projectLoader: ProjectLoader,
-                                             options: NpmOptions): OnEvent<OnDeletedBranch.Subscription, TokenParameters> {
+    options: NpmOptions): OnEvent<OnDeletedBranch.Subscription, TokenParameters> {
 
     return async (e, context, params) => {
 
@@ -67,5 +66,5 @@ export function deleteDistTagOnBranchDeletion(projectLoader: ProjectLoader,
         paramsMaker: TokenParameters,
         listener: deleteDistTagOnBranchDeletionHandle(projectLoader, options),
         subscription: subscription("onDeletedBranch"),
-    }
+    };
 }
