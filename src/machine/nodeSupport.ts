@@ -229,10 +229,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     );
 
     sdm.addAutofix(AddAtomistTypeScriptHeader)
+        .addAutofix(tslintFix)
         .addAutofix(AddThirdPartyLicense);
 
     sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
-        .addAutofix(tslintFix)
+
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 
     sdm.addEvent(deleteDistTagOnBranchDeletion(
