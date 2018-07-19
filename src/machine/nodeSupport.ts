@@ -305,6 +305,9 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
     if (repo === "card-automation") {
         host = "pusher";
         path = "/";
+    } else if (repo === "sdm-automation"){
+        host = "badge";
+        path = "/";
     } else {
         return undefined;
     }
