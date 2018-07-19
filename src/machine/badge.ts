@@ -64,7 +64,7 @@ export const BadgeSupport: ExtensionPack = {
                 };
                 await cli.context.messageClient.send(badge, addressEvent("SdmGoalSetBadge"));
 
-                const url = `http://localhost:2866/${cli.context.teamId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
+                const url = `https://badge.atomist.com/${cli.context.teamId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
 
                 const msg = success(
                     "Badge Url",
