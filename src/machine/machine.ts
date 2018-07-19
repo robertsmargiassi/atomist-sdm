@@ -40,6 +40,7 @@ import {
     isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
+import { BadgeSupport } from "./badge";
 import {
     BuildGoals,
     BuildReleaseGoals,
@@ -114,6 +115,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
+
+    sdm.addExtensionPacks(BadgeSupport);
 
     summarizeGoalsInGitHubStatus(sdm);
 
