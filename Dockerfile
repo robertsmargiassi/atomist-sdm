@@ -44,6 +44,9 @@ RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes
     && chmod +x /usr/local/bin/kubectl \
     && kubectl version --client
 
+# Log everything to figure out that is going on with npm ci
+RUN npm config set loglevel silly
+
 # Install app dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
