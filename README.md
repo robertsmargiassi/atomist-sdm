@@ -1,5 +1,7 @@
 # @atomist/atomist-sdm
 
+![goals](http://localhost:2866/T29E48P34/atomist/atomist-sdm/e700a454-6ed0-445c-8970-9d955084fc2b)
+
 Instance of an Atomist Software Delivery Machine that can be used to
 automate delivery of Atomist automatiom-client projects, like SDMs.
 
