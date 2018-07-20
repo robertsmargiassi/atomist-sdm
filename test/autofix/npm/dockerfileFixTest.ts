@@ -16,10 +16,10 @@
 
 import { InMemoryFile } from "@atomist/automation-client/project/mem/InMemoryFile";
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
-import { NpmDockerfileFix } from "../../../src/autofix/npm/dockerfileFix";
 import assert = require("power-assert");
+import { NpmDockerfileFix } from "../../../src/autofix/npm/dockerfileFix";
 
-const Dockerfile =`FROM ubuntu:17.10
+const Dockerfile = `FROM ubuntu:17.10
 
 LABEL maintainer="Atomist <docker@atomist.com>"
 
@@ -79,7 +79,7 @@ COPY . .
 describe("dockerfileFix", () => {
 
     it("should update npm version", async () => {
-        const p = InMemoryProject.of(new InMemoryFile("Dockerfile", Dockerfile))
+        const p = InMemoryProject.of(new InMemoryFile("Dockerfile", Dockerfile));
         const rp = await (NpmDockerfileFix as any).transform(p);
         const df = await rp.getFile("Dockerfile");
 
