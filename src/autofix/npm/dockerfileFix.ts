@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {
     AutofixRegistration,
     hasFile,
@@ -31,5 +30,5 @@ export const NpmDockerfileFix: AutofixRegistration = {
         await df.setContent(
             dfc.replace(/npm\s[i|install].*npm@[0-9\.]*/, `npm install -g npm@${NpmVersion}`));
         return p;
-    }
-}
+    },
+};
