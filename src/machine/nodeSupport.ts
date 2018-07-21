@@ -310,8 +310,8 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
         path = "/";
     } else if (repo === "sdm-automation") {
         return {
-            host: "badge";
-            path: "/";
+            host: "badge",
+            path: "/",
         }
     } else if (repo === "intercom-automation") {
         host = "intercom";
