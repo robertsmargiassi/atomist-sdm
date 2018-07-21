@@ -299,7 +299,7 @@ function namespaceFromGoal(goal: SdmGoalEvent): string {
 export interface Ingress {
     host: string;
     path: string;
-    tlsSecret: string;
+    tlsSecret?: string;
 }
 
 export function ingressFromGoal(repo: string, ns: string): Ingress {
@@ -309,8 +309,10 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
         host = "pusher";
         path = "/";
     } else if (repo === "sdm-automation") {
-        host = "badge";
-        path = "/";
+        return {
+            host: "badge";
+            path: "/";
+        }
     } else if (repo === "intercom-automation") {
         host = "intercom";
         path = "/";
