@@ -1,5 +1,7 @@
 # @atomist/atomist-sdm
 
+![atomist sdm goals](http://badge.atomist.com/T29E48P34/atomist/atomist-sdm/cae23976-e51c-4e19-b9cd-f7c445c53712) [![npm version](https://badge.fury.io/js/%40atomist%2Fatomist-sdm.svg)](https://badge.fury.io/js/%40atomist%2Fatomist-sdm)
+
 Instance of an Atomist Software Delivery Machine that can be used to
 automate delivery of Atomist automatiom-client projects, like SDMs.
 
