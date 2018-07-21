@@ -43,6 +43,7 @@ class BadgeParameters {
     public readonly providerId: string;
 }
 
+// TODO break this out into a pack???
 export const BadgeSupport: ExtensionPack = {
     ...metadata("badge"),
     configure: sdm => {
@@ -64,7 +65,7 @@ export const BadgeSupport: ExtensionPack = {
                 };
                 await cli.context.messageClient.send(badge, addressEvent("SdmGoalSetBadge"));
 
-                const url = `https://badge.atomist.com/${cli.context.teamId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
+                const url = `http://badge.atomist.com/${cli.context.teamId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
 
                 const msg = success(
                     "Badge Url",
