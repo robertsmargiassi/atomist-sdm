@@ -312,7 +312,7 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
         return {
             host: "badge",
             path: "/",
-        }
+        };
     } else if (repo === "intercom-automation") {
         host = "intercom";
         path = "/";
