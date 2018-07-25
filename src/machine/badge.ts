@@ -43,7 +43,7 @@ class BadgeParameters {
     public readonly providerId: string;
 }
 
-// TODO break this out into a pack???
+// TODO break this out into a pack
 export const BadgeSupport: ExtensionPack = {
     ...metadata("badge"),
     configure: sdm => {
