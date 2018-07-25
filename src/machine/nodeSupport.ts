@@ -270,7 +270,7 @@ function kubernetesDataFromGoal(
         goal,
         {
             name: goal.repo.name,
-            environment: configuration.environment,
+            environment: configuration.environment.split("_")[0],
             port: 2866,
             ns,
             imagePullSecret: "atomistjfrog",
