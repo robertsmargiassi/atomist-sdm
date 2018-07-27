@@ -1,0 +1,157 @@
+import {
+    MappedParameter,
+    MappedParameters,
+    Parameter,
+    Parameters,
+    Value,
+} from "@atomist/automation-client";
+import { guid } from "@atomist/automation-client/internal/util/string";
+import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import {
+    buttonForCommand,
+    menuForCommand,
+} from "@atomist/automation-client/spi/message/MessageClient";
+import {
+    CommandHandlerRegistration,
+    SdmGoalState,
+} from "@atomist/sdm";
+import {
+    fetchDefaultBranchTip,
+    tipOfBranch,
+} from "@atomist/sdm-core/handlers/events/delivery/goals/resetGoals";
+import { success } from "@atomist/sdm-core/util/slack/messages";
+import { fetchGoalsForCommit } from "@atomist/sdm/api-helper/goal/fetchGoalsOnCommit";
+import { updateGoal } from "@atomist/sdm/api-helper/goal/storeGoals";
+import {
+    bold,
+    codeLine,
+    italic,
+    SlackMessage,
+} from "@atomist/slack-messages";
+import * as _ from "lodash";
+
+@Parameters()
+class SetGoalStateParameters {
+
+    @MappedParameter(MappedParameters.GitHubOwner)
+    public owner: string;
+
+    @MappedParameter(MappedParameters.GitHubRepository)
+    public repo: string;
+
+    @MappedParameter(MappedParameters.GitHubRepositoryProvider)
+    public providerId: string;
+
+    @Parameter({ required: false })
+    public sha: string;
+
+    @Parameter({ required: false })
+    public branch: string;
+
+    @Parameter({ required: false })
+    public goal: string;
+
+    @Parameter({ required: false })
+    public state: SdmGoalState;
+
+    @Parameter({ required: false })
+    public msgId: string;
+
+    @Parameter({ required: false, type: "boolean" })
+    public cancel: boolean;
+
+    @Value("name")
+    public name: string;
+
+    @Value("version")
+    public version: string;
+
+}
+
+// TODO move into sdm-core
+export const SetGoalState: CommandHandlerRegistration<SetGoalStateParameters> = {
+    name: "SetGoalState",
+    description: "Set state of a particular goal",
+    intent: "set goal state",
+    paramsMaker: SetGoalStateParameters,
+    listener: async chi => {
+        if (!chi.parameters.msgId) {
+            chi.parameters.msgId = guid();
+        }
+        const footer = `${chi.parameters.name}:${chi.parameters.version}`;
+        const repoData = await fetchDefaultBranchTip(chi.context, chi.parameters);
+        const branch = chi.parameters.branch || repoData.defaultBranch;
+        const sha = chi.parameters.sha || tipOfBranch(repoData, branch);
+        const id = GitHubRepoRef.from({ owner: chi.parameters.owner, repo: chi.parameters.repo, sha, branch });
+
+        if (chi.parameters.cancel) {
+            return chi.context.messageClient.respond(
+                success("Set Goal State", "Successfully canceled setting goal state", { footer }), { id: chi.parameters.msgId });
+        } else if (!chi.parameters.goal) {
+
+            const goals = await fetchGoalsForCommit(chi.context, id, chi.parameters.providerId);
+            const goalSets = _.groupBy(goals, "goalSetId");
+            const optionsGroups = _.map(goalSets, (v, k) => {
+                return {
+                    text: k.slice(0, 7),
+                    options: v.map(g => ({ text: g.name, value: JSON.stringify({ id: (g as any).id, name: g.name }) })),
+                };
+            });
+
+            const msg: SlackMessage = {
+                attachments: [{
+                    title: "Select Goal",
+                    text: `Please select one of the following goals on ${codeLine(sha.slice(0, 7))} of ${bold(`${id.owner}/${id.repo}/${branch}`)}:`,
+                    actions: [
+                        menuForCommand({
+                            text: "Goals",
+                            options: optionsGroups,
+                        }, "SetGoalState", "goal", { ...chi.parameters }),
+                        buttonForCommand({ text: "Cancel"}, "SetGoalState", { ... chi.parameters, cancel: true }),
+                    ],
+                    fallback: "Select Goal",
+                    footer,
+                }],
+            };
+            return chi.context.messageClient.respond(msg, { id: chi.parameters.msgId });
+        } else if (!chi.parameters.state) {
+            const goal = JSON.parse(chi.parameters.goal);
+
+            const msg: SlackMessage = {
+                attachments: [{
+                    title: "Select Goal State",
+                    text: `Please select the desired state of goal ${italic(goal.name)} on ${codeLine(sha.slice(0, 7))} of ${
+                        bold(`${id.owner}/${id.repo}/${branch}`)}:`,
+                    actions: [
+                        menuForCommand({
+                            text: "Goal States",
+                            options: _.map(SdmGoalState, v => ({ text: v, value: v })),
+                        }, "SetGoalState", "state", { ...chi.parameters }),
+                        buttonForCommand({ text: "Cancel"}, "SetGoalState", { ... chi.parameters, cancel: true }),
+                    ],
+                    fallback: "Select Goal",
+                    footer,
+                }],
+            };
+            return chi.context.messageClient.respond(msg, { id: chi.parameters.msgId });
+        } else {
+            const goal = JSON.parse(chi.parameters.goal);
+            const goals = await fetchGoalsForCommit(chi.context, id, chi.parameters.providerId);
+            const sdmGoal = goals.find(g => (g as any).id === goal.id);
+
+            await updateGoal(chi.context, sdmGoal, {
+                state: chi.parameters.state,
+                description: sdmGoal.description,
+            });
+
+            return chi.context.messageClient.respond(
+                success(
+                    "Set Goal State",
+                    `Successfully set state of ${italic(goal.name)} on ${codeLine(sha.slice(0, 7))} of ${
+                        bold(`${id.owner}/${id.repo}`)} to ${italic(chi.parameters.state)}`,
+                    { footer }),
+                { id: chi.parameters.msgId });
+        }
+
+    },
+};
