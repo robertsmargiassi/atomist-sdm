@@ -35,6 +35,7 @@ import {
 } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
+import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import {
     isNamed,
     isTeam,
@@ -52,6 +53,7 @@ import {
     StagingKubernetesDeployGoals,
 } from "./goals";
 import { addNodeSupport } from "./nodeSupport";
+import { SetGoalState } from "./setGoalState";
 import { addTeamPolicies } from "./teamPolicies";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
@@ -111,12 +113,14 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addCommand(EnableDeploy)
-        .addCommand(DisableDeploy);
+        .addCommand(DisableDeploy)
+        .addCommand(SetGoalState);
 
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
 
     sdm.addExtensionPacks(BadgeSupport);
+    sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
 
     summarizeGoalsInGitHubStatus(sdm);
 
