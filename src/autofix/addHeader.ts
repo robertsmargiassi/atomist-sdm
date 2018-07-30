@@ -114,7 +114,9 @@ export function hasDifferentHeader(header: string, content: string): boolean {
         checkContent = content;
     }
     if (checkContent.startsWith("/*")) {
-        if (checkContent.startsWith(header) || checkContent.startsWith("/* tslint:disable */")) {
+        if (checkContent.startsWith(header)
+            || checkContent.startsWith("/* tslint:disable */")
+            || checkContent.startsWith("#!")) {
             // great
             return false;
         }
