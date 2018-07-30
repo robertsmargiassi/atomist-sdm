@@ -19,7 +19,7 @@ import {
     hasFileContaining,
     PushTest,
 } from "@atomist/sdm";
-import { IsTypeScript } from "@atomist/sdm-core";
+import { IsTypeScript } from "@atomist/sdm-pack-node";
 import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import {
     AddHeaderParameters,

@@ -28,11 +28,13 @@ import {
     DisableDeploy,
     EnableDeploy,
     HasDockerfile,
-    IsAtomistAutomationClient,
-    IsNode,
     NoGoals,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
+import {
+    IsAtomistAutomationClient,
+    IsNode,
+} from "@atomist/sdm-pack-node";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";

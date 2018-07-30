@@ -40,12 +40,14 @@ import {
     createRelease,
     createStatus,
     createTagForStatus,
-    DevelopmentEnvOptions,
     DockerOptions,
-    NpmOptions,
     ProjectIdentifier,
     readSdmVersion,
 } from "@atomist/sdm-core";
+import {
+    DevelopmentEnvOptions,
+    NpmOptions,
+} from "@atomist/sdm-pack-node";
 import { DelimitedWriteProgressLogDecorator } from "@atomist/sdm/api-helper/log/DelimitedWriteProgressLogDecorator";
 import {
     ChildProcessResult,

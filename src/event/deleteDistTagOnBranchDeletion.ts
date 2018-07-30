@@ -27,8 +27,8 @@ import {
     EventHandlerRegistration,
     ProjectLoader,
 } from "@atomist/sdm";
-import { NpmOptions } from "@atomist/sdm-core";
-import { deleteBranchTag } from "@atomist/sdm-core/internal/delivery/build/local/npm/executePublish";
+import { NpmOptions } from "@atomist/sdm-pack-node";
+import { deleteBranchTag } from "@atomist/sdm-pack-node/dist/support/build/executePublish";
 import { OnDeletedBranch } from "../typings/types";
 
 @Parameters()

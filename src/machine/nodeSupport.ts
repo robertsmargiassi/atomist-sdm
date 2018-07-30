@@ -38,9 +38,17 @@ import {
     DockerBuildGoal,
     DockerOptions,
     executeDockerBuild,
-    executePublish,
     executeTag,
     executeVersioner,
+    TagGoal,
+    tagRepo,
+    VersionGoal,
+} from "@atomist/sdm-core";
+import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
+import { changelogSupport } from "@atomist/sdm-pack-changelog";
+import { kubernetesSupport } from "@atomist/sdm-pack-k8";
+import {
+    executePublish,
     IsNode,
     nodeBuilder,
     NodeProjectIdentifier,
@@ -48,15 +56,9 @@ import {
     NpmOptions,
     NpmPreparations,
     PackageLockFingerprinter,
-    TagGoal,
-    tagRepo,
     tslintFix,
-    VersionGoal,
-} from "@atomist/sdm-core";
-import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
-import { NpmProgressReporter } from "@atomist/sdm-core/internal/delivery/build/local/npm/npmProgressReporter";
-import { changelogSupport } from "@atomist/sdm-pack-changelog";
-import { kubernetesSupport } from "@atomist/sdm-pack-k8";
+} from "@atomist/sdm-pack-node";
+import { NpmProgressReporter } from "@atomist/sdm-pack-node/dist/support/build/npmProgressReporter";
 import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
