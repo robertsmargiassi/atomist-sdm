@@ -107,15 +107,14 @@ export async function addHeaderTransform(p: Project,
 
 export function hasDifferentHeader(header: string, content: string): boolean {
     let checkContent: string = content;
-    /*if (content.startsWith("#!")) {
+    if (content.startsWith("#!")) {
         checkContent = content.split("\n").slice(1).join("\n");
     } else {
         checkContent = content;
-    }*/
+    }
     if (checkContent.startsWith("/*")) {
         if (checkContent.startsWith(header)
-            || checkContent.startsWith("/* tslint:disable */")
-            || checkContent.startsWith("#!")) {
+            || checkContent.startsWith("/* tslint:disable */")) {
             // great
             return false;
         }
