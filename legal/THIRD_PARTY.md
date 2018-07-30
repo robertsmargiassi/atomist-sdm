@@ -1,6 +1,6 @@
-# @atomistplay/demo-sdm
+# @atomist/atomist-sdm
 
-This page details all runtime OSS dependencies of `@atomistplay/demo-sdm`.
+This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 
 ## Licenses
 
