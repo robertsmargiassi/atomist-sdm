@@ -63,7 +63,7 @@ import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
-import { NpmDockerfileFix } from "../autofix/npm/dockerfileFix";
+import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { AutomationClientTagger } from "../support/tagger";
 import {
@@ -234,7 +234,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addAutofix(AddAtomistTypeScriptHeader)
         .addAutofix(tslintFix)
         .addAutofix(AddThirdPartyLicense)
-        .addAutofix(NpmDockerfileFix("npm", "@atomist/cli"));
+        .addAutofix(npmDockerfileFix("npm", "@atomist/cli"));
 
     sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
 
