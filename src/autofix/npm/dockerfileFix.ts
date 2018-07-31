@@ -43,8 +43,8 @@ export function npmDockerfileFix(...modules: string[]): AutofixRegistration {
 
             return p;
         },
-    }
-};
+    };
+}
 
 export async function updateToLatestVersion(module: string, content: string): Promise<string> {
     const log = new StringCapturingProgressLog();
@@ -68,4 +68,3 @@ export async function updateToLatestVersion(module: string, content: string): Pr
     return content.replace(new RegExp(`npm\\s[i|install].*${module}@[0-9\\.]*`),
         `npm install -g ${module}@${log.log.trim()}`);
 }
-
