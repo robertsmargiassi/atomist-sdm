@@ -27,33 +27,45 @@ import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
  * Change the version of NPM that gets installed into our Docker images
  * @type {{name: string; pushTest: PredicatePushTest; transform: (p) => Promise<Project>}}
  */
-export const NpmDockerfileFix: AutofixRegistration = {
-    name: "Dockerfile NPM install",
-    pushTest: hasFile("Dockerfile"),
-    transform: async p => {
+export function npmDockerfileFix(...modules: string[]): AutofixRegistration {
+    return {
+        name: "Dockerfile NPM install",
+        pushTest: hasFile("Dockerfile"),
+        transform: async p => {
+            const df = await p.getFile("Dockerfile");
 
-        const log = new StringCapturingProgressLog();
-        const result = await spawnAndWatch({
-                command: "npm",
-                args: ["show", "npm", "version"],
-            },
-            {},
-            log,
-            {
-                errorFinder: SuccessIsReturn0ErrorFinder,
-                logCommand: false,
-            });
+            let dfc = await df.getContent();
+            for (const m of modules) {
+                dfc = await updateToLatestVersion(m, dfc);
+            }
 
-        if (result.code !== 0) {
+            await df.setContent(dfc);
+
             return p;
-        }
-
-        logger.info(`Updating npm install to version '${log.log.trim()}'`);
-
-        const df = await p.getFile("Dockerfile");
-        const dfc = await df.getContent();
-        await df.setContent(
-            dfc.replace(/npm\s[i|install].*npm@[0-9\.]*/, `npm install -g npm@${log.log.trim()}`));
-        return p;
-    },
+        },
+    }
 };
+
+export async function updateToLatestVersion(module: string, content: string): Promise<string> {
+    const log = new StringCapturingProgressLog();
+    const result = await spawnAndWatch({
+            command: "npm",
+            args: ["show", module, "version"],
+        },
+        {},
+        log,
+        {
+            errorFinder: SuccessIsReturn0ErrorFinder,
+            logCommand: false,
+        });
+
+    if (result.code !== 0) {
+        return content;
+    }
+
+    logger.info(`Updating ${module} install to version '${log.log.trim()}'`);
+
+    return content.replace(new RegExp(`npm\\s[i|install].*${module}@[0-9\\.]*`),
+        `npm install -g ${module}@${log.log.trim()}`);
+}
+

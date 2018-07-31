@@ -234,7 +234,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addAutofix(AddAtomistTypeScriptHeader)
         .addAutofix(tslintFix)
         .addAutofix(AddThirdPartyLicense)
-        .addAutofix(NpmDockerfileFix);
+        .addAutofix(NpmDockerfileFix("npm", "@atomist/cli"));
 
     sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
 
