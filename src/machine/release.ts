@@ -439,7 +439,12 @@ export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoal {
 }
 
 function typedocDir(baseDir: string): string {
-    return path.join(baseDir, "build", "typedoc");
+    const oldDir = path.join(baseDir, "build", "typedoc");
+    const dir = path.join(baseDir, "doc");
+    if (fs.existsSync(oldDir)) {
+        return oldDir;
+    }
+    return dir;
 }
 
 export async function docsReleasePreparation(p: GitProject, gi: GoalInvocation): Promise<ExecuteGoalResult> {
