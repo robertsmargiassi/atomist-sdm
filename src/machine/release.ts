@@ -465,10 +465,6 @@ export async function docsReleasePreparation(p: GitProject, gi: GoalInvocation):
             cmd: { command: "npm", args: ["run", "typedoc"] },
             cwd: p.baseDir,
         },
-        {
-            cmd: { command: "touch", args: [path.join(typedocDir(p.baseDir), ".nojekyll")] },
-            cwd: p.baseDir,
-        },
     ];
     const els = cmds.map(spawnExecuteLogger);
     return executeLoggers(els, gi.progressLog);
@@ -501,6 +497,10 @@ export function executeReleaseDocs(
 
 [atomist:generated]`;
             const docDir = typedocDir(project.baseDir);
+            const els = [spawnExecuteLogger({
+                cmd: { command: "touch", args: [path.join(docDir, ".nojekyll")] },
+                cwd: project.baseDir,
+            })];
             const docProject = await NodeFsLocalProject.fromExistingDirectory(project.id, docDir);
             const docGitProject = GitCommandGitProject.fromProject(docProject, credentials) as GitCommandGitProject;
             const targetUrl = `https://${docGitProject.id.owner}.github.io/${docGitProject.id.repo}`;
@@ -513,7 +513,7 @@ export function executeReleaseDocs(
                 () => docGitProject.setRemote(rrr.cloneUrl(credentials)),
                 () => docGitProject.push({ force: true }),
             ];
-            const els = gitOps.map(op => gitExecuteLogger(docGitProject, op));
+            els.push(...gitOps.map(op => gitExecuteLogger(docGitProject, op)));
             const gitRes = await executeLoggers(els, gi.progressLog);
             if (gitRes.code !== 0) {
                 return gitRes;
