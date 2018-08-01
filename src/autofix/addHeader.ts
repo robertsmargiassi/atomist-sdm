@@ -82,15 +82,13 @@ export const AddApacheLicenseTransform: CodeTransformRegistration<AddHeaderParam
 };
 
 export async function addHeaderTransform(p: Project,
-                                         ci: CommandListenerInvocation<AddHeaderParameters>): Promise<Project> {
-    let headersAdded = 0;
-    let matchingFiles = 0;
+    ci: CommandListenerInvocation<AddHeaderParameters>): Promise<Project> {
+
     let filesWithDifferentHeaders = [];
     await doWithFiles(p, ci.parameters.glob, async f => {
         if (ci.parameters.excludeGlob && minimatch(f.path, ci.parameters.excludeGlob)) {
             return;
         }
-        ++matchingFiles;
         const content = await f.getContent();
         if (content.includes(ci.parameters.header)) {
             return;
@@ -99,8 +97,8 @@ export async function addHeaderTransform(p: Project,
             filesWithDifferentHeaders.push(f);
             return;
         }
-        ++headersAdded;
-        return f.setContent(ci.parameters.header + "\n\n" + content);
+        await f.setContent(ci.parameters.header + "\n\n" + content);
+        return;
     });
     return p;
 }
@@ -109,8 +107,6 @@ export function hasDifferentHeader(header: string, content: string): boolean {
     let checkContent: string = content;
     if (content.startsWith("#!")) {
         checkContent = content.split("\n").slice(1).join("\n");
-    } else {
-        checkContent = content;
     }
     if (checkContent.startsWith("/*")) {
         if (checkContent.startsWith(header)
@@ -120,4 +116,5 @@ export function hasDifferentHeader(header: string, content: string): boolean {
         }
         return true;
     }
+    return false;
 }

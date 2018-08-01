@@ -31,6 +31,7 @@ describe("thirdPartyLicense", () => {
                 if (name === ".gitattributes") {
                     return false;
                 }
+                return true;
             },
             deleteDirectory: () => "",
         } as any as Project)

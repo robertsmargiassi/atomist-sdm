@@ -17,27 +17,124 @@
 import { InMemoryFile } from "@atomist/automation-client/project/mem/InMemoryFile";
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import assert = require("power-assert");
-import { npmDockerfileFix } from "../../../src/autofix/npm/dockerfileFix";
+import {
+    npmDockerfileFix,
+    updateNpmInstall,
+} from "../../../src/autofix/npm/dockerfileFix";
 
-const Dockerfile = `FROM ubuntu:17.10
+const dockerfile = `FROM ubuntu:17.10
 
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
     && apt-get update \\
     && apt-get install -y nodejs \\
     && npm install -g npm@6.2.0 \\
-    && npm install -g @atomist/cli@0.2.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
     && rm -rf /var/lib/apt/lists/*
 `;
 
 describe("dockerfileFix", () => {
 
-    it("should update npm version", async () => {
-        const p = InMemoryProject.of(new InMemoryFile("Dockerfile", Dockerfile));
-        const rp = await (npmDockerfileFix("npm", "@atomist/cli") as any).transform(p);
-        const df = await rp.getFile("Dockerfile");
+    describe("npmDockerfileFix", () => {
 
-        assert(await df.getContent() !== Dockerfile);
+        it("should update npm version", async () => {
+            const p = InMemoryProject.of(new InMemoryFile("Dockerfile", dockerfile));
+            const rp = await (npmDockerfileFix("npm", "@atomist/cli") as any).transform(p);
+            const df = await rp.getFile("Dockerfile");
 
-    }).timeout(1000 * 5);
+            assert(await df.getContent() !== dockerfile);
+
+        }).timeout(1000 * 5);
+
+    });
+
+    describe("updateNpmInstall", () => {
+
+        it("should update the version to install", () => {
+            const c = updateNpmInstall(dockerfile, "npm", "6.3.0");
+            const e = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm install -g npm@6.3.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            assert(c === e);
+        });
+
+        it("should retain options after npm", () => {
+            const d = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm -g install npm@6.2.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            const c = updateNpmInstall(d, "npm", "6.3.0");
+            const e = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm -g install npm@6.3.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            assert(c === e);
+        });
+
+        it("should retain options after install", () => {
+            const d = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm install --global npm@6.2.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            const c = updateNpmInstall(d, "npm", "6.3.0");
+            const e = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm install --global npm@6.3.0 \\
+    && npm install -g @atomist/cli@0.2.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            assert(c === e);
+        });
+
+        it("should retain options after module", () => {
+            const c = updateNpmInstall(dockerfile, "@atomist/cli", "0.3.0");
+            const e = `FROM ubuntu:17.10
+
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \\
+    && apt-get update \\
+    && apt-get install -y nodejs \\
+    && npm install -g npm@6.2.0 \\
+    && npm install -g @atomist/cli@0.3.0 --unsafe-perm=true --allow-root \\
+    && rm -rf /var/lib/apt/lists/*
+`;
+            assert(c === e);
+        });
+
+        it("should maintain current versions", () => {
+            const n = updateNpmInstall(dockerfile, "npm", "6.2.0");
+            assert(n === dockerfile);
+            const c = updateNpmInstall(dockerfile, "@atomist/cli", "0.2.0");
+            assert(c === dockerfile);
+        });
+
+        it("should do nothing", () => {
+            const c = updateNpmInstall(dockerfile, "not-installed", "3.0.0");
+            assert(c === dockerfile);
+        });
+
+    });
 
 });

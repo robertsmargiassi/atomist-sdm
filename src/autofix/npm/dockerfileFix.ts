@@ -49,9 +49,9 @@ export function npmDockerfileFix(...modules: string[]): AutofixRegistration {
 export async function updateToLatestVersion(module: string, content: string): Promise<string> {
     const log = new StringCapturingProgressLog();
     const result = await spawnAndWatch({
-            command: "npm",
-            args: ["show", module, "version"],
-        },
+        command: "npm",
+        args: ["show", module, "version"],
+    },
         {},
         log,
         {
@@ -65,6 +65,17 @@ export async function updateToLatestVersion(module: string, content: string): Pr
 
     logger.info(`Updating ${module} install to version '${log.log.trim()}'`);
 
-    return content.replace(new RegExp(`npm\\s[i|install].*${module}@[0-9\\.]*`),
-        `npm install -g ${module}@${log.log.trim()}`);
+    return updateNpmInstall(content, module, log.log.trim());
+}
+
+/**
+ * Replace the version in an NPM install command.
+ *
+ * @param module module being installed
+ * @param version desired version
+ * @return content with installation of new version
+ */
+export function updateNpmInstall(content: string, module: string, version: string): string {
+    return content.replace(new RegExp(`npm(\\s+(?:.*\\s+)?)(?:i|install|add)(\\s+(?:.*\\s+)?)${module}(?:@\\S+)?(.*)`),
+        `npm\$1install\$2${module}@${version}\$3`);
 }
