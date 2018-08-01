@@ -60,9 +60,9 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
         if (runInstall) {
             const result = await
                 spawnAndWatch({
-                        command: "npm",
-                        args: [ (hasPackageLock ? "ci" : "i") ],
-                    },
+                    command: "npm",
+                    args: [(hasPackageLock ? "ci" : "i")],
+                },
                     {
                         cwd,
                     },
@@ -71,7 +71,7 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
                 );
 
             if (result.code !== 0) {
-                return;
+                return p;
             }
         }
 
@@ -100,26 +100,26 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
                 if (licenses.startsWith("(") && licenses.endsWith(")")) {
                     licenses = licenses.slice(1, -1);
                 }
-                licenses = [ ...(licenses as string).split(" OR ") ];
+                licenses = [...(licenses as string).split(" OR ")];
             }
 
             licenses.forEach(l => {
                 let license = l;
 
                 if (LicenseMapping.hasOwnProperty(license)) {
-                    license = LicenseMapping[ license ];
+                    license = LicenseMapping[license];
                 }
 
                 if (grouped.hasOwnProperty(license)) {
-                    grouped[ license ] = [ ...grouped[ license ], {
+                    grouped[license] = [...grouped[license], {
                         ...v,
                         name: k,
-                    } ];
+                    }];
                 } else {
-                    grouped[ license ] = [ {
+                    grouped[license] = [{
                         ...v,
                         name: k,
-                    } ];
+                    }];
                 }
             });
         });
@@ -133,7 +133,7 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
                     .replace(/\./g, "")
                     .replace(/:/g, "")
                     .replace(/\//g, "");
-                summary.push(`|[${l}](#${anchor})|${counts[ l ]}|`);
+                summary.push(`|[${l}](#${anchor})|${counts[l]}|`);
             }
         }
 
@@ -149,8 +149,8 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
             });
             let ld = "";
 
-            if (spdx[ k ]) {
-                ld = `${spdx[ k ].name} - [${spdx[ k ].url}](${spdx[ k ].url})\n`;
+            if (spdx[k]) {
+                ld = `${spdx[k].name} - [${spdx[k].url}](${spdx[k].url})\n`;
             }
 
             details.push(`
