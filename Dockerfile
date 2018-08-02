@@ -37,7 +37,7 @@ RUN git config --global user.email "bot@atomist.com" \
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \
     && apt-get update \
     && apt-get install -y nodejs \
-    && npm install -g npm@6.2.0 \
+    && npm install -g npm@6.3.0 \
     && npm install -g @atomist/cli@0.3.0 --unsafe-perm=true --allow-root \
     && rm -rf /var/lib/apt/lists/*
 
