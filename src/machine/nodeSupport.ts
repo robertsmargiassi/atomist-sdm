@@ -237,7 +237,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addAutofix(npmDockerfileFix("npm", "@atomist/cli"));
 
     sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
-
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 
     sdm.addEvent(deleteDistTagOnBranchDeletion(
