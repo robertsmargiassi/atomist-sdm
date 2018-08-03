@@ -28,7 +28,8 @@ import {
     ProjectLoader,
 } from "@atomist/sdm";
 import { NpmOptions } from "@atomist/sdm-pack-node";
-import { deleteBranchTag } from "@atomist/sdm-pack-node/dist/support/build/executePublish";
+import { deleteBranchTag } from "@atomist/sdm-pack-node";
+
 import { OnDeletedBranch } from "../typings/types";
 
 @Parameters()
@@ -46,7 +47,7 @@ function deleteDistTagOnBranchDeletionHandle(
 
         const repo = e.data.DeletedBranch[0].repo;
         const branch = e.data.DeletedBranch[0].name;
-        const id = GitHubRepoRef.from({ owner: repo.owner, repo: repo.name, branch: repo.defaultBranch});
+        const id = GitHubRepoRef.from({ owner: repo.owner, repo: repo.name, branch: repo.defaultBranch });
 
         return projectLoader.doWithProject(
             { credentials: { token: params.token }, context, readOnly: true, id },
