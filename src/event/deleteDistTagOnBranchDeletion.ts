@@ -27,8 +27,10 @@ import {
     EventHandlerRegistration,
     ProjectLoader,
 } from "@atomist/sdm";
-import { NpmOptions } from "@atomist/sdm-pack-node";
-import { deleteBranchTag } from "@atomist/sdm-pack-node";
+import {
+    deleteBranchTag,
+    NpmOptions,
+} from "@atomist/sdm-pack-node";
 
 import { OnDeletedBranch } from "../typings/types";
 
@@ -58,8 +60,11 @@ function deleteDistTagOnBranchDeletionHandle(
     };
 }
 
-export function deleteDistTagOnBranchDeletion(projectLoader: ProjectLoader,
-                                              options: NpmOptions): EventHandlerRegistration<OnDeletedBranch.Subscription, TokenParameters> {
+export function deleteDistTagOnBranchDeletion(
+    projectLoader: ProjectLoader,
+    options: NpmOptions,
+): EventHandlerRegistration<OnDeletedBranch.Subscription, TokenParameters> {
+
     return {
         name: "DeleteDistTagOnBranchDeletion",
         description: "Delete a NPM dist-tag when a branch gets deleted",
