@@ -55,7 +55,6 @@ import {
     StagingKubernetesDeployGoals,
 } from "./goals";
 import { addNodeSupport } from "./nodeSupport";
-import { SetGoalState } from "./setGoalState";
 import { addTeamPolicies } from "./teamPolicies";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
@@ -115,8 +114,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addCommand(EnableDeploy)
-        .addCommand(DisableDeploy)
-        .addCommand(SetGoalState);
+        .addCommand(DisableDeploy);
 
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
