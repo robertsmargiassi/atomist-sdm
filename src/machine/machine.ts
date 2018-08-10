@@ -80,10 +80,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Just Checking")
             .setGoals(CheckGoals),
 
-        // Simplified deployment goal set for atomist-sdm, k8-automation and clojure-sdm; we are skipping
+        // Simplified deployment goal set for atomist-sdm, k8-automation and atomist-internal-sdm; we are skipping
         // testing for these and deploying straight into their respective namespaces
         whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            isNamed("k8-automation", "atomist-sdm", "clojure-sdm"))
+            isNamed("k8-automation", "atomist-sdm", "atomist-internal-sdm"))
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
