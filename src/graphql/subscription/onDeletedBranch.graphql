@@ -1,4 +1,4 @@
-subscription OnDeletedBranch {
+subscription onDeletedBranch {
   DeletedBranch {
     name
     repo {
