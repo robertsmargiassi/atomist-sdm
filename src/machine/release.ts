@@ -59,6 +59,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as semver from "semver";
 import * as uuid from "uuid/v4";
+import * as _ from "lodash";
 
 async function loglog(log: ProgressLog, msg: string): Promise<void> {
     logger.debug(msg);
@@ -83,7 +84,7 @@ async function rwlcVersion(gi: GoalInvocation): Promise<string> {
     return version;
 }
 
-function releaseOrPreRelease(version: string, gi: GoalInvocation): string {
+export function releaseOrPreRelease(version: string, gi: GoalInvocation): string {
     const prVersion = preReleaseVersion(gi);
     if (prVersion) {
         return prVersion;
@@ -93,20 +94,20 @@ function releaseOrPreRelease(version: string, gi: GoalInvocation): string {
 }
 
 function preReleaseVersion(gi: GoalInvocation): string | undefined {
-    if (gi.sdmGoal.push.after.tags) {
-        const tag = gi.sdmGoal.push.after.tags.find(t => {
-            const preRelease = semver.prerelease(t.name);
-            if (preRelease && ["M", "RC"].includes(preRelease[0])) {
-                return true;
-            } else {
-                return false;
-            }
-        });
-        if (tag) {
-            return tag.name;
+    const tags = _.get(gi, "sdmGoal.push.after.tags") || [];
+    const tag = tags.find(t => {
+        const preRelease = semver.prerelease(t.name);
+        if (preRelease && ["M", "RC"].includes(preRelease[0])) {
+            return true;
+        } else {
+            return false;
         }
+    });
+    if (tag) {
+        return tag.name;
+    } else {
+        return undefined;
     }
-    return undefined;
 }
 
 function releaseVersion(version: string): string {
