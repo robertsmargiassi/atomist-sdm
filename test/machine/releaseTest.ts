@@ -30,8 +30,8 @@ describe("release", () => {
                 push: {
                     after: {
                         tags: [{ name: "1.0.0-201812921239323" }, { name: "1.0.0-M.1"} ],
-                    }
-                }
+                    },
+                },
             } as any as SdmGoalEvent;
             const gi: GoalInvocation = {
                 sdmGoal: goal,
@@ -47,8 +47,8 @@ describe("release", () => {
                 push: {
                     after: {
                         tags: [{ name: "1.0.0-RC.1"} ],
-                    }
-                }
+                    },
+                },
             } as any as SdmGoalEvent;
             const gi: GoalInvocation = {
                 sdmGoal: goal,
@@ -63,8 +63,8 @@ describe("release", () => {
             const goal: SdmGoalEvent = {
                 push: {
                     after: {
-                    }
-                }
+                    },
+                },
             } as any as SdmGoalEvent;
             const gi: GoalInvocation = {
                 sdmGoal: goal,

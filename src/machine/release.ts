@@ -56,10 +56,10 @@ import {
 } from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as fs from "fs-extra";
+import * as _ from "lodash";
 import * as path from "path";
 import * as semver from "semver";
 import * as uuid from "uuid/v4";
-import * as _ from "lodash";
 
 async function loglog(log: ProgressLog, msg: string): Promise<void> {
     logger.debug(msg);
