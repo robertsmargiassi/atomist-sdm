@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/atomist/atomist-sdm/compare/0.1.4...HEAD)
 
+### Added
+
+-   Support for releasing M and RC releases from a tag. [#30](https://github.com/atomist/atomist-sdm/issues/30)
+
 ## [0.1.4](https://github.com/atomist/atomist-sdm/compare/0.1.3...0.1.4) - 2018-07-19
 
 ### Added
