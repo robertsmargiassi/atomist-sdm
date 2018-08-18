@@ -56,7 +56,9 @@ import {
 } from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as fs from "fs-extra";
+import * as _ from "lodash";
 import * as path from "path";
+import * as semver from "semver";
 import * as uuid from "uuid/v4";
 
 async function loglog(log: ProgressLog, msg: string): Promise<void> {
@@ -80,6 +82,32 @@ async function rwlcVersion(gi: GoalInvocation): Promise<string> {
         gi.sdmGoal.branch,
         gi.context);
     return version;
+}
+
+export function releaseOrPreRelease(version: string, gi: GoalInvocation): string {
+    const prVersion = preReleaseVersion(gi);
+    if (prVersion) {
+        return prVersion;
+    } else {
+        return releaseVersion(version);
+    }
+}
+
+function preReleaseVersion(gi: GoalInvocation): string | undefined {
+    const tags = _.get(gi, "sdmGoal.push.after.tags") || [];
+    const tag = tags.find(t => {
+        const preRelease = semver.prerelease(t.name);
+        if (preRelease && ["M", "RC"].includes(preRelease[0])) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    if (tag) {
+        return tag.name;
+    } else {
+        return undefined;
+    }
 }
 
 function releaseVersion(version: string): string {
@@ -230,7 +258,7 @@ export async function npmReleasePreparation(p: GitProject, gi: GoalInvocation): 
         return Promise.reject(new Error(msg));
     }
     const version = await rwlcVersion(gi);
-    const versionRelease = releaseVersion(version);
+    const versionRelease = releaseOrPreRelease(version, gi);
     const npmOptions = configurationValue<NpmOptions>("sdm.npm");
     if (!npmOptions.registry) {
         return Promise.reject(new Error(`No NPM registry defined in NPM options`));
@@ -381,7 +409,7 @@ export function executeReleaseDocker(
             }
 
             const version = await rwlcVersion(gi);
-            const versionRelease = releaseVersion(version);
+            const versionRelease = releaseOrPreRelease(version, gi);
             const image = dockerImage({
                 registry: options.registry,
                 name: gi.sdmGoal.repo.name,
@@ -419,8 +447,10 @@ export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoal {
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: true }, async p => {
             const version = await rwlcVersion(gi);
-            const versionRelease = releaseVersion(version);
-            await createTagForStatus(id, gi.sdmGoal.sha, gi.sdmGoal.push.after.message, versionRelease, credentials);
+            const versionRelease = releaseOrPreRelease(version, gi);
+            if (!(gi.sdmGoal.push.after.tags || []).some(t => t.name === versionRelease)) {
+                await createTagForStatus(id, gi.sdmGoal.sha, gi.sdmGoal.push.after.message, versionRelease, credentials);
+            }
             const commitTitle = gi.sdmGoal.push.after.message.replace(/\n[\S\s]*/, "");
             const release = {
                 tag_name: versionRelease,
@@ -492,7 +522,7 @@ export function executeReleaseDocs(
             }
 
             const version = await rwlcVersion(gi);
-            const versionRelease = releaseVersion(version);
+            const versionRelease = releaseOrPreRelease(version, gi);
             const commitMsg = `TypeDoc: publishing for version ${versionRelease}
 
 [atomist:generated]`;
@@ -536,7 +566,7 @@ export function executeReleaseVersion(
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
             const version = await rwlcVersion(gi);
-            const versionRelease = releaseVersion(version);
+            const versionRelease = releaseOrPreRelease(version, gi);
             const gp = p as GitCommandGitProject;
 
             const log = new DelimitedWriteProgressLogDecorator(gi.progressLog, "\n");
