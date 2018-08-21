@@ -96,8 +96,7 @@ export function releaseOrPreRelease(version: string, gi: GoalInvocation): string
 function preReleaseVersion(gi: GoalInvocation): string | undefined {
     const tags = _.get(gi, "sdmGoal.push.after.tags") || [];
     const tag = tags.find(t => {
-        const preRelease = semver.prerelease(t.name);
-        if (preRelease && ["M", "RC"].includes(preRelease[0])) {
+        if (isNextVersion(t.name)) {
             return true;
         } else {
             return false;
@@ -108,6 +107,11 @@ function preReleaseVersion(gi: GoalInvocation): string | undefined {
     } else {
         return undefined;
     }
+}
+
+function isNextVersion(version: string): boolean {
+    const preRelease = semver.prerelease(version);
+    return (preRelease && ["M", "RC"].includes(preRelease[0]));
 }
 
 function releaseVersion(version: string): string {
@@ -323,14 +327,21 @@ export function executeReleaseNpm(
                     return pResult;
                 }
             }
-
+            const args = [
+                "publish",
+                "--registry", options.registry,
+                "--access", options.access ? options.access : "restricted",
+            ];
+            const version = await rwlcVersion(gi);
+            const versionRelease = releaseOrPreRelease(version, gi);
+            if (isNextVersion(versionRelease)) {
+                args.push(
+                    "--tag", "next",
+                );
+            }
             const result = await spawnAndWatch({
                 command: "npm",
-                args: [
-                    "publish",
-                    "--registry", options.registry,
-                    "--access", (options.access) ? options.access : "restricted",
-                ],
+                args,
             }, { cwd: project.baseDir }, gi.progressLog);
             if (result.error) {
                 return result;
@@ -342,15 +353,17 @@ export function executeReleaseNpm(
                 name: pi.name,
                 version: pi.version,
             });
-            await createStatus(
-                (credentials as TokenCredentials).token,
-                id as GitHubRepoRef,
-                {
-                    context: "npm/atomist/package",
-                    description: "NPM package",
-                    target_url: url,
-                    state: "success",
-                });
+            if (options.status) {
+                await createStatus(
+                    (credentials as TokenCredentials).token,
+                    id as GitHubRepoRef,
+                    {
+                        context: "npm/atomist/package",
+                        description: "NPM package",
+                        target_url: url,
+                        state: "success",
+                    });
+            }
 
             const egr: ExecuteGoalResult = {
                 code: result.code,
