@@ -158,6 +158,7 @@ function spawnExecuteLogger(swc: SpawnWatchCommand): ExecuteLogger {
                 error: true,
                 code: -1,
                 message: `Spawned command errored: ${swc.cmd.command} ${swc.cmd.args.join(" ")}: ${e.message}`,
+                childProcess: undefined,
             };
         }
         if (res.error) {
