@@ -15,10 +15,12 @@
  */
 
 import {
-    HandlerContext,
+    automationClientInstance,
+    MessageOptions,
     Parameter,
     Parameters,
 } from "@atomist/automation-client";
+import { guid } from "@atomist/automation-client/internal/util/string";
 import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client/util/spawned";
 import {
     CodeTransform,
@@ -29,7 +31,10 @@ import {
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import { DryRunMessage } from "@atomist/sdm/pack/build-aware-transform/support/makeBuildAware";
-import { codeLine } from "@atomist/slack-messages";
+import {
+    codeLine,
+    SlackMessage,
+} from "@atomist/slack-messages";
 
 @Parameters()
 export class UpdateAtomistDependenciesParameters {
@@ -54,20 +59,39 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
         const pj = JSON.parse(await pjFile.getContent());
         const versions = [];
 
-        await ctx.messageClient.respond(`Updating @atomist NPM dependencies of ${codeLine(pj.name)}`);
+        const message: SlackMessage = {
+            text: `Updating @atomist NPM dependencies of ${codeLine(pj.name)}`,
+            attachments: [{
+                text: "",
+                fallback: "Versions",
+                footer: `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`,
+            }],
+        };
+        const opts: MessageOptions = {
+            id: guid(),
+        };
+
+        const sendMessage = async (msg?: string) => {
+            if (msg) {
+                message.attachments[0].text = `${message.attachments[0].text}${msg}`;
+            }
+            await ctx.messageClient.respond(message, opts);
+        };
+
+        await sendMessage();
 
         if (pj.dependencies) {
-            await updateDependencies(pj.dependencies, tag, range, versions, ctx);
+            await updateDependencies(pj.dependencies, tag, range, versions, sendMessage);
         }
         if (pj.devDependencies) {
-            await updateDependencies(pj.devDependencies, tag, range, versions, ctx);
+            await updateDependencies(pj.devDependencies, tag, range, versions, sendMessage);
         }
 
         await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
 `);
 
         if (!(await (p as GitProject).isClean()).success) {
-            await ctx.messageClient.respond(`Versions updated. Running ${codeLine("npm install")}`);
+            await sendMessage(`Versions updated. Running ${codeLine("npm install")}`);
             await spawnAndWatch({
                     command: "npm",
                     args: ["i"],
@@ -97,7 +121,7 @@ async function updateDependencies(deps: any,
                                   tag: string,
                                   range: string,
                                   versions: string[],
-                                  ctx: HandlerContext): Promise<void> {
+                                  sendMessage: (msg?: string) => Promise<void>): Promise<void> {
     for (const k in deps) {
         if (deps.hasOwnProperty(k)) {
             if (k.startsWith("@atomist/")) {
@@ -106,7 +130,8 @@ async function updateDependencies(deps: any,
                 if (version && oldVersion !== version) {
                     deps[k] = version;
                     versions.push(`${k} ${oldVersion} > ${version}`);
-                    await ctx.messageClient.respond(`Updated ${codeLine(k)} from ${codeLine(oldVersion)} to ${codeLine(version)}`);
+                    await sendMessage(
+                        `:atomist_build_passed: Updated ${codeLine(k)} from ${codeLine(oldVersion)} to ${codeLine(version)}\n`);
                 }
             }
         }
