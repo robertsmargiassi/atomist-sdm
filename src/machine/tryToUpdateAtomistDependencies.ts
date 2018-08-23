@@ -15,6 +15,7 @@
  */
 
 import {
+    HandlerContext,
     Parameter,
     Parameters,
 } from "@atomist/automation-client";
@@ -22,15 +23,16 @@ import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client/util/spa
 import {
     CodeTransform,
     CodeTransformRegistration,
+    EditMode,
     GitProject,
 } from "@atomist/sdm";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
-import { TransformModeSuggestion } from "@atomist/sdm/api/command/target/TransformModeSuggestion";
-import { makeBuildAware } from "@atomist/sdm/pack/build-aware-transform";
+import { DryRunMessage } from "@atomist/sdm/pack/build-aware-transform/support/makeBuildAware";
+import { codeLine } from "@atomist/slack-messages";
 
 @Parameters()
-export class UpdateAtomistDependenciesParameters implements TransformModeSuggestion {
+export class UpdateAtomistDependenciesParameters {
 
     @Parameter({
         displayName: "Desired NPM dist tag to update to",
@@ -40,19 +42,8 @@ export class UpdateAtomistDependenciesParameters implements TransformModeSuggest
     })
     public tag: string = "latest";
 
-    public commitMessage: string = this.desiredPullRequestTitle;
+    public commitMessage: string;
 
-    get desiredBranchName() {
-        return `atomist-update-${this.tag}-${Date.now()}`;
-    }
-
-    get desiredPullRequestTitle() {
-        return `Update @atomist NPM dependencies`;
-    }
-
-    get desiredCommitMessage() {
-        return this.commitMessage;
-    }
 }
 
 export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDependenciesParameters> =
@@ -61,18 +52,22 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
         const range = (tag === "latest" ? "^" : "");
         const pjFile = await p.getFile("package.json");
         const pj = JSON.parse(await pjFile.getContent());
+        const versions = [];
+
+        await ctx.messageClient.respond(`Updating @atomist NPM dependencies of ${codeLine(pj.name)}`);
 
         if (pj.dependencies) {
-            await updateDependencies(pj.dependencies, tag, range);
+            await updateDependencies(pj.dependencies, tag, range, versions, ctx);
         }
         if (pj.devDependencies) {
-            await updateDependencies(pj.devDependencies, tag, range);
+            await updateDependencies(pj.devDependencies, tag, range, versions, ctx);
         }
 
         await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
 `);
 
-        if (!await (p as GitProject).isClean()) {
+        if (!(await (p as GitProject).isClean()).success) {
+            await ctx.messageClient.respond(`Versions updated. Running ${codeLine("npm install")}`);
             await spawnAndWatch({
                     command: "npm",
                     args: ["i"],
@@ -89,10 +84,20 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
             );
         }
 
+        params.commitMessage = `Update @atomist NPM dependencies to tag ${params.tag}
+
+${versions.join("\n")}
+
+${DryRunMessage}`;
+
         return p;
     };
 
-async function updateDependencies(deps: any, tag: string, range: string): Promise<void> {
+async function updateDependencies(deps: any,
+                                  tag: string,
+                                  range: string,
+                                  versions: string[],
+                                  ctx: HandlerContext): Promise<void> {
     for (const k in deps) {
         if (deps.hasOwnProperty(k)) {
             if (k.startsWith("@atomist/")) {
@@ -100,6 +105,8 @@ async function updateDependencies(deps: any, tag: string, range: string): Promis
                 const version = `${range}${await latestVersion(`${k}@${tag}`)}`;
                 if (version && oldVersion !== version) {
                     deps[k] = version;
+                    versions.push(`${k} ${oldVersion} > ${version}`);
+                    await ctx.messageClient.respond(`Updated ${codeLine(k)} from ${codeLine(oldVersion)} to ${codeLine(version)}`);
                 }
             }
         }
@@ -126,10 +133,26 @@ async function latestVersion(module: string): Promise<string | undefined> {
     return undefined;
 }
 
-export const TryToUpdateAtomistDependencies: CodeTransformRegistration<UpdateAtomistDependenciesParameters> = makeBuildAware({
+export const TryToUpdateAtomistDependencies: CodeTransformRegistration<UpdateAtomistDependenciesParameters> = {
     transform: UpdateAtomistDependenciesTransform,
     paramsMaker: UpdateAtomistDependenciesParameters,
-    name: "atomist-dependencies-update",
+    name: "UpdateAtomistDependencies",
     description: `Update @atomist NPM dependencies`,
     intent: ["update atomist dependencies", "update deps"],
-});
+    transformPresentation: ci => {
+        return new BranchCommit(ci.parameters);
+    },
+};
+
+class BranchCommit implements EditMode {
+
+    constructor(private readonly params: UpdateAtomistDependenciesParameters) {}
+
+    get message(): string {
+        return this.params.commitMessage || "Update @atomist NPM dependencies";
+    }
+
+    get branch(): string {
+        return `atomist-update-${this.params.tag}-${Date.now()}`;
+    }
+}
