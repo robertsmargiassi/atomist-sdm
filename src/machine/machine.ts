@@ -122,7 +122,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
     sdm.addExtensionPacks(
         BadgeSupport,
-        buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => {}}})
+        buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => { /* intentionally left empty */ }}}),
     );
     sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
 
