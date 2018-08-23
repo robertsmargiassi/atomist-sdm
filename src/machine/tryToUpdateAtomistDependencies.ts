@@ -92,7 +92,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
         if (!(await (p as GitProject).isClean()).success) {
             await sendMessage(`Versions updated. Running ${codeLine("npm install")}`);
-            await spawnAndWatch({
+            const result = await spawnAndWatch({
                     command: "npm",
                     args: ["i"],
                 },
@@ -106,6 +106,9 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
                 new StringCapturingProgressLog(),
                 {},
             );
+            await sendMessage(result.code === 0 ?
+                `:atomist_build_passed: ${codeLine("npm install")} completed successfully` :
+                `:atomist_build_failed: ${codeLine("npm install")} failed`);
         }
 
         params.commitMessage = `Update @atomist NPM dependencies to tag ${params.tag}
