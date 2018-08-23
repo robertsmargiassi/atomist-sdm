@@ -120,7 +120,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
 
-    sdm.addExtensionPacks(BadgeSupport, buildAwareCodeTransforms());
+    sdm.addExtensionPacks(
+        BadgeSupport,
+        buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => {}}})
+    );
     sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
 
     summarizeGoalsInGitHubStatus(sdm);
