@@ -47,7 +47,7 @@ export class UpdateAtomistDependenciesParameters implements TransformModeSuggest
     }
 
     get desiredPullRequestTitle() {
-        return `Update @atomist NPM dependencies to tag ${this.tag}`;
+        return `Update @atomist NPM dependencies`;
     }
 
     get desiredCommitMessage() {
