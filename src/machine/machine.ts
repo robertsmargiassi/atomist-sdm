@@ -38,6 +38,7 @@ import {
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
+import { buildAwareCodeTransforms } from "@atomist/sdm/pack/build-aware-transform";
 import {
     isNamed,
     isTeam,
@@ -119,7 +120,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
 
-    sdm.addExtensionPacks(BadgeSupport);
+    sdm.addExtensionPacks(BadgeSupport, buildAwareCodeTransforms());
     sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
 
     summarizeGoalsInGitHubStatus(sdm);

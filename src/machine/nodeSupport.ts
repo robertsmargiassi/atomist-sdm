@@ -90,6 +90,7 @@ import {
     NpmReleasePreparations,
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
+import { TryToUpdateAtomistDependencies } from "./tryToUpdateAtomistDependencies";
 
 const NodeDefaultOptions = {
     pushTest: IsNode,
@@ -243,6 +244,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addEvent(deleteDistTagOnBranchDeletion(
         sdm.configuration.sdm.projectLoader,
         sdm.configuration.sdm.npm as NpmOptions));
+
+    sdm.addCodeTransformCommand(TryToUpdateAtomistDependencies);
 
     return sdm;
 }
