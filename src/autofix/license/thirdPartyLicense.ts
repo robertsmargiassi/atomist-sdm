@@ -60,11 +60,15 @@ export function addThirdPartyLicenseTransform(runInstall: boolean = true): Simpl
         if (runInstall) {
             const result = await
                 spawnAndWatch({
-                    command: "npm",
-                    args: [(hasPackageLock ? "ci" : "i")],
-                },
+                        command: "npm",
+                        args: [(hasPackageLock ? "ci" : "i")],
+                    },
                     {
                         cwd,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
                     },
                     new StringCapturingProgressLog(),
                     {},
