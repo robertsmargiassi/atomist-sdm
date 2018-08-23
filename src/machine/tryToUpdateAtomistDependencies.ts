@@ -22,6 +22,7 @@ import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client/util/spa
 import {
     CodeTransform,
     CodeTransformRegistration,
+    GitProject,
 } from "@atomist/sdm";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
@@ -70,6 +71,23 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
         await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
 `);
+
+        if (!await (p as GitProject).isClean()) {
+            await spawnAndWatch({
+                    command: "npm",
+                    args: ["i"],
+                },
+                {
+                    cwd: (p as GitProject).baseDir,
+                    env: {
+                        ...process.env,
+                        NODE_ENV: "development",
+                    },
+                },
+                new StringCapturingProgressLog(),
+                {},
+            );
+        }
 
         return p;
     };
