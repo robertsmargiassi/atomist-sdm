@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/atomist/atomist-sdm/compare/0.1.5...HEAD)
 
+### Added
+
+-   Add update dependencies transform. [#bcde17b](https://github.com/atomist/atomist-sdm/commit/bcde17b9e09a0f27f14884892599004adc3ffce4)
+
 ## [0.1.5](https://github.com/atomist/atomist-sdm/compare/0.1.4...0.1.5) - 2018-08-22
 
 ### Added
