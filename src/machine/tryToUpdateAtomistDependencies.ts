@@ -36,6 +36,9 @@ import {
     SlackMessage,
 } from "@atomist/slack-messages";
 
+export const AutoMergeCheckSuccessLabel = "auto-merge:on-check-success";
+export const AutoMergeCheckSuccessTag = `[${AutoMergeCheckSuccessLabel}]`;
+
 @Parameters()
 export class UpdateAtomistDependenciesParameters {
 
@@ -115,7 +118,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
 ${versions.join("\n")}
 
-${DryRunMessage}`;
+${DryRunMessage} ${AutoMergeCheckSuccessTag}`;
 
         return p;
     };
