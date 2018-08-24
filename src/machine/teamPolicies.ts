@@ -24,7 +24,7 @@ import {
 } from "@atomist/sdm";
 import { updateIssue } from "@atomist/sdm-core";
 import { truncateCommitMessage } from "@atomist/sdm-core/util/lifecycleHelpers";
-import { warning } from "@atomist/sdm-core/util/slack/messages";
+import { warning } from "@atomist/sdm/api-helper/misc/slack/messages";
 import {
     bold,
     codeLine,
