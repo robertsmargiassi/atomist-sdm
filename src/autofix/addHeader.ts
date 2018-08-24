@@ -97,10 +97,26 @@ export async function addHeaderTransform(p: Project,
             filesWithDifferentHeaders.push(f);
             return;
         }
-        await f.setContent(ci.parameters.header + "\n\n" + content);
+        const [prefix, rest] = separatePrefixLines(content);
+        await f.setContent(prefix + ci.parameters.header + "\n\n" + rest);
         return;
     });
     return p;
+}
+
+/**
+ * There are some lines that really need to be at the top.
+ * 
+ * If a file starts with '#!/executable/to/run', leave that at the top.
+ * It's invalid to put a comment before it.
+ * @param content 
+ */
+function separatePrefixLines(content: string): [string, string] {
+    if (content.startsWith("#!")) {
+        const lines = content.split("\n");
+        return [lines[0] + "\n", lines.slice(1).join("\n")]
+    }
+    return ["", content];
 }
 
 export function hasDifferentHeader(header: string, content: string): boolean {
