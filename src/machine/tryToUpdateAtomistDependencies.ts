@@ -166,7 +166,7 @@ export const TryToUpdateAtomistDependencies: CodeTransformRegistration<UpdateAto
     paramsMaker: UpdateAtomistDependenciesParameters,
     name: "UpdateAtomistDependencies",
     description: `Update @atomist NPM dependencies`,
-    intent: ["update atomist dependencies", "update deps"],
+    intent: ["update atomist dependencies", "update deps", "update dependencies"],
     transformPresentation: ci => {
         return new BranchCommit(ci.parameters);
     },
