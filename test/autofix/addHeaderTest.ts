@@ -17,7 +17,10 @@
 import * as minimatch from "minimatch";
 import * as assert from "power-assert";
 
+import { InMemoryProject } from "@atomist/sdm";
 import {
+    AddHeaderParameters,
+    addHeaderTransform,
     ApacheHeader,
     hasDifferentHeader,
 } from "../../src/autofix/addHeader";
@@ -55,6 +58,34 @@ describe("addHeader", () => {
             assert(!hasDifferentHeader(ApacheHeader, `#!/usr/bin/env node\n${ApacheHeader}`));
         });
 
+    });
+
+    describe("Allowed pre-header lines", () => {
+        it("usually adds the header at the very top of the file", async () => {
+            const p = InMemoryProject.of({
+                path: "something.ts",
+                content: "import stuff from \"stuff\";\n\nconst foo = \"bar\";\n",
+            });
+
+            await addHeaderTransform(p, { parameters: new AddHeaderParameters() } as any);
+
+            const newContent = (await p.findFile("something.ts")).getContentSync();
+
+            assert(newContent.startsWith(ApacheHeader));
+        });
+
+        it("adds the header after a #! line", async () => {
+            const p = InMemoryProject.of({
+                path: "something.ts",
+                content: "#!/usr/bin/env ts-node;\nimport stuff from \"stuff\";\n\nconst foo = \"bar\";\n",
+            });
+
+            await addHeaderTransform(p, { parameters: new AddHeaderParameters() } as any);
+
+            const newContent = (await p.findFile("something.ts")).getContentSync();
+
+            assert(newContent.startsWith("#!/usr/bin/env ts-node;\n" + ApacheHeader));
+        });
     });
 
 });
