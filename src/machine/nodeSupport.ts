@@ -90,6 +90,7 @@ import {
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
 import { TryToUpdateAtomistDependencies } from "./tryToUpdateAtomistDependencies";
+import { UpdatePackageVersion } from "./updatePackageVerison";
 
 const NodeDefaultOptions = {
     pushTest: IsNode,
@@ -244,7 +245,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         sdm.configuration.sdm.projectLoader,
         sdm.configuration.sdm.npm as NpmOptions));
 
-    sdm.addCodeTransformCommand(TryToUpdateAtomistDependencies);
+    sdm.addCodeTransformCommand(TryToUpdateAtomistDependencies)
+        .addCodeTransformCommand(UpdatePackageVersion);
 
     return sdm;
 }
