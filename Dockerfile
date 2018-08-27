@@ -38,7 +38,7 @@ RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \
     && apt-get update \
     && apt-get install -y nodejs \
     && npm install -g npm@6.4.0 \
-    && npm install -g @atomist/cli@0.6.6 --unsafe-perm=true --allow-root \
+    && npm install -g @atomist/cli@0.6.7 --unsafe-perm=true --allow-root \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.12/bin/linux/amd64/kubectl \
