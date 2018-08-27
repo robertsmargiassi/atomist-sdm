@@ -90,7 +90,7 @@ import {
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
 import { TryToUpdateAtomistDependencies } from "./tryToUpdateAtomistDependencies";
-import { UpdatePackageVersion } from "./updatePackageVerison";
+import { UpdatePackageVersion } from "./updatePackageVersion";
 
 const NodeDefaultOptions = {
     pushTest: IsNode,
