@@ -43,4 +43,13 @@ export const configuration: Configuration = {
         // configureEventLog(),
         configureSdm(machine, machineOptions),
     ],
+    sdm: {
+        npm: {
+            publish: {
+                tag: {
+                    defaultBranch: true,
+                },
+            },
+        },
+    },
 };
