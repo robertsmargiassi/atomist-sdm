@@ -25,7 +25,7 @@ import {
     EditMode,
     GitProject,
 } from "@atomist/sdm";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
+import { LoggingProgressLog } from "@atomist/sdm/api-helper/log/LoggingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 
 @Parameters()
@@ -37,13 +37,12 @@ export class UpdatePackageVersionParameters {
         pattern: /^.+$/,
         required: true,
     })
-    public version: string = "latest";
+    public version: string;
 }
 
 export const UpdatePackageVersionTransform: CodeTransform<UpdatePackageVersionParameters> =
     async (p, ctx, params) => {
-
-        const log = new StringCapturingProgressLog();
+        const log = new LoggingProgressLog("npm version");
         await spawnAndWatch({
                 command: "npm",
                 args: ["version", "--no-git-tag-version", params.version],
@@ -77,5 +76,9 @@ class MasterCommit implements EditMode {
 
     get message(): string {
         return `Update NPM package version to ${this.params ? this.params.version : ""}`;
+    }
+
+    get branch(): string {
+        return "master";
     }
 }
