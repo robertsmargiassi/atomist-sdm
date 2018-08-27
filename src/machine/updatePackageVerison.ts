@@ -23,6 +23,7 @@ import {
     CodeTransform,
     CodeTransformRegistration,
     EditMode,
+    GitProject,
 } from "@atomist/sdm";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
@@ -47,7 +48,9 @@ export const UpdatePackageVersionTransform: CodeTransform<UpdatePackageVersionPa
                 command: "npm",
                 args: ["version", "--no-git-tag-version", params.version],
             },
-            {},
+            {
+                cwd: (p as GitProject).baseDir,
+            },
             log,
             {
                 errorFinder: SuccessIsReturn0ErrorFinder,
