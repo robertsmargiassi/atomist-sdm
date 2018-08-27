@@ -138,6 +138,10 @@ export const SmokeTestGoal = new GoalWithPrecondition({
 export const CheckGoals = goals("Check")
     .plan(VersionGoal, ReviewGoal, AutofixGoal, PushReactionGoal);
 
+// Goals for running in local mode
+export const LocalGoals = goals("Local Build")
+    .plan(CheckGoals, BuildGoal);
+
 // Just running the build and publish
 export const BuildGoals = goals("Build")
     .plan(CheckGoals, BuildGoal, PublishGoal, TagGoal);

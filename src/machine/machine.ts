@@ -28,6 +28,7 @@ import {
     DisableDeploy,
     EnableDeploy,
     HasDockerfile,
+    IsInLocalMode,
     NoGoals,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
@@ -52,6 +53,7 @@ import {
     DockerGoals,
     DockerReleaseGoals,
     KubernetesDeployGoals,
+    LocalGoals,
     SimplifiedKubernetesDeployGoals,
     StagingKubernetesDeployGoals,
 } from "./goals";
@@ -67,6 +69,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
             .setGoals(DoNotSetAnyGoals),
+
+        whenPushSatisfies(IsNode, IsInLocalMode)
+            .itMeans("Node repository in local mode")
+            .setGoals(LocalGoals),
 
         whenPushSatisfies(not(isSdmEnabled(configuration.name)), isTeam("T095SFFBK"))
             .itMeans("Node repository in atomist team that we are already building in atomist-community")
