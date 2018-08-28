@@ -19,14 +19,16 @@ import { Configuration } from "@atomist/automation-client";
 import { configureLogzio } from "@atomist/automation-client-ext-logzio";
 import { configureRaven } from "@atomist/automation-client-ext-raven";
 import {
+    ConfigurationValueType,
     ConfigureOptions,
     configureSdm,
+    isInLocalMode,
 } from "@atomist/sdm-core";
+import * as _ from "lodash";
 import { machine } from "./machine/machine";
 
 const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
-        "sdm",
         "sdm.npm.npmrc",
         "sdm.npm.registry",
         "sdm.npm.access",
@@ -40,6 +42,30 @@ export const configuration: Configuration = {
     postProcessors: [
         configureLogzio,
         configureRaven,
+        // TODO cd this function should probably move over into sdm-core
+        async config => {
+            if (isInLocalMode()) {
+                machineOptions.requiredConfigurationValues.forEach(
+                    rv => {
+                        const path = typeof rv === "string" ? rv : rv.path;
+                        const type = typeof rv === "string" ? ConfigurationValueType.string : rv.type;
+                        if (!_.get(config, path)) {
+                            switch (type) {
+                                case ConfigurationValueType.string:
+                                    _.set(config, path, "not.a.real.value");
+                                    break;
+                                case ConfigurationValueType.boolean:
+                                    _.set(config, path, false);
+                                    break;
+                                case ConfigurationValueType.number:
+                                    _.set(config, path, 0);
+                                    break;
+                            }
+                        }
+                    });
+            }
+            return config;
+        },
         // configureEventLog(),
         configureSdm(machine, machineOptions),
     ],

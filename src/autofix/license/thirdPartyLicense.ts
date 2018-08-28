@@ -19,9 +19,11 @@ import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import {
     allSatisfied,
+    not,
     PushTest,
     ToDefaultBranch,
 } from "@atomist/sdm";
+import { IsInLocalMode } from "@atomist/sdm-core";
 import { IsNode } from "@atomist/sdm-pack-node";
 import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
@@ -46,7 +48,7 @@ const LicenseTableHeader = `| Name | Version | Publisher | Repository |
 const SummaryTableHadler = `| License | Count |
 |---------|-------|`;
 
-export const AddThirdPartyLicense = addThirdPartyLicense(allSatisfied(IsNode, ToDefaultBranch));
+export const AddThirdPartyLicense = addThirdPartyLicense(allSatisfied(IsNode, ToDefaultBranch, not(IsInLocalMode)));
 
 export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     return {
