@@ -90,6 +90,8 @@ import {
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
 import { TryToUpdateAtomistDependencies } from "./tryToUpdateAtomistDependencies";
+import { TryToUpdateAtomistPeerDependencies } from "./tryToUpdateAtomistPeerDependencies";
+import { UpdatePackageAuthor } from "./updatePackageAuthor";
 import { UpdatePackageVersion } from "./updatePackageVersion";
 
 const NodeDefaultOptions = {
@@ -246,7 +248,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         sdm.configuration.sdm.npm as NpmOptions));
 
     sdm.addCodeTransformCommand(TryToUpdateAtomistDependencies)
-        .addCodeTransformCommand(UpdatePackageVersion);
+        .addCodeTransformCommand(UpdatePackageVersion)
+        .addCodeTransformCommand(TryToUpdateAtomistPeerDependencies)
+        .addCodeTransformCommand(UpdatePackageAuthor);
 
     return sdm;
 }
