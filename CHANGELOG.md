@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 -   Add update dependencies transform. [#bcde17b](https://github.com/atomist/atomist-sdm/commit/bcde17b9e09a0f27f14884892599004adc3ffce4)
 -   Add support for SDM local mode. [#41](https://github.com/atomist/atomist-sdm/issues/41)
+-   Add code transforms for Atomist peer dependencies and package.json author. [#42](https://github.com/atomist/atomist-sdm/issues/42)
 
 ### Fixed
 
