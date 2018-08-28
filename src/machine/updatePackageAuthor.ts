@@ -22,16 +22,21 @@ import {
 
 const UpdatePackageAuthorTransform: CodeTransform =
     async (p, ctx, params) => {
-        const packageJsonFile = await p.getFile("package.json");
-        const packageJson = JSON.parse(await packageJsonFile.getContent());
-        const author = {
-            name: "Atomist",
-            email: "support@atomist.com",
-            url: "https://atomist.com/",
-        };
-        packageJson.author = author;
-        await packageJsonFile.setContent(`${JSON.stringify(packageJson, null, 2)}`);
-        return p;
+        try {
+            const packageJsonFile = await p.getFile("package.json");
+            const packageJson = JSON.parse(await packageJsonFile.getContent());
+            const author = {
+                name: "Atomist",
+                email: "support@atomist.com",
+                url: "https://atomist.com/",
+            };
+            packageJson.author = author;
+            await packageJsonFile.setContent(`${JSON.stringify(packageJson, null, 2)}`);
+            return p;
+        } catch (e) {
+            ctx.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
+            return p;
+        }
     };
 
 export const UpdatePackageAuthor: CodeTransformRegistration = {

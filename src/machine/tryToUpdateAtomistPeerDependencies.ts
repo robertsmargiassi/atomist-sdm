@@ -45,76 +45,81 @@ class UpdateAtomistPeerDependenciesParameters {
 
 const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPeerDependenciesParameters> =
     async (p, ctx, params) => {
-        const pjFile = await p.getFile("package.json");
-        const pj = JSON.parse(await pjFile.getContent());
-        const versions = [];
+        try {
+            const pjFile = await p.getFile("package.json");
+            const pj = JSON.parse(await pjFile.getContent());
+            let versions = [];
 
-        const message: SlackMessage = {
-            text: `Updating @atomist NPM peer dependencies of ${codeLine(pj.name)}`,
-            attachments: [{
-                text: "",
-                fallback: "Versions",
-                footer: `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`,
-            }],
-        };
-        const opts: MessageOptions = {
-            id: guid(),
-        };
+            const message: SlackMessage = {
+                text: `Updating @atomist NPM peer dependencies of ${codeLine(pj.name)}`,
+                attachments: [{
+                    text: "",
+                    fallback: "Versions",
+                    footer: `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`,
+                }],
+            };
+            const opts: MessageOptions = {
+                id: guid(),
+            };
 
-        const sendMessage = async (msg?: string) => {
-            if (msg) {
-                message.attachments[0].text = `${message.attachments[0].text}${msg}`;
+            const sendMessage = async (msg?: string) => {
+                if (msg) {
+                    message.attachments[0].text = `${message.attachments[0].text}${msg}`;
+                }
+                await ctx.messageClient.respond(message, opts);
+            };
+
+            await sendMessage();
+
+            if (pj.peerDependencies) {
+                versions = await updatePeerDependencies(pj.peerDependencies, sendMessage);
             }
-            await ctx.messageClient.respond(message, opts);
-        };
 
-        await sendMessage();
+            await pjFile.setContent(`${JSON.stringify(pj, null, 2)}`);
 
-        if (pj.peerDependencies) {
-            await updatePeerDependencies(pj.peerDependencies, versions, sendMessage);
-        }
-
-        await pjFile.setContent(`${JSON.stringify(pj, null, 2)}`);
-
-        if (!(await (p as GitProject).isClean()).success) {
-            await sendMessage(`\nAtomist peer dependency versions updated. Running ${codeLine("npm install")}`);
-            const result = await spawnAndWatch({
-                    command: "npm",
-                    args: ["i"],
-                },
-                {
-                    cwd: (p as GitProject).baseDir,
-                    env: {
-                        ...process.env,
-                        NODE_ENV: "development",
+            if (!(await (p as GitProject).isClean()).success) {
+                await sendMessage(`\nAtomist peer dependency versions updated. Running ${codeLine("npm install")}`);
+                const result = await spawnAndWatch({
+                        command: "npm",
+                        args: ["i"],
                     },
-                },
-                new StringCapturingProgressLog(),
-                {},
-            );
-            await sendMessage(result.code === 0 ?
-                `\n:atomist_build_passed: ${codeLine("npm install")} completed successfully` :
-                `\n:atomist_build_failed: ${codeLine("npm install")} failed`);
-        }
+                    {
+                        cwd: (p as GitProject).baseDir,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
+                    },
+                    new StringCapturingProgressLog(),
+                    {},
+                );
+                await sendMessage(result.code === 0 ?
+                    `\n:atomist_build_passed: ${codeLine("npm install")} completed successfully` :
+                    `\n:atomist_build_failed: ${codeLine("npm install")} failed`);
+            }
 
-        params.commitMessage = `Update @atomist NPM peer dependencies to *
+            params.commitMessage = `Update @atomist NPM peer dependencies to *
 
 ${versions.join("\n")}
 
 ${DryRunMessage} ${AutoMergeCheckSuccessTag}`;
 
-        return p;
+            return p;
+        } catch (e) {
+            await ctx.messageClient.respond(`\n:atomist_build_failed: Updating peer dependencies in package.json failed`);
+            return p;
+        }
     };
 
 async function updatePeerDependencies(deps: any,
-                                      versions: string[],
-                                      sendMessage: (msg?: string) => Promise<void>): Promise<void> {
+                                      sendMessage: (msg?: string) => Promise<void>): Promise<string[]> {
+    const versions: string[] = [];
     for (const k in deps) {
         if (deps.hasOwnProperty(k)) {
             if (k.startsWith("@atomist/")) {
                 const oldVersion = deps[k];
                 const version = `*`;
-                if (version && oldVersion !== version) {
+                if (oldVersion !== version) {
                     deps[k] = version;
                     versions.push(`${k} ${oldVersion} > ${version}`);
                     await sendMessage(
@@ -123,6 +128,7 @@ async function updatePeerDependencies(deps: any,
             }
         }
     }
+    return versions;
 }
 
 export const TryToUpdateAtomistPeerDependencies: CodeTransformRegistration<UpdateAtomistPeerDependenciesParameters> = {
@@ -138,7 +144,8 @@ export const TryToUpdateAtomistPeerDependencies: CodeTransformRegistration<Updat
 
 class BranchCommit implements EditMode {
 
-    constructor(private readonly params: UpdateAtomistPeerDependenciesParameters) {}
+    constructor(private readonly params: UpdateAtomistPeerDependenciesParameters) {
+    }
 
     get message(): string {
         return this.params.commitMessage || "Update @atomist NPM peer dependencies";
