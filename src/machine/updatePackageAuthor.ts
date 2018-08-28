@@ -35,7 +35,7 @@ const UpdatePackageAuthorTransform: CodeTransform =
             await packageJsonFile.setContent(`${JSON.stringify(packageJson, null, 2)}`);
             return p;
         } catch (e) {
-            ctx.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
+            await ctx.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
             logger.error(`Updating author in package.json failed: ${e.message}`);
             return p;
         }
