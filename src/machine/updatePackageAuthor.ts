@@ -36,9 +36,9 @@ const UpdatePackageAuthorTransform: CodeTransform =
 
 export const UpdatePackageAuthor: CodeTransformRegistration = {
     transform: UpdatePackageAuthorTransform,
-    name: "UpdatePackageVersion",
-    description: `Update NPM Package version`,
-    intent: ["update package version"],
+    name: "UpdatePackageAuthor",
+    description: `Update NPM Package author`,
+    intent: ["update package author"],
     transformPresentation: ci => {
         return new MasterCommit();
     },

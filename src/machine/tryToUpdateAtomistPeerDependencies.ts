@@ -128,8 +128,8 @@ async function updatePeerDependencies(deps: any,
 export const TryToUpdateAtomistPeerDependencies: CodeTransformRegistration<UpdateAtomistPeerDependenciesParameters> = {
     transform: UpdateAtomistPeerDependenciesStarTransform,
     paramsMaker: UpdateAtomistPeerDependenciesParameters,
-    name: "UpdateAtomistDependencies",
-    description: `Update @atomist NPM dependencies`,
+    name: "UpdateAtomistPeerDependencies",
+    description: `Update @atomist NPM peer dependencies`,
     intent: ["update atomist peer dependencies", "update peer deps", "update peer dependencies"],
     transformPresentation: ci => {
         return new BranchCommit(ci.parameters);
