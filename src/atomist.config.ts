@@ -24,9 +24,8 @@ import {
     configureSdm,
     isInLocalMode,
 } from "@atomist/sdm-core";
-import { machine } from "./machine/machine";
 import * as _ from "lodash";
-
+import { machine } from "./machine/machine";
 
 const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
