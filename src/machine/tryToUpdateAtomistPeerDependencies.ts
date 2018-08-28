@@ -16,6 +16,7 @@
 
 import {
     automationClientInstance,
+    logger,
     MessageOptions,
     Parameters,
 } from "@atomist/automation-client";
@@ -107,6 +108,7 @@ ${DryRunMessage} ${AutoMergeCheckSuccessTag}`;
             return p;
         } catch (e) {
             await ctx.messageClient.respond(`\n:atomist_build_failed: Updating peer dependencies in package.json failed`);
+            logger.error(`Updating peer dependencies in package.json failed: ${e.message}`);
             return p;
         }
     };

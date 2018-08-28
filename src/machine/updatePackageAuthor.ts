@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
@@ -35,6 +36,7 @@ const UpdatePackageAuthorTransform: CodeTransform =
             return p;
         } catch (e) {
             ctx.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
+            logger.error(`Updating author in package.json failed: ${e.message}`);
             return p;
         }
     };
