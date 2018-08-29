@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-import {
-    Configuration,
-    logger,
-} from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     allSatisfied,
     hasFile,
     not,
-    ProductionEnvironment,
-    RepoContext,
-    SdmGoalEvent,
-    SoftwareDeliveryMachine,
-    SoftwareDeliveryMachineConfiguration,
-    StagingEnvironment,
 } from "@atomist/sdm";
 import { tagRepo } from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
@@ -53,6 +42,7 @@ import {
     tslintFix,
 } from "@atomist/sdm-pack-node";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
+import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
@@ -68,24 +58,17 @@ import {
     DockerBuildGoal,
     ProductionDeploymentGoal,
     PublishGoal,
-    ReleaseChangelogGoal,
-    ReleaseDockerGoal,
     ReleaseDocsGoal,
     ReleaseNpmGoal,
-    ReleaseTagGoal,
     ReleaseVersionGoal,
     SmokeTestGoal,
-    StagingDeploymentGoal,
     TagGoal,
     VersionGoal,
 } from "./goals";
 import {
-    DockerReleasePreparations,
     DocsReleasePreparations,
-    executeReleaseDocker,
     executeReleaseDocs,
     executeReleaseNpm,
-    executeReleaseTag,
     executeReleaseVersion,
     NpmReleasePreparations,
 } from "./release";
@@ -204,21 +187,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
     });
 
-    sdm.addExtensionPacks(
-        changelogSupport(ReleaseChangelogGoal),
-        kubernetesSupport({
-            deployments: [{
-                goal: StagingDeploymentGoal,
-                pushTest: IsNode,
-                callback: kubernetesDataCallback(sdm.configuration),
-            }, {
-                goal: ProductionDeploymentGoal,
-                pushTest: IsNode,
-                callback: kubernetesDataCallback(sdm.configuration),
-            }],
-        }),
-    );
-
     sdm.addFirstPushListener(tagRepo(AutomationClientTagger))
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 
@@ -232,86 +200,4 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addCodeTransformCommand(UpdatePackageAuthor);
 
     return sdm;
-}
-
-function kubernetesDataCallback(
-    configuration: SoftwareDeliveryMachineConfiguration,
-): (goal: SdmGoalEvent, context: RepoContext) => Promise<SdmGoalEvent> {
-
-    return async (goal, ctx) => {
-        return configuration.sdm.projectLoader.doWithProject({
-            credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
-        }, async p => {
-            return kubernetesDataFromGoal(goal, p, configuration);
-        });
-    };
-}
-
-function kubernetesDataFromGoal(
-    goal: SdmGoalEvent,
-    p: GitProject,
-    configuration: Configuration,
-): Promise<SdmGoalEvent> {
-
-    const ns = namespaceFromGoal(goal);
-    const ingress = ingressFromGoal(goal.repo.name, ns);
-    return createKubernetesData(
-        goal,
-        {
-            name: goal.repo.name,
-            environment: configuration.environment.split("_")[0],
-            port: 2866,
-            ns,
-            imagePullSecret: "atomistjfrog",
-            replicas: ns === "production" ? 3 : 1,
-            ...ingress,
-        } as KubernetesOptions,
-        p);
-}
-
-function namespaceFromGoal(goal: SdmGoalEvent): string {
-    const name = goal.repo.name;
-    if (/-sdm$/.test(name) && name !== "sample-sdm" && name !== "spring-sdm") {
-        return "sdm";
-    } else if (name === "k8-automation") {
-        return "k8-automation";
-    } else if (goal.environment === StagingEnvironment.replace(/\/$/, "")) {
-        return "testing";
-    } else if (goal.environment === ProductionEnvironment.replace(/\/$/, "")) {
-        return "production";
-    } else {
-        logger.debug(`Unmatched goal.environment using default namespace: ${goal.environment}`);
-        return "default";
-    }
-}
-
-export interface Ingress {
-    host: string;
-    path: string;
-    tlsSecret?: string;
-}
-
-export function ingressFromGoal(repo: string, ns: string): Ingress {
-    let host: string;
-    let path: string;
-    if (repo === "card-automation") {
-        host = "pusher";
-        path = "/";
-    } else if (repo === "sdm-automation") {
-        return {
-            host: "badge",
-            path: "/",
-        };
-    } else if (repo === "intercom-automation") {
-        host = "intercom";
-        path = "/";
-    } else {
-        return undefined;
-    }
-    const tail = (ns === "production") ? "com" : "services";
-    return {
-        host: `${host}.atomist.${tail}`,
-        path,
-        tlsSecret: `star-atomist-${tail}`,
-    };
 }
