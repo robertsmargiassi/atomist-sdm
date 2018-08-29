@@ -36,6 +36,7 @@ import {
     PackageLockFingerprinter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
+import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
@@ -65,7 +66,7 @@ import {
 import { executeSmokeTests } from "./smokeTest";
 
 const NodeDefaultOptions = {
-    pushTest: IsNode,
+    pushTest: allSatisfied(IsNode, not(IsMaven)),
     logInterpreter: LogSuppressor,
     progressReporter: NpmProgressReporter,
 };
@@ -85,7 +86,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
         {
             ...NodeDefaultOptions,
-            pushTest: allSatisfied(IsNode, hasPackageLock),
+            pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         },
     )
         .addGoalImplementation(
@@ -94,7 +95,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
             {
                 ...NodeDefaultOptions,
-                pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+                pushTest: allSatisfied(NodeDefaultOptions.pushTest, not(hasPackageLock)),
             },
     )
         .addGoalImplementation(
