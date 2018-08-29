@@ -75,7 +75,7 @@ import {
 import { executeSmokeTests } from "./smokeTest";
 
 const NodeDefaultOptions = {
-    pushTest: IsNode,
+    pushTest: allSatisfied(IsNode, not(IsMaven)),
     logInterpreter: LogSuppressor,
     progressReporter: NpmProgressReporter,
 };
