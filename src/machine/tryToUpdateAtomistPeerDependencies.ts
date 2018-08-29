@@ -76,7 +76,8 @@ const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPee
                 versions = await updatePeerDependencies(pj.peerDependencies, sendMessage);
             }
 
-            await pjFile.setContent(`${JSON.stringify(pj, null, 2)}`);
+            await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
+`);
 
             if (!(await (p as GitProject).isClean()).success) {
                 await sendMessage(`\nAtomist peer dependency versions updated. Running ${codeLine("npm install")}`);
