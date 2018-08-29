@@ -40,12 +40,12 @@ import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { buildAwareCodeTransforms } from "@atomist/sdm/pack/build-aware-transform";
+import { BadgeSupport } from "../command/badge";
 import {
     isNamed,
     isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
-import { BadgeSupport } from "../command/badge";
 import {
     BuildGoals,
     BuildReleaseGoals,

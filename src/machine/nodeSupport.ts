@@ -66,6 +66,10 @@ import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { AutomationClientTagger } from "../support/tagger";
+import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
+import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtomistPeerDependencies";
+import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
+import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 import {
     ProductionDeploymentGoal,
     PublishGoal,
@@ -89,10 +93,6 @@ import {
     NpmReleasePreparations,
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
-import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
-import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtomistPeerDependencies";
-import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
-import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 
 const NodeDefaultOptions = {
     pushTest: IsNode,
