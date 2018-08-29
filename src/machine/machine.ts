@@ -45,7 +45,7 @@ import {
     isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
-import { BadgeSupport } from "./badge";
+import { BadgeSupport } from "../command/badge";
 import {
     BuildGoals,
     BuildReleaseGoals,

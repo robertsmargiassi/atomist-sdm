@@ -89,10 +89,10 @@ import {
     NpmReleasePreparations,
 } from "./release";
 import { executeSmokeTests } from "./smokeTest";
-import { TryToUpdateAtomistDependencies } from "./tryToUpdateAtomistDependencies";
-import { TryToUpdateAtomistPeerDependencies } from "./tryToUpdateAtomistPeerDependencies";
-import { UpdatePackageAuthor } from "./updatePackageAuthor";
-import { UpdatePackageVersion } from "./updatePackageVersion";
+import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
+import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtomistPeerDependencies";
+import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
+import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 
 const NodeDefaultOptions = {
     pushTest: IsNode,
