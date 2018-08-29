@@ -2,7 +2,11 @@
   "name": "@atomist/atomist-sdm",
   "version": "0.1.6",
   "description": "an Atomist SDM to deliver automation client projects",
-  "author": "Atomist, Inc.",
+  "author": {
+    "name": "Atomist",
+    "email": "support@atomist.com",
+    "url": "https://atomist.com/"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
