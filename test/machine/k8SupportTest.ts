@@ -15,7 +15,7 @@
  */
 
 import * as assert from "power-assert";
-import {ingressFromGoal} from "../../src/machine/k8Support";
+import { ingressFromGoal } from "../../src/machine/k8Support";
 
 describe("k8Support", () => {
 
