@@ -18,7 +18,6 @@ import {HasDockerfile} from "@atomist/sdm-core";
 import {DockerOptions} from "@atomist/sdm-core/pack/docker/executeDockerBuild";
 import {LogSuppressor} from "@atomist/sdm/api-helper/log/logInterpreters";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import {allSatisfied} from "@atomist/sdm/api/mapping/support/pushTestUtils";
 import {ReleaseDockerGoal} from "./goals";
 import {DockerReleasePreparations, executeReleaseDocker} from "./release";
 
@@ -39,7 +38,7 @@ export function addDockerSupport(sdm: SoftwareDeliveryMachine): SoftwareDelivery
                     ...sdm.configuration.sdm.docker.hub as DockerOptions,
                 }),
             {
-                pushTest: allSatisfied(HasDockerfile),
+                pushTest: HasDockerfile,
                 logInterpreter: LogSuppressor,
             },
         );
