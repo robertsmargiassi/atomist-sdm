@@ -19,13 +19,13 @@
 import {
     AutofixGoal,
     BuildGoal,
+    CodeInspectionGoal,
     Goal,
     goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
     PushReactionGoal,
-    CodeInspectionGoal,
     StagingEnvironment,
 } from "@atomist/sdm";
 import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
