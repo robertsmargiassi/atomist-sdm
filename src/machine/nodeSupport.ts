@@ -35,14 +35,11 @@ import {
 import {
     createKubernetesData,
     DefaultDockerImageNameCreator,
-    DockerBuildGoal,
     DockerOptions,
     executeDockerBuild,
     executeTag,
     executeVersioner,
-    TagGoal,
     tagRepo,
-    VersionGoal,
 } from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
 import { changelogSupport } from "@atomist/sdm-pack-changelog";
@@ -61,6 +58,11 @@ import {
 } from "@atomist/sdm-pack-node";
 import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
+import {
+    DockerBuildGoal,
+    TagGoal,
+    VersionGoal,
+} from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";

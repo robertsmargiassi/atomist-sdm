@@ -25,15 +25,15 @@ import {
     IndependentOfEnvironment,
     ProductionEnvironment,
     PushReactionGoal,
-    ReviewGoal,
+    CodeInspectionGoal,
     StagingEnvironment,
 } from "@atomist/sdm";
+import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
 import {
     DockerBuildGoal,
     TagGoal,
     VersionGoal,
-} from "@atomist/sdm-core";
-import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
+} from "@atomist/sdm/pack/well-known-goals/commonGoals";
 
 export const PublishGoal = new GoalWithPrecondition({
     uniqueName: "Publish",
@@ -53,7 +53,7 @@ export const StagingDeploymentGoal = new GoalWithPrecondition({
     displayName: "deploy to Test",
     completedDescription: "Deployed to Test",
     failedDescription: "Test deployment failure",
-    waitingForApprovalDescription: "Promote to Prod",
+    waitingForApprovalDescription: "Successfully deployed to Test",
     approvalRequired: true,
 }, DockerBuildGoal);
 
@@ -136,11 +136,13 @@ export const SmokeTestGoal = new GoalWithPrecondition({
 
 // Just running review and autofix
 export const CheckGoals = goals("Check")
-    .plan(VersionGoal, ReviewGoal, AutofixGoal, PushReactionGoal);
+    .plan(VersionGoal, CodeInspectionGoal, AutofixGoal, PushReactionGoal);
 
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
-    .plan(CheckGoals, BuildGoal);
+    .plan(CheckGoals, BuildGoal)
+    .plan(DockerBuildGoal).after(BuildGoal)
+    .plan(StagingDeploymentGoal).after(DockerBuildGoal);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")

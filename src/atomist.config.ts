@@ -48,21 +48,22 @@ export const configuration: Configuration = {
                 machineOptions.requiredConfigurationValues.forEach(
                     rv => {
                         const path = typeof rv === "string" ? rv : rv.path;
-                        const type = typeof rv === "string" ? ConfigurationValueType.string : rv.type;
+                        const type = typeof rv === "string" ? ConfigurationValueType.String : rv.type;
                         if (!_.get(config, path)) {
                             switch (type) {
-                                case ConfigurationValueType.string:
+                                case ConfigurationValueType.String:
                                     _.set(config, path, "not.a.real.value");
                                     break;
-                                case ConfigurationValueType.boolean:
+                                case ConfigurationValueType.Boolean:
                                     _.set(config, path, false);
                                     break;
-                                case ConfigurationValueType.number:
+                                case ConfigurationValueType.Number:
                                     _.set(config, path, 0);
                                     break;
                             }
                         }
                     });
+                _.set(config, "sdm.k8.environment", "gke-int-production");
             }
             return config;
         },

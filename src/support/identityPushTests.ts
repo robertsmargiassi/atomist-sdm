@@ -34,6 +34,6 @@ export function isNamed(...names: string[]): PushTest {
 
 export function isTeam(...teams: string[]): PushTest {
     return pushTest(`Atomist team is one of these '${teams.join(", ")}'`, async pci => {
-        return teams.includes(pci.context.teamId);
+        return teams.includes(pci.context.workspaceId);
     });
 }

@@ -20,10 +20,8 @@ import {
 } from "@atomist/automation-client";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
-import {
-    CodeTransformRegistration,
-    CommandListenerInvocation,
-} from "@atomist/sdm";
+import { CodeTransformRegistration } from "@atomist/sdm";
+import { ParametersInvocation } from "@atomist/sdm/api/listener/ParametersInvocation";
 import * as minimatch from "minimatch";
 import { CFamilyLanguageSourceFiles } from "./GlobPatterns";
 import { RequestedCommitParameters } from "./RequestedCommitParameters";
@@ -82,7 +80,7 @@ export const AddApacheLicenseTransform: CodeTransformRegistration<AddHeaderParam
 };
 
 export async function addHeaderTransform(p: Project,
-    ci: CommandListenerInvocation<AddHeaderParameters>): Promise<Project> {
+                                         ci: ParametersInvocation<AddHeaderParameters>): Promise<Project> {
 
     let filesWithDifferentHeaders = [];
     await doWithFiles(p, ci.parameters.glob, async f => {

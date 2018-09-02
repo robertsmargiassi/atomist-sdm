@@ -65,7 +65,7 @@ export const BadgeSupport: ExtensionPack = {
                 };
                 await cli.context.messageClient.send(badge, addressEvent("SdmGoalSetBadge"));
 
-                const url = `http://badge.atomist.com/${cli.context.teamId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
+                const url = `http://badge.atomist.com/${cli.context.workspaceId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
 
                 const msg = success(
                     "Badge Url",
@@ -75,7 +75,7 @@ ${url}
 
 Use the following Markdown snippet to embed the badge into your \`README.md\`:
 
-${codeBlock(`[![atomist sdm goals](${url})](https://app.atomist.com/workspace/${cli.context.teamId})`)}`,
+${codeBlock(`[![atomist sdm goals](${url})](https://app.atomist.com/workspace/${cli.context.workspaceId})`)}`,
                     { footer: `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`});
 
                 return cli.context.messageClient.respond(msg);
