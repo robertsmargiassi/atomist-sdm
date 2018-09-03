@@ -56,7 +56,6 @@ const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPee
                 attachments: [{
                     text: "",
                     fallback: "Versions",
-                    footer: `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`,
                 }],
             };
             const opts: MessageOptions = {
@@ -66,8 +65,10 @@ const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPee
             const sendMessage = async (msg?: string) => {
                 if (msg) {
                     message.attachments[0].text = `${message.attachments[0].text}${msg}`;
+                    message.attachments[0].footer =
+                        `${automationClientInstance().configuration.name}:${automationClientInstance().configuration.version}`;
                 }
-                await ctx.messageClient.respond(message, opts);
+                await ctx.context.messageClient.respond(message, opts);
             };
 
             await sendMessage();
@@ -108,7 +109,7 @@ ${DryRunMessage} ${AutoMergeCheckSuccessTag}`;
 
             return p;
         } catch (e) {
-            await ctx.messageClient.respond(`\n:atomist_build_failed: Updating peer dependencies in package.json failed`);
+            await ctx.context.messageClient.respond(`\n:atomist_build_failed: Updating peer dependencies in package.json failed`);
             logger.error(`Updating peer dependencies in package.json failed: ${e.message}`);
             return p;
         }

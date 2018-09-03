@@ -36,7 +36,7 @@ const UpdatePackageAuthorTransform: CodeTransform =
 `);
             return p;
         } catch (e) {
-            await ctx.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
+            await ctx.context.messageClient.respond(`:atomist_build_failed: Updating atomist author in package.json failed`);
             logger.error(`Updating author in package.json failed: ${e.message}`);
             return p;
         }
@@ -47,7 +47,7 @@ export const UpdatePackageAuthor: CodeTransformRegistration = {
     name: "UpdatePackageAuthor",
     description: `Update NPM Package author`,
     intent: ["update package author"],
-    transformPresentation: ci => {
+    transformPresentation: () => {
         return new MasterCommit();
     },
 };

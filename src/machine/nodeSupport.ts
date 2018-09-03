@@ -22,7 +22,6 @@ import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitH
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     allSatisfied,
-    BuildGoal,
     hasFile,
     not,
     ProductionEnvironment,
@@ -37,8 +36,6 @@ import {
     DefaultDockerImageNameCreator,
     DockerOptions,
     executeDockerBuild,
-    executeTag,
-    executeVersioner,
     tagRepo,
 } from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
@@ -56,13 +53,7 @@ import {
     PackageLockFingerprinter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
-import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import {
-    DockerBuildGoal,
-    TagGoal,
-    VersionGoal,
-} from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
@@ -73,6 +64,9 @@ import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtom
 import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
 import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 import {
+    AutofixGoal,
+    BuildGoal,
+    DockerBuildGoal,
     ProductionDeploymentGoal,
     PublishGoal,
     ReleaseChangelogGoal,
@@ -83,6 +77,8 @@ import {
     ReleaseVersionGoal,
     SmokeTestGoal,
     StagingDeploymentGoal,
+    TagGoal,
+    VersionGoal,
 } from "./goals";
 import {
     DockerReleasePreparations,
@@ -111,116 +107,111 @@ const NodeDefaultOptions = {
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
     const hasPackageLock = hasFile("package-lock.json");
 
-    sdm.addGoalImplementation(
-        "npm run build",
-        BuildGoal,
-        executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
-        {
+    VersionGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-versioner",
+        versioner: NodeProjectVersioner,
+
+    });
+
+    AutofixGoal.with(AddAtomistTypeScriptHeader)
+        .with(tslintFix)
+        .with(AddThirdPartyLicense)
+        .with(npmDockerfileFix("npm", "@atomist/cli"));
+
+    BuildGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-ci-npm-run-build",
+        builder: nodeBuilder(sdm, "npm ci", "npm run build"),
+        pushTest: allSatisfied(IsNode, hasPackageLock),
+    })
+        .with({
             ...NodeDefaultOptions,
-            pushTest: allSatisfied(IsNode, hasPackageLock),
-        },
-    )
-        .addGoalImplementation(
-            "npm run build (no package-lock.json)",
-            BuildGoal,
-            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
+            name: "npm-i-npm-run-build",
+            builder: nodeBuilder(sdm, "npm i", "npm run build"),
+            pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+        });
+
+    PublishGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-publish",
+        goalExecutor: executePublish(sdm.configuration.sdm.projectLoader,
+            NodeProjectIdentifier,
+            NpmPreparations,
             {
-                ...NodeDefaultOptions,
-                pushTest: allSatisfied(IsNode, not(hasPackageLock)),
-            },
-    )
-        .addGoalImplementation(
-            "nodeVersioner",
-            VersionGoal,
-            executeVersioner(sdm.configuration.sdm.projectLoader, NodeProjectVersioner),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeDockerBuild",
-            DockerBuildGoal,
-            executeDockerBuild(
-                sdm.configuration.sdm.projectLoader,
-                DefaultDockerImageNameCreator,
-                NpmPreparations,
-                {
-                    ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                    dockerfileFinder: async () => "Dockerfile",
-                }),
+                ...sdm.configuration.sdm.npm as NpmOptions,
+            }),
+    });
+
+    TagGoal.with({
+        name: "npm-tag",
+        ...NodeDefaultOptions,
+    });
+
+    // TODO cd Consume goal from node pack once ready
+    DockerBuildGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-docker-build",
+        goalExecutor: executeDockerBuild(
+            DefaultDockerImageNameCreator,
+            NpmPreparations,
             {
-                ...NodeDefaultOptions,
-            },
-    )
-        .addGoalImplementation(
-            "nodePublish",
-            PublishGoal,
-            executePublish(sdm.configuration.sdm.projectLoader,
-                NodeProjectIdentifier,
-                NpmPreparations,
-                {
-                    ...sdm.configuration.sdm.npm as NpmOptions,
-                }),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeNpmRelease",
-            ReleaseNpmGoal,
-            executeReleaseNpm(sdm.configuration.sdm.projectLoader,
-                NodeProjectIdentifier,
-                NpmReleasePreparations,
-                {
-                    ...sdm.configuration.sdm.npm as NpmOptions,
-                }),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeSmokeTest",
-            SmokeTestGoal,
-            executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+                ...sdm.configuration.sdm.docker.hub as DockerOptions,
+                dockerfileFinder: async () => "Dockerfile",
+            }),
+    });
+
+    ReleaseNpmGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-release",
+        goalExecutor: executeReleaseNpm(
+            NodeProjectIdentifier,
+            NpmReleasePreparations,
+            {
+                ...sdm.configuration.sdm.npm as NpmOptions,
+            }),
+    });
+
+    SmokeTestGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-smoke-test",
+        goalExecutor: executeSmokeTests({
                 team: "AHF8B2MBL",
                 org: "sample-sdm-fidelity",
                 port: 2867,
             }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
-                "nodeBuild",
-            ),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeDockerRelease",
-            ReleaseDockerGoal,
-            executeReleaseDocker(sdm.configuration.sdm.projectLoader,
-                DockerReleasePreparations,
-                {
-                    ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                }),
+            "nodeBuild",
+        ),
+    });
+
+    ReleaseDockerGoal.with({
+        name: "npm-docker-release",
+        goalExecutor: executeReleaseDocker(
+            DockerReleasePreparations,
             {
-                pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
-                logInterpreter: NodeDefaultOptions.logInterpreter,
-            },
-    )
-        .addGoalImplementation(
-            "nodeTagRelease",
-            ReleaseTagGoal,
-            executeReleaseTag(sdm.configuration.sdm.projectLoader),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeDocsRelease",
-            ReleaseDocsGoal,
-            executeReleaseDocs(sdm.configuration.sdm.projectLoader, DocsReleasePreparations),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeVersionRelease",
-            ReleaseVersionGoal,
-            executeReleaseVersion(sdm.configuration.sdm.projectLoader, NodeProjectIdentifier),
-            NodeDefaultOptions,
-    )
-        .addGoalImplementation(
-            "nodeTag",
-            TagGoal,
-            executeTag(sdm.configuration.sdm.projectLoader),
-            NodeDefaultOptions,
-    );
+                ...sdm.configuration.sdm.docker.hub as DockerOptions,
+            }),
+        pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
+        logInterpreter: NodeDefaultOptions.logInterpreter,
+    });
+
+    ReleaseTagGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-tag-release",
+        goalExecutor: executeReleaseTag(),
+    });
+
+    ReleaseDocsGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-docs-release",
+        goalExecutor: executeReleaseDocs(DocsReleasePreparations),
+    });
+
+    ReleaseVersionGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-release-version",
+        goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
+    });
 
     sdm.addExtensionPacks(
         changelogSupport(ReleaseChangelogGoal),
@@ -237,12 +228,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         }),
     );
 
-    sdm.addAutofix(AddAtomistTypeScriptHeader)
-        .addAutofix(tslintFix)
-        .addAutofix(AddThirdPartyLicense)
-        .addAutofix(npmDockerfileFix("npm", "@atomist/cli"));
-
-    sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
+    sdm.addFirstPushListener(tagRepo(AutomationClientTagger))
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 
     sdm.addEvent(deleteDistTagOnBranchDeletion(

@@ -18,12 +18,12 @@ import { Configuration } from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
 import { configureLogzio } from "@atomist/automation-client-ext-logzio";
 import { configureRaven } from "@atomist/automation-client-ext-raven";
+import { ConfigurationValueType } from "@atomist/sdm";
 import {
-    ConfigurationValueType,
-    ConfigureOptions,
     configureSdm,
     isInLocalMode,
 } from "@atomist/sdm-core";
+import { ConfigureOptions } from "@atomist/sdm-core/internal/machine/configureSdm";
 import * as _ from "lodash";
 import { machine } from "./machine/machine";
 

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
+import { NoParameters } from "@atomist/automation-client/SmartParameters";
 import {
     allSatisfied,
+    CodeTransform,
     not,
     PushTest,
     ToDefaultBranch,
@@ -58,7 +59,7 @@ export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     };
 }
 
-export function addThirdPartyLicenseTransform(runInstall: boolean = true): SimpleProjectEditor {
+export function addThirdPartyLicenseTransform(runInstall: boolean = true): CodeTransform<NoParameters> {
     return async p => {
         const cwd = (p as GitProject).baseDir;
         const hasPackageLock = p.getFile("package-lock.json");
