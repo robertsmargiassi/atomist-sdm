@@ -17,7 +17,7 @@
 // GOAL Definition
 
 import {
-    AutofixGoal,
+    Autofix,
     BuildGoal,
     CodeInspectionGoal,
     Goal,
@@ -34,6 +34,8 @@ import {
     TagGoal,
     VersionGoal,
 } from "@atomist/sdm/pack/well-known-goals/commonGoals";
+
+const AutofixGoal = new Autofix("autofix");
 
 export const PublishGoal = new GoalWithPrecondition({
     uniqueName: "Publish",

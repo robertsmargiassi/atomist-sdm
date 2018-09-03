@@ -114,7 +114,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addGoalImplementation(
         "npm run build",
         BuildGoal,
-        executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm ci", "npm run build")),
+        executeBuild(nodeBuilder(sdm, "npm ci", "npm run build")),
         {
             ...NodeDefaultOptions,
             pushTest: allSatisfied(IsNode, hasPackageLock),
@@ -123,7 +123,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addGoalImplementation(
             "npm run build (no package-lock.json)",
             BuildGoal,
-            executeBuild(sdm.configuration.sdm.projectLoader, nodeBuilder(sdm, "npm i", "npm run build")),
+            executeBuild(nodeBuilder(sdm, "npm i", "npm run build")),
             {
                 ...NodeDefaultOptions,
                 pushTest: allSatisfied(IsNode, not(hasPackageLock)),
@@ -242,7 +242,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addAutofix(AddThirdPartyLicense)
         .addAutofix(npmDockerfileFix("npm", "@atomist/cli"));
 
-    sdm.addNewRepoWithCodeListener(tagRepo(AutomationClientTagger))
+    sdm.addFirstPushListener(tagRepo(AutomationClientTagger))
         .addFingerprinterRegistration(new PackageLockFingerprinter());
 
     sdm.addEvent(deleteDistTagOnBranchDeletion(

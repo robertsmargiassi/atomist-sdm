@@ -34,7 +34,7 @@ describe("thirdPartyLicense", () => {
                 return true;
             },
             deleteDirectory: () => "",
-        } as any as Project)
+        } as any as Project, undefined)
             .then(() => {
                 assert(fc.startsWith(`# @atomist/atomist-sdm
 
