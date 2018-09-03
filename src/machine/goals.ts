@@ -18,26 +18,32 @@
 
 import {
     Autofix,
-    BuildGoal,
+    Build,
     CodeInspectionGoal,
-    Goal,
     goals,
-    GoalWithPrecondition,
+    GoalWithFulfillment,
     IndependentOfEnvironment,
     ProductionEnvironment,
     PushReactionGoal,
     StagingEnvironment,
 } from "@atomist/sdm";
+import {
+    Tag,
+    Version,
+} from "@atomist/sdm-core";
 import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
 import {
-    DockerBuildGoal,
-    TagGoal,
-    VersionGoal,
+    DockerBuildGoal as LegacyDockerBuildGoal,
 } from "@atomist/sdm/pack/well-known-goals/commonGoals";
 
-const AutofixGoal = new Autofix("autofix");
+export const VersionGoal = new Version();
+export const AutofixGoal = new Autofix();
+export const BuildGoal = new Build();
+export const TagGoal = new Tag();
 
-export const PublishGoal = new GoalWithPrecondition({
+export const DockerBuildGoal = new GoalWithFulfillment(LegacyDockerBuildGoal, BuildGoal);
+
+export const PublishGoal = new GoalWithFulfillment({
     uniqueName: "Publish",
     environment: IndependentOfEnvironment,
     orderedName: "2-publish",
@@ -48,7 +54,7 @@ export const PublishGoal = new GoalWithPrecondition({
     isolated: true,
 }, BuildGoal, DockerBuildGoal);
 
-export const StagingDeploymentGoal = new GoalWithPrecondition({
+export const StagingDeploymentGoal = new GoalWithFulfillment({
     uniqueName: "DeployToTest",
     environment: StagingEnvironment,
     orderedName: "3-deploy",
@@ -59,7 +65,7 @@ export const StagingDeploymentGoal = new GoalWithPrecondition({
     approvalRequired: true,
 }, DockerBuildGoal);
 
-export const ProductionDeploymentGoal = new Goal({
+export const ProductionDeploymentGoal = new GoalWithFulfillment({
     uniqueName: "DeployToProduction",
     environment: ProductionEnvironment,
     orderedName: "3-prod-deploy",
@@ -68,7 +74,7 @@ export const ProductionDeploymentGoal = new Goal({
     failedDescription: "Prod deployment failure",
 });
 
-export const ReleaseNpmGoal = new Goal({
+export const ReleaseNpmGoal = new GoalWithFulfillment({
     uniqueName: "ReleaseNpm",
     environment: ProductionEnvironment,
     orderedName: "3-release-npm",
@@ -79,7 +85,7 @@ export const ReleaseNpmGoal = new Goal({
     isolated: true,
 });
 
-export const ReleaseDockerGoal = new Goal({
+export const ReleaseDockerGoal = new GoalWithFulfillment({
     uniqueName: "ReleaseDocker",
     environment: ProductionEnvironment,
     orderedName: "3-release-docker",
@@ -90,7 +96,7 @@ export const ReleaseDockerGoal = new Goal({
     isolated: true,
 });
 
-export const ReleaseTagGoal = new Goal({
+export const ReleaseTagGoal = new GoalWithFulfillment({
     uniqueName: "ReleaseTag",
     environment: ProductionEnvironment,
     orderedName: "3-release-tag",
@@ -100,7 +106,7 @@ export const ReleaseTagGoal = new Goal({
     failedDescription: "Creating release tag failure",
 });
 
-export const ReleaseDocsGoal = new Goal({
+export const ReleaseDocsGoal = new GoalWithFulfillment({
     uniqueName: "ReleaseDocs",
     environment: ProductionEnvironment,
     orderedName: "3-release-docs",
@@ -113,7 +119,7 @@ export const ReleaseDocsGoal = new Goal({
 
 export const ReleaseChangelogGoal = releaseChangelogGoal(ReleaseDocsGoal);
 
-export const ReleaseVersionGoal = new GoalWithPrecondition({
+export const ReleaseVersionGoal = new GoalWithFulfillment({
     uniqueName: "ReleaseVersion",
     environment: ProductionEnvironment,
     orderedName: "3-release-version",
@@ -123,7 +129,7 @@ export const ReleaseVersionGoal = new GoalWithPrecondition({
     failedDescription: "Incrementing version failure",
 }, ReleaseChangelogGoal);
 
-export const SmokeTestGoal = new GoalWithPrecondition({
+export const SmokeTestGoal = new GoalWithFulfillment({
     uniqueName: "SmokeTest",
     environment: ProductionEnvironment,
     orderedName: "3-smoke-test",
@@ -142,7 +148,8 @@ export const CheckGoals = goals("Check")
 
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
-    .plan(CheckGoals, BuildGoal)
+    .plan(CheckGoals)
+    .plan(BuildGoal).after(AutofixGoal)
     .plan(DockerBuildGoal).after(BuildGoal)
     .plan(StagingDeploymentGoal).after(DockerBuildGoal);
 
@@ -152,7 +159,9 @@ export const BuildGoals = goals("Build")
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
-    .plan(CheckGoals, BuildGoal, TagGoal)
+    .plan(CheckGoals)
+    .plan(BuildGoal).after(AutofixGoal)
+    .plan(TagGoal).after(BuildGoal)
     .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal)
     .plan(ReleaseNpmGoal, ReleaseDocsGoal).after(PublishGoal)
     .plan(ReleaseTagGoal).after(ReleaseNpmGoal)
@@ -160,11 +169,15 @@ export const BuildReleaseGoals = goals("Build with Release")
 
 // Build including docker build
 export const DockerGoals = goals("Docker Build")
-    .plan(BuildGoals, DockerBuildGoal);
+    .plan(BuildGoals)
+    .plan(DockerBuildGoal).after(BuildGoal);
 
 // Build including docker build
 export const DockerReleaseGoals = goals("Docker Build with Release")
-    .plan(CheckGoals, BuildGoal, DockerBuildGoal, TagGoal)
+    .plan(CheckGoals)
+    .plan(BuildGoal).after(AutofixGoal)
+    .plan(DockerBuildGoal).after(BuildGoal)
+    .plan(TagGoal).after(DockerBuildGoal)
     .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal, DockerBuildGoal)
     .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(PublishGoal)
     .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)

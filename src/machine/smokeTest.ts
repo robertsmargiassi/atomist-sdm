@@ -28,7 +28,6 @@ import {
     ExecuteGoalResult,
     GoalInvocation,
     ProgressLog,
-    ProjectLoader,
 } from "@atomist/sdm";
 import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import * as child_process from "child_process";
@@ -46,17 +45,16 @@ export interface SdmUnderTest {
 }
 
 export function executeSmokeTests(
-    projectLoader: ProjectLoader,
     sdmUnderTest: SdmUnderTest,
     smokeTestRepo: RemoteRepoRef,
     featureName?: string,
 ): ExecuteGoal {
 
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, context } = gi;
+        const { configuration, credentials, context } = gi;
         const id = sdmUnderTest.sdm ? sdmUnderTest.sdm : gi.id;
 
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: false },
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false },
             async (project: GitProject) => {
 
             process.env.NODE_ENV = "development";

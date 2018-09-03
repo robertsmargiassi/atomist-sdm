@@ -34,7 +34,6 @@ import {
     GoalInvocation,
     PrepareForGoalExecution,
     ProgressLog,
-    ProjectLoader,
 } from "@atomist/sdm";
 import {
     createRelease,
@@ -307,7 +306,6 @@ export async function npmReleasePreparation(p: GitProject, gi: GoalInvocation): 
 export const NpmReleasePreparations: PrepareForGoalExecution[] = [npmReleasePreparation];
 
 export function executeReleaseNpm(
-    projectLoader: ProjectLoader,
     projectIdentifier: ProjectIdentifier,
     preparations: PrepareForGoalExecution[] = NpmReleasePreparations,
     options?: NpmOptions,
@@ -317,8 +315,8 @@ export function executeReleaseNpm(
         throw new Error(`No npmrc defined in NPM options`);
     }
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = gi;
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
+        const { configuration, credentials, id, context } = gi;
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
 
             await fs.writeFile(path.join(project.baseDir, ".npmrc"), options.npmrc);
 
@@ -403,17 +401,16 @@ export async function dockerReleasePreparation(p: GitProject, gi: GoalInvocation
 export const DockerReleasePreparations: PrepareForGoalExecution[] = [dockerReleasePreparation];
 
 export function executeReleaseDocker(
-    projectLoader: ProjectLoader,
     preparations: PrepareForGoalExecution[] = DockerReleasePreparations,
     options?: DockerOptions,
 ): ExecuteGoal {
 
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = gi;
+        const { configuration, credentials, id, context } = gi;
         if (!options.registry) {
             throw new Error(`No registry defined in Docker options`);
         }
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
 
             for (const preparation of preparations) {
                 const pResult = await preparation(project, gi);
@@ -455,11 +452,11 @@ export function executeReleaseDocker(
 /**
  * Create release semantic version tag and GitHub release for that tag.
  */
-export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoal {
+export function executeReleaseTag(): ExecuteGoal {
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = gi;
+        const { configuration, credentials, id, context } = gi;
 
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: true }, async p => {
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: true }, async p => {
             const version = await rwlcVersion(gi);
             const versionRelease = releaseOrPreRelease(version, gi);
             if (!(gi.sdmGoal.push.after.tags || []).some(t => t.name === versionRelease)) {
@@ -520,13 +517,12 @@ export const DocsReleasePreparations: PrepareForGoalExecution[] = [docsReleasePr
  * Publish TypeDoc to gh-pages branch.
  */
 export function executeReleaseDocs(
-    projectLoader: ProjectLoader,
     preparations: PrepareForGoalExecution[] = DocsReleasePreparations,
 ): ExecuteGoal {
 
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = gi;
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
+        const { configuration, credentials, id, context } = gi;
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
 
             for (const preparation of preparations) {
                 const pResult = await preparation(project, gi);
@@ -571,14 +567,13 @@ export function executeReleaseDocs(
  * Increment patch level in package.json version.
  */
 export function executeReleaseVersion(
-    projectLoader: ProjectLoader,
     projectIdentifier: ProjectIdentifier,
 ): ExecuteGoal {
 
     return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
-        const { credentials, id, context } = gi;
+        const { configuration, credentials, id, context } = gi;
 
-        return projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
+        return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async p => {
             const version = await rwlcVersion(gi);
             const versionRelease = releaseOrPreRelease(version, gi);
             const gp = p as GitCommandGitProject;
