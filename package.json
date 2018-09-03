@@ -26,7 +26,7 @@
     "@atomist/automation-client-ext-dashboard": "1.0.0-master.20180829090955",
     "@atomist/automation-client-ext-logzio": "1.0.0-master.20180829152035",
     "@atomist/automation-client-ext-raven": "1.0.0-master.20180829091852",
-    "@atomist/sdm": "1.0.0-master.20180903173217",
+    "@atomist/sdm": "1.0.0-master.20180903202920",
     "@atomist/sdm-core": "1.0.0-master.20180903173115",
     "@atomist/sdm-pack-changelog": "1.0.0-master.20180829151552",
     "@atomist/sdm-pack-k8": "1.0.0-master.20180902211120",
