@@ -153,7 +153,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ...NodeDefaultOptions,
         name: "npm-docker-build",
         goalExecutor: executeDockerBuild(
-            sdm.configuration.sdm.projectLoader,
             DefaultDockerImageNameCreator,
             NpmPreparations,
             {
