@@ -44,9 +44,8 @@ export const TagGoal = new Tag();
 export const DockerBuildGoal = new GoalWithFulfillment(LegacyDockerBuildGoal, BuildGoal);
 
 export const PublishGoal = new GoalWithFulfillment({
-    uniqueName: "Publish",
+    uniqueName: "publish",
     environment: IndependentOfEnvironment,
-    orderedName: "2-publish",
     displayName: "publish",
     workingDescription: "Publishing",
     completedDescription: "Published",
@@ -55,9 +54,8 @@ export const PublishGoal = new GoalWithFulfillment({
 }, BuildGoal, DockerBuildGoal);
 
 export const StagingDeploymentGoal = new GoalWithFulfillment({
-    uniqueName: "DeployToTest",
+    uniqueName: "deploy-to-test",
     environment: StagingEnvironment,
-    orderedName: "3-deploy",
     displayName: "deploy to Test",
     completedDescription: "Deployed to Test",
     failedDescription: "Test deployment failure",
@@ -66,18 +64,16 @@ export const StagingDeploymentGoal = new GoalWithFulfillment({
 }, DockerBuildGoal);
 
 export const ProductionDeploymentGoal = new GoalWithFulfillment({
-    uniqueName: "DeployToProduction",
+    uniqueName: "deploy-to-production",
     environment: ProductionEnvironment,
-    orderedName: "3-prod-deploy",
     displayName: "deploy to Prod",
     completedDescription: "Deployed to Prod",
     failedDescription: "Prod deployment failure",
 });
 
 export const ReleaseNpmGoal = new GoalWithFulfillment({
-    uniqueName: "ReleaseNpm",
+    uniqueName: "release-npm",
     environment: ProductionEnvironment,
-    orderedName: "3-release-npm",
     displayName: "release NPM package",
     workingDescription: "Releasing NPM package",
     completedDescription: "Released NPM package",
@@ -86,9 +82,8 @@ export const ReleaseNpmGoal = new GoalWithFulfillment({
 });
 
 export const ReleaseDockerGoal = new GoalWithFulfillment({
-    uniqueName: "ReleaseDocker",
+    uniqueName: "release-docker",
     environment: ProductionEnvironment,
-    orderedName: "3-release-docker",
     displayName: "release Docker image",
     workingDescription: "Releasing Docker image",
     completedDescription: "Released Docker image",
@@ -97,9 +92,8 @@ export const ReleaseDockerGoal = new GoalWithFulfillment({
 });
 
 export const ReleaseTagGoal = new GoalWithFulfillment({
-    uniqueName: "ReleaseTag",
+    uniqueName: "release-tag",
     environment: ProductionEnvironment,
-    orderedName: "3-release-tag",
     displayName: "create release tag",
     workingDescription: "Creating release tag",
     completedDescription: "Created release tag",
@@ -107,9 +101,8 @@ export const ReleaseTagGoal = new GoalWithFulfillment({
 });
 
 export const ReleaseDocsGoal = new GoalWithFulfillment({
-    uniqueName: "ReleaseDocs",
+    uniqueName: "release-docs",
     environment: ProductionEnvironment,
-    orderedName: "3-release-docs",
     displayName: "publish docs",
     workingDescription: "Publishing docs",
     completedDescription: "Published docs",
@@ -120,9 +113,8 @@ export const ReleaseDocsGoal = new GoalWithFulfillment({
 export const ReleaseChangelogGoal = releaseChangelogGoal(ReleaseDocsGoal);
 
 export const ReleaseVersionGoal = new GoalWithFulfillment({
-    uniqueName: "ReleaseVersion",
+    uniqueName: "release-version",
     environment: ProductionEnvironment,
-    orderedName: "3-release-version",
     displayName: "increment version",
     workingDescription: "Incrementing version",
     completedDescription: "Incremented version",
@@ -130,9 +122,8 @@ export const ReleaseVersionGoal = new GoalWithFulfillment({
 }, ReleaseChangelogGoal);
 
 export const SmokeTestGoal = new GoalWithFulfillment({
-    uniqueName: "SmokeTest",
+    uniqueName: "smoke-test",
     environment: ProductionEnvironment,
-    orderedName: "3-smoke-test",
     displayName: "smoke test",
     workingDescription: "Running smoke tests",
     completedDescription: "Run smoke tests",
@@ -155,7 +146,9 @@ export const LocalGoals = goals("Local Build")
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
-    .plan(CheckGoals, BuildGoal, PublishGoal, TagGoal);
+    .plan(CheckGoals)
+    .plan(BuildGoal).after(AutofixGoal)
+    .plan(TagGoal, PublishGoal).after(BuildGoal);
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
