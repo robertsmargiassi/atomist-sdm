@@ -15,14 +15,12 @@
  */
 
 import {
-    ReleaseTagGoal,
+    ReleaseTagGoal, TagGoal,
 } from "./goals";
 import {
     executeReleaseTag,
 } from "./release";
 
-import {executeTag} from "@atomist/sdm-core/internal/delivery/build/executeTag";
-import {TagGoal} from "@atomist/sdm-core/pack/well-known-goals/commonGoals";
 import {LogSuppressor} from "@atomist/sdm/api-helper/log/logInterpreters";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 
@@ -34,21 +32,16 @@ import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDelivery
  */
 export function addGithubSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    sdm.addGoalImplementation(
-            "tagRelease",
-            ReleaseTagGoal,
-            executeReleaseTag(sdm.configuration.sdm.projectLoader),
-            {
-                logInterpreter: LogSuppressor,
-            },
-        )
-        .addGoalImplementation(
-            "tag",
-            TagGoal,
-            executeTag(sdm.configuration.sdm.projectLoader),
-            {
-                logInterpreter: LogSuppressor,
-            },
-        );
+    ReleaseTagGoal.with({
+        name: "npm-tag-release",
+        goalExecutor: executeReleaseTag(),
+        logInterpreter: LogSuppressor,
+    });
+
+    TagGoal.with({
+        name: "npm-tag",
+        logInterpreter: LogSuppressor,
+    });
+
     return sdm;
 }
