@@ -21,7 +21,6 @@ import {
     Secret,
     Secrets,
     Success,
-    Value,
 } from "@atomist/automation-client";
 import { Parameters } from "@atomist/automation-client/decorators";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
@@ -52,13 +51,13 @@ export class CreateTagParameters {
     @MappedParameter(MappedParameters.GitHubRepositoryProvider)
     public providerId: string;
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     public sha: string;
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     public branch: string;
 
-    @Value("name")
+    @Parameter({ required: true })
     public name: string;
 }
 
@@ -73,7 +72,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
         const repoData = await fetchDefaultBranchTip(ci.context, ci.parameters);
         const branch = ci.parameters.branch || repoData.defaultBranch;
         const sha = ci.parameters.sha || tipOfBranch(repoData, branch);
-        const id = GitHubRepoRef.from({owner: ci.parameters.owner, repo: ci.parameters.repo, sha, branch});
+        const id = GitHubRepoRef.from({ owner: ci.parameters.owner, repo: ci.parameters.repo, sha, branch });
 
         const tag: Tag = {
             tag: ci.parameters.name,
@@ -86,7 +85,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
                 date: new Date().toISOString(),
             },
         };
-        await createTag({ token: ci.parameters.githubToken}, id, tag);
+        await createTag({ token: ci.parameters.githubToken }, id, tag);
 
         await ci.context.messageClient.respond(
             success(
