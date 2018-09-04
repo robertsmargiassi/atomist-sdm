@@ -31,6 +31,7 @@ import {
 } from "@atomist/sdm-core/handlers/events/delivery/goals/resetGoals";
 import {
     createTag,
+    createTagReference,
     Tag,
 } from "@atomist/sdm-core/util/github/ghub";
 import { success } from "@atomist/sdm/api-helper/misc/slack/messages";
@@ -86,6 +87,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
             },
         };
         await createTag({ token: ci.parameters.githubToken }, id, tag);
+        await createTagReference({ token: ci.parameters.githubToken }, id, tag);
 
         await ci.context.messageClient.respond(
             success(
