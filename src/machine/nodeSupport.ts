@@ -125,12 +125,12 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         builder: nodeBuilder(sdm, "npm ci", "npm run build"),
         pushTest: allSatisfied(IsNode, hasPackageLock),
     })
-        .with({
-            ...NodeDefaultOptions,
-            name: "npm-i-npm-run-build",
-            builder: nodeBuilder(sdm, "npm i", "npm run build"),
-            pushTest: allSatisfied(IsNode, not(hasPackageLock)),
-        });
+    .with({
+        ...NodeDefaultOptions,
+        name: "npm-i-npm-run-build",
+        builder: nodeBuilder(sdm, "npm i", "npm run build"),
+        pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+    });
 
     PublishGoal.with({
         ...NodeDefaultOptions,
