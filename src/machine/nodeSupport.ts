@@ -21,8 +21,6 @@ import {
     not,
 } from "@atomist/sdm";
 import { tagRepo } from "@atomist/sdm-core";
-import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
-import { changelogSupport } from "@atomist/sdm-pack-changelog";
 import { DockerOptions } from "@atomist/sdm-pack-docker";
 import { DefaultDockerImageNameCreator } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import {
@@ -41,6 +39,7 @@ import {
     PackageLockFingerprinter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
+import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
@@ -56,13 +55,11 @@ import {
     AutofixGoal,
     BuildGoal,
     DockerBuildGoal,
-    ProductionDeploymentGoal,
     PublishGoal,
     ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseVersionGoal,
     SmokeTestGoal,
-    TagGoal,
     VersionGoal,
 } from "./goals";
 import {
@@ -123,11 +120,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ),
     });
 
-    TagGoal.with({
-        name: "npm-tag",
-        ...NodeDefaultOptions,
-    });
-
     DockerBuildGoal.with({
         ...NodeDefaultOptions,
         name: "npm-docker-build",
@@ -158,21 +150,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
             "nodeBuild",
         ),
-    });
-
-    ReleaseDockerGoal.with({
-        name: "npm-docker-release",
-        goalExecutor: executeReleaseDocker(
-            DockerReleasePreparations,
-            sdm.configuration.sdm.docker.hub as DockerOptions),
-        pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
-        logInterpreter: NodeDefaultOptions.logInterpreter,
-    });
-
-    ReleaseTagGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-tag-release",
-        goalExecutor: executeReleaseTag(),
     });
 
     ReleaseDocsGoal.with({

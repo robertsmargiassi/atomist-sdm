@@ -14,35 +14,31 @@
  * limitations under the License.
  */
 
-import { executeBuild } from "@atomist/sdm/api-helper/goal/executeBuild";
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-
-import {
-    ReleaseVersionGoal,
-} from "./goals";
-import {
-    executeReleaseVersion,
-} from "./release";
-
 import {GitProject} from "@atomist/automation-client/project/git/GitProject";
 import {asSpawnCommand} from "@atomist/automation-client/util/spawned";
-import {executeVersioner, ProjectVersioner} from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
+import {ProjectVersioner} from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
 import {
     DefaultDockerImageNameCreator, DockerOptions,
-    executeDockerBuild,
-} from "@atomist/sdm-core/pack/docker/executeDockerBuild";
-import {DockerBuildGoal, VersionGoal} from "@atomist/sdm-core/pack/well-known-goals/commonGoals";
+} from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import {MavenBuilder} from "@atomist/sdm-pack-spring";
 import {MavenProjectIdentifier} from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import {IsMaven} from "@atomist/sdm-pack-spring/lib/maven/pushTests";
+import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import {spawnAndWatch} from "@atomist/sdm/api-helper/misc/spawned";
 import {ExecuteGoalResult} from "@atomist/sdm/api/goal/ExecuteGoalResult";
 import {GoalInvocation} from "@atomist/sdm/api/goal/GoalInvocation";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import {BuildGoal} from "@atomist/sdm/api/machine/wellKnownGoals";
-
 import {ProgressLog} from "@atomist/sdm/spi/log/ProgressLog";
 import * as df from "dateformat";
+import {
+    BuildGoal,
+    DockerBuildGoal,
+    ReleaseVersionGoal,
+    VersionGoal,
+} from "./goals";
+import {
+    executeReleaseVersion,
+} from "./release";
 
 const MavenDefaultOptions = {
     pushTest: IsMaven,
@@ -57,34 +53,33 @@ const MavenDefaultOptions = {
  */
 export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    sdm.addGoalImplementation(
-            "mvn package",
-            BuildGoal,
-            executeBuild(sdm.configuration.sdm.projectLoader, new MavenBuilder(sdm)),
-            MavenDefaultOptions,
-    ).addGoalImplementation(
-            "mavenVersioner",
-            VersionGoal,
-            executeVersioner(sdm.configuration.sdm.projectLoader, MavenProjectVersioner),
-        MavenDefaultOptions,
-    ).addGoalImplementation(
-            "mavenDockerBuild",
-            DockerBuildGoal,
-            executeDockerBuild(
-                sdm.configuration.sdm.projectLoader,
-                DefaultDockerImageNameCreator,
-                [mavenVersionPreparation, mavenCompilePreparation],
-                {
-                    ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                    dockerfileFinder: async () => "Dockerfile",
-                }),
-            MavenDefaultOptions,
-    ).addGoalImplementation(
-            "mavenVersionRelease",
-            ReleaseVersionGoal,
-            executeReleaseVersion(sdm.configuration.sdm.projectLoader, MavenProjectIdentifier, mavenIncrementPatchCmd),
-            MavenDefaultOptions,
-    );
+    BuildGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-package",
+        builder: new MavenBuilder(sdm),
+    });
+
+    VersionGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-versioner",
+        versioner: MavenProjectVersioner,
+
+    });
+
+    DockerBuildGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-docker-build",
+        preparations: [mavenVersionPreparation, mavenCompilePreparation],
+        imageNameCreator: DefaultDockerImageNameCreator,
+        options: sdm.configuration.sdm.docker.hub as DockerOptions,
+    });
+
+    ReleaseVersionGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-release-version",
+        goalExecutor: executeReleaseVersion(MavenProjectIdentifier, mavenIncrementPatchCmd),
+    });
+
     return sdm;
 }
 
