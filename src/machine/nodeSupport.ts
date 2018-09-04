@@ -31,16 +31,13 @@ import {
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
-import {
-    createKubernetesData,
-    DefaultDockerImageNameCreator,
-    DockerOptions,
-    executeDockerBuild,
-    tagRepo,
-} from "@atomist/sdm-core";
+import { tagRepo } from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
 import { changelogSupport } from "@atomist/sdm-pack-changelog";
+import { DockerOptions } from "@atomist/sdm-pack-docker";
+import { DefaultDockerImageNameCreator } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
+import { createKubernetesData } from "@atomist/sdm-pack-k8";
 import {
     executePublish,
     IsNode,
@@ -148,17 +145,12 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ...NodeDefaultOptions,
     });
 
-    // TODO cd Consume goal from node pack once ready
     DockerBuildGoal.with({
         ...NodeDefaultOptions,
         name: "npm-docker-build",
-        goalExecutor: executeDockerBuild(
-            DefaultDockerImageNameCreator,
-            NpmPreparations,
-            {
-                ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                dockerfileFinder: async () => "Dockerfile",
-            }),
+        preparations: NpmPreparations,
+        imageNameCreator: DefaultDockerImageNameCreator,
+        options: sdm.configuration.sdm.docker.hub as DockerOptions,
     });
 
     ReleaseNpmGoal.with({

@@ -39,10 +39,10 @@ import {
     createRelease,
     createStatus,
     createTagForStatus,
-    DockerOptions,
     ProjectIdentifier,
     readSdmVersion,
 } from "@atomist/sdm-core";
+import { DockerOptions } from "@atomist/sdm-pack-docker";
 import {
     DevelopmentEnvOptions,
     NpmOptions,

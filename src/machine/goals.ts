@@ -32,16 +32,13 @@ import {
     Version,
 } from "@atomist/sdm-core";
 import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
-import {
-    DockerBuildGoal as LegacyDockerBuildGoal,
-} from "@atomist/sdm/pack/well-known-goals/commonGoals";
+import { DockerBuild } from "@atomist/sdm-pack-docker";
 
 export const VersionGoal = new Version();
 export const AutofixGoal = new Autofix();
 export const BuildGoal = new Build();
 export const TagGoal = new Tag();
-
-export const DockerBuildGoal = new GoalWithFulfillment(LegacyDockerBuildGoal, BuildGoal);
+export const DockerBuildGoal = new DockerBuild();
 
 export const PublishGoal = new GoalWithFulfillment({
     uniqueName: "publish",

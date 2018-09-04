@@ -27,10 +27,10 @@ import {
     createSoftwareDeliveryMachine,
     DisableDeploy,
     EnableDeploy,
-    HasDockerfile,
     IsInLocalMode,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
+import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import {
     IsAtomistAutomationClient,
     IsNode,
