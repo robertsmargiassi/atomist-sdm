@@ -41,6 +41,7 @@ import { githubTeamVoter } from "@atomist/sdm/api-helper/voter/githubTeamVoter";
 import { buildAwareCodeTransforms } from "@atomist/sdm/pack/build-aware-transform";
 import { NoGoals } from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";
+import { CreateTag } from "../command/tag";
 import {
     isNamed,
     isTeam,
@@ -121,7 +122,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addCommand(EnableDeploy)
-        .addCommand(DisableDeploy);
+        .addCommand(DisableDeploy)
+        .addCommand(CreateTag);
 
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
