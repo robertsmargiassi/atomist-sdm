@@ -19,8 +19,8 @@ import {
     logger,
 } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import {HasDockerfile} from "@atomist/sdm-core";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
+import {HasDockerfile} from "@atomist/sdm-pack-docker/docker/dockerPushTests";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import {createKubernetesData} from "@atomist/sdm-pack-k8/dist";
 import {RepoContext} from "@atomist/sdm/api/context/SdmContext";

@@ -39,9 +39,8 @@ import {
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
+import {githubTeamVoter} from "@atomist/sdm/api-helper/voter/githubTeamVoter";
 import { anySatisfied } from "@atomist/sdm/api/mapping/support/pushTestUtils";
-import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
-import { githubTeamVoter } from "@atomist/sdm/api-helper/voter/githubTeamVoter";
 import { buildAwareCodeTransforms } from "@atomist/sdm/pack/build-aware-transform";
 import { NoGoals } from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";

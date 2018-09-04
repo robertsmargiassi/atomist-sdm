@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {HasDockerfile} from "@atomist/sdm-core";
-import {DockerOptions} from "@atomist/sdm-core/pack/docker/executeDockerBuild";
+import {HasDockerfile} from "@atomist/sdm-pack-docker/docker/dockerPushTests";
+import {DockerOptions} from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import {LogSuppressor} from "@atomist/sdm/api-helper/log/logInterpreters";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import {ReleaseDockerGoal} from "./goals";
@@ -29,18 +29,16 @@ import {DockerReleasePreparations, executeReleaseDocker} from "./release";
  */
 export function addDockerSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    sdm.addGoalImplementation(
-            "dockerRelease",
-            ReleaseDockerGoal,
-            executeReleaseDocker(sdm.configuration.sdm.projectLoader,
-                DockerReleasePreparations,
-                {
-                    ...sdm.configuration.sdm.docker.hub as DockerOptions,
-                }),
+    ReleaseDockerGoal.with({
+        name: "npm-docker-release",
+        goalExecutor: executeReleaseDocker(
+            DockerReleasePreparations,
             {
-                pushTest: HasDockerfile,
-                logInterpreter: LogSuppressor,
-            },
-        );
+                ...sdm.configuration.sdm.docker.hub as DockerOptions,
+            }),
+        pushTest: HasDockerfile,
+        logInterpreter: LogSuppressor,
+    });
+
     return sdm;
 }
