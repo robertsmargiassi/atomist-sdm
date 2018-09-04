@@ -94,5 +94,5 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
                 `Successfully created tag ${codeLine(ci.parameters.name)} on commit ${codeLine(sha.slice(0, 7))}`));
 
         return Success;
-    }
-}
+    },
+};
