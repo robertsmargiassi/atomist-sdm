@@ -96,6 +96,9 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
         if (!(await (p as GitProject).isClean()).success) {
             await sendMessage(`\nVersions updated. Running ${codeLine("npm install")}`);
+            // NPM doesn't like to go back to older versions; hence we delete the lock file here to force the
+            // dependencies in
+            p.deleteFileSync("package-lock.json");
             const result = await spawnAndWatch({
                     command: "npm",
                     args: ["i"],
