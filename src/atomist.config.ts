@@ -63,7 +63,7 @@ export const configuration: Configuration = {
                             }
                         }
                     });
-                _.set(config, "sdm.k8.environment", "gke-int-production");
+                _.set(config, "sdm.k8.environment", config.environment);
             }
             return config;
         },

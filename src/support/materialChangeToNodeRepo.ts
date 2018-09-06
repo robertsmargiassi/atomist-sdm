@@ -35,8 +35,7 @@ const DirectoriesToWatch = [".atomist/", "legal"];
  * build and deploy
  */
 export const MaterialChangeToNodeRepo: PushTest = pushTest("Material change to Node repo", async pci => {
-    const beforeSha: string = _.get(pci, "push.before.sha");
-    const changedFiles = await filesChangedSince(pci.project, beforeSha);
+    const changedFiles = await filesChangedSince(pci.project, pci.push);
     if (!changedFiles) {
         logger.info("Cannot determine if change is material on %j: can't enumerate changed files", pci.id);
         return true;

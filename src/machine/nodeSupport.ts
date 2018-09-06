@@ -110,7 +110,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ...NodeDefaultOptions,
         name: "npm-versioner",
         versioner: NodeProjectVersioner,
-
     });
 
     AutofixGoal.with(AddAtomistTypeScriptHeader)
@@ -151,7 +150,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         name: "npm-docker-build",
         preparations: NpmPreparations,
         imageNameCreator: DefaultDockerImageNameCreator,
-        options: sdm.configuration.sdm.docker.hub as DockerOptions,
+        options: {
+            ...sdm.configuration.sdm.docker.hub as DockerOptions,
+            push: true,
+        }
     });
 
     ReleaseNpmGoal.with({
