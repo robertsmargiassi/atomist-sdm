@@ -98,13 +98,13 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ...NodeDefaultOptions,
         name: "npm-ci-npm-run-build",
         builder: nodeBuilder(sdm, "npm ci", "npm run build"),
-        pushTest: allSatisfied(IsNode, hasPackageLock),
+        pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
     })
     .with({
         ...NodeDefaultOptions,
         name: "npm-i-npm-run-build",
         builder: nodeBuilder(sdm, "npm i", "npm run build"),
-        pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+        pushTest: allSatisfied(NodeDefaultOptions.pushTest, not(hasPackageLock)),
     });
 
     PublishGoal.with({
