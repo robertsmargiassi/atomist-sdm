@@ -41,7 +41,7 @@ import {
 } from "@atomist/sdm-pack-node";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {GitProject} from "@atomist/automation-client/project/git/GitProject";
-import {asSpawnCommand} from "@atomist/automation-client/util/spawned";
-import {ProjectVersioner} from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { asSpawnCommand } from "@atomist/automation-client/util/spawned";
+import { ProjectVersioner } from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
 import {
     DefaultDockerImageNameCreator, DockerOptions,
 } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
-import {MavenProjectIdentifier} from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
-import {IsMaven} from "@atomist/sdm-pack-spring/lib/maven/pushTests";
+import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
+import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import {spawnAndWatch} from "@atomist/sdm/api-helper/misc/spawned";
-import {ExecuteGoalResult} from "@atomist/sdm/api/goal/ExecuteGoalResult";
-import {GoalInvocation} from "@atomist/sdm/api/goal/GoalInvocation";
-import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import {ProgressLog} from "@atomist/sdm/spi/log/ProgressLog";
+import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
+import { ExecuteGoalResult } from "@atomist/sdm/api/goal/ExecuteGoalResult";
+import { GoalInvocation } from "@atomist/sdm/api/goal/GoalInvocation";
+import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import { ProgressLog } from "@atomist/sdm/spi/log/ProgressLog";
 import * as df from "dateformat";
-import {MavenBuilder, mavenPackage} from "../maven/MavenBuilder";
+import { MavenBuilder, mavenPackage } from "../maven/MavenBuilder";
 import {
     BuildGoal,
     DockerBuildGoal, PublishGoal,

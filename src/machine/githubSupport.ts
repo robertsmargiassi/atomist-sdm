@@ -20,9 +20,8 @@ import {
 import {
     executeReleaseTag,
 } from "./release";
-
-import {LogSuppressor} from "@atomist/sdm/api-helper/log/logInterpreters";
-import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
+import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 
 /**
  * Add GitHub implementations of goals to SDM.
