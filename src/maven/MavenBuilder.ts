@@ -96,7 +96,7 @@ export async function mavenPackage(p: GitProject,
 }
 
 export async function hasMavenWrapper(p: GitProject): Promise<boolean> {
-    return (await p.getFile(".mvn")) !== undefined;
+    return (await p.getFile(".mvn/wrapper/maven-wrapper.properties")) !== undefined;
 }
 
 export class UpdatingBuild implements LocalBuildInProgress {
