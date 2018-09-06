@@ -24,10 +24,6 @@ import { tagRepo } from "@atomist/sdm-core";
 import { DockerOptions } from "@atomist/sdm-pack-docker";
 import { DefaultDockerImageNameCreator } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import {
-    createKubernetesData,
-    kubernetesSupport,
-} from "@atomist/sdm-pack-k8";
-import {
     executePublish,
     IsNode,
     nodeBuilder,
