@@ -32,13 +32,13 @@ import {
 export function addGithubSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
     ReleaseTagGoal.with({
-        name: "npm-tag-release",
+        name: "tag-release",
         goalExecutor: executeReleaseTag(),
         logInterpreter: LogSuppressor,
     });
 
     TagGoal.with({
-        name: "npm-tag",
+        name: "tag",
         logInterpreter: LogSuppressor,
     });
 
