@@ -36,8 +36,10 @@ import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/go
 import { changelogSupport } from "@atomist/sdm-pack-changelog";
 import { DockerOptions } from "@atomist/sdm-pack-docker";
 import { DefaultDockerImageNameCreator } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
-import { kubernetesSupport } from "@atomist/sdm-pack-k8";
-import { createKubernetesData } from "@atomist/sdm-pack-k8";
+import {
+    createKubernetesData,
+    kubernetesSupport,
+} from "@atomist/sdm-pack-k8";
 import {
     executePublish,
     IsNode,
@@ -122,22 +124,21 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         builder: nodeBuilder(sdm, "npm ci", "npm run build"),
         pushTest: allSatisfied(IsNode, hasPackageLock),
     })
-    .with({
-        ...NodeDefaultOptions,
-        name: "npm-i-npm-run-build",
-        builder: nodeBuilder(sdm, "npm i", "npm run build"),
-        pushTest: allSatisfied(IsNode, not(hasPackageLock)),
-    });
+        .with({
+            ...NodeDefaultOptions,
+            name: "npm-i-npm-run-build",
+            builder: nodeBuilder(sdm, "npm i", "npm run build"),
+            pushTest: allSatisfied(IsNode, not(hasPackageLock)),
+        });
 
     PublishGoal.with({
         ...NodeDefaultOptions,
         name: "npm-publish",
-        goalExecutor: executePublish(sdm.configuration.sdm.projectLoader,
+        goalExecutor: executePublish(
             NodeProjectIdentifier,
             NpmPreparations,
-            {
-                ...sdm.configuration.sdm.npm as NpmOptions,
-            }),
+            sdm.configuration.sdm.npm as NpmOptions,
+        ),
     });
 
     TagGoal.with({
@@ -159,9 +160,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         goalExecutor: executeReleaseNpm(
             NodeProjectIdentifier,
             NpmReleasePreparations,
-            {
-                ...sdm.configuration.sdm.npm as NpmOptions,
-            }),
+            sdm.configuration.sdm.npm as NpmOptions),
     });
 
     SmokeTestGoal.with({
@@ -180,9 +179,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         name: "npm-docker-release",
         goalExecutor: executeReleaseDocker(
             DockerReleasePreparations,
-            {
-                ...sdm.configuration.sdm.docker.hub as DockerOptions,
-            }),
+            sdm.configuration.sdm.docker.hub as DockerOptions),
         pushTest: allSatisfied(IsNode, hasFile("Dockerfile")),
         logInterpreter: NodeDefaultOptions.logInterpreter,
     });
