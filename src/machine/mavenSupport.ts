@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Success } from "@atomist/automation-client/HandlerResult";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { asSpawnCommand } from "@atomist/automation-client/util/spawned";
 import { ProjectVersioner } from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
@@ -39,7 +40,6 @@ import {
 import {
     executeReleaseVersion,
 } from "./release";
-import { Success } from "@atomist/automation-client/HandlerResult";
 
 const MavenDefaultOptions = {
     pushTest: IsMaven,
