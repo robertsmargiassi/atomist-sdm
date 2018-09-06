@@ -32,13 +32,14 @@ import * as df from "dateformat";
 import {MavenBuilder, mavenPackage} from "../maven/MavenBuilder";
 import {
     BuildGoal,
-    DockerBuildGoal,
+    DockerBuildGoal, PublishGoal,
     ReleaseVersionGoal,
     VersionGoal,
 } from "./goals";
 import {
     executeReleaseVersion,
 } from "./release";
+import { Success } from "@atomist/automation-client/HandlerResult";
 
 const MavenDefaultOptions = {
     pushTest: IsMaven,
@@ -78,6 +79,12 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
         ...MavenDefaultOptions,
         name: "mvn-release-version",
         goalExecutor: executeReleaseVersion(MavenProjectIdentifier, mavenIncrementPatchCmd),
+    });
+
+    PublishGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-publish",
+        goalExecutor: () =>  Success,
     });
 
     return sdm;
