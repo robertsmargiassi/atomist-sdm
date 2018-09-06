@@ -16,23 +16,23 @@
 
 import { ProjectOperationCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
 import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import {GitProject} from "@atomist/automation-client/project/git/GitProject";
-import {LocalProject} from "@atomist/automation-client/project/local/LocalProject";
-import {ChildProcessResult} from "@atomist/automation-client/util/spawned";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { LocalProject } from "@atomist/automation-client/project/local/LocalProject";
+import { ChildProcessResult } from "@atomist/automation-client/util/spawned";
 import { SoftwareDeliveryMachine } from "@atomist/sdm";
 import {
     LocalBuilder,
     LocalBuildInProgress,
 } from "@atomist/sdm-core";
-import {MavenLogInterpreter} from "@atomist/sdm-pack-spring/lib/maven/build/mavenLogInterpreter";
-import {identification} from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
-import {VersionedArtifact} from "@atomist/sdm-pack-spring/lib/maven/VersionedArtifact";
+import { MavenLogInterpreter } from "@atomist/sdm-pack-spring/lib/maven/build/mavenLogInterpreter";
+import { identification } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
+import { VersionedArtifact } from "@atomist/sdm-pack-spring/lib/maven/VersionedArtifact";
 import {
     asSpawnCommand,
     spawnAndWatch,
 } from "@atomist/sdm/api-helper/misc/spawned";
 import { AddressChannels } from "@atomist/sdm/api/context/addressChannels";
-import {AppInfo} from "@atomist/sdm/spi/deploy/Deployment";
+import { AppInfo } from "@atomist/sdm/spi/deploy/Deployment";
 import {
     InterpretLog,
     LogInterpretation,
