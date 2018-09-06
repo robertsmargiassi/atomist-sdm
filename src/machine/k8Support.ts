@@ -23,6 +23,7 @@ import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/go
 import {HasDockerfile} from "@atomist/sdm-pack-docker/docker/dockerPushTests";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import {createKubernetesData} from "@atomist/sdm-pack-k8/dist";
+import {IsMaven} from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import {RepoContext} from "@atomist/sdm/api/context/SdmContext";
 import {SdmGoalEvent} from "@atomist/sdm/api/goal/SdmGoalEvent";
 import {ProductionEnvironment, StagingEnvironment} from "@atomist/sdm/api/goal/support/environment";
@@ -77,12 +78,13 @@ function kubernetesDataFromGoal(
 
     const ns = namespaceFromGoal(goal);
     const ingress = ingressFromGoal(goal.repo.name, ns);
+    const port = IsMaven.predicate(p) ? 8080 : 2866;
     return createKubernetesData(
         goal,
         {
             name: goal.repo.name,
             environment: configuration.environment.split("_")[0],
-            port: 2866,
+            port,
             ns,
             imagePullSecret: "atomistjfrog",
             replicas: ns === "production" ? 3 : 1,

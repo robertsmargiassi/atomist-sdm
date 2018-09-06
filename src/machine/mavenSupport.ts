@@ -20,7 +20,6 @@ import {ProjectVersioner} from "@atomist/sdm-core/internal/delivery/build/local/
 import {
     DefaultDockerImageNameCreator, DockerOptions,
 } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
-import {MavenBuilder} from "@atomist/sdm-pack-spring";
 import {MavenProjectIdentifier} from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import {IsMaven} from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
@@ -30,6 +29,7 @@ import {GoalInvocation} from "@atomist/sdm/api/goal/GoalInvocation";
 import {SoftwareDeliveryMachine} from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import {ProgressLog} from "@atomist/sdm/spi/log/ProgressLog";
 import * as df from "dateformat";
+import {MavenBuilder, mavenPackage} from "../maven/MavenBuilder";
 import {
     BuildGoal,
     DockerBuildGoal,
@@ -102,31 +102,19 @@ export async function mavenVersionPreparation(p: GitProject, goalInvocation: Goa
 }
 
 async function changeMavenVersion(version: string, baseDir: string, progressLog: ProgressLog): Promise<ExecuteGoalResult> {
-    const cmd = `mvn build-helper:parse-version versions:set -DnewVersion="${version} versions:commit"`;
+    const cmd = `./mvnw build-helper:parse-version versions:set -DnewVersion="${version}" versions:commit`;
     return spawnAndWatch(
         asSpawnCommand(cmd),
         {
             cwd: baseDir,
         },
-        progressLog,
-        {
-            errorFinder: (code, signal, l) => l.log.includes("[ERROR]"),
-        });
+        progressLog);
 }
 
-const mavenIncrementPatchCmd = asSpawnCommand("mvn build-helper:parse-version versions:set -DnewVersion=" +
+const mavenIncrementPatchCmd = asSpawnCommand("./mvnw build-helper:parse-version versions:set -DnewVersion=" +
     "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}" +
     "-\${parsedVersion.qualifier} versions:commit");
 
 export async function mavenCompilePreparation(p: GitProject, goalInvocation: GoalInvocation): Promise<ExecuteGoalResult> {
-    const cmd = "mvn package -DskipTests";
-    return spawnAndWatch(
-        asSpawnCommand(cmd),
-        {
-            cwd: p.baseDir,
-        },
-        goalInvocation.progressLog,
-        {
-            errorFinder: (code, signal, l) => l.log.includes("[ERROR]"),
-        });
+    return mavenPackage(p, goalInvocation.progressLog, true);
 }
