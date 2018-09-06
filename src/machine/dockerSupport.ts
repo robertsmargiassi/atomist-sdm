@@ -30,7 +30,7 @@ import { DockerReleasePreparations, executeReleaseDocker } from "./release";
 export function addDockerSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
     ReleaseDockerGoal.with({
-        name: "npm-docker-release",
+        name: "docker-release",
         goalExecutor: executeReleaseDocker(
             DockerReleasePreparations,
             sdm.configuration.sdm.docker.hub as DockerOptions),
