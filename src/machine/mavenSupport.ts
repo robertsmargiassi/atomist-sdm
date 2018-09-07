@@ -93,8 +93,7 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
 async function newVersion(sdmGoal, p): Promise<string> {
     const pi = await MavenProjectIdentifier(p);
     const branch = sdmGoal.branch.split("/").join(".");
-    const branchSuffix = branch !== sdmGoal.push.repo.defaultBranch ? `${branch}.` : "";
-    return `${pi.version}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
+    return `${pi.version}-${branch}.${df(new Date(), "yyyymmddHHMMss")}`;
 }
 
 export const MavenProjectVersioner: ProjectVersioner = async (sdmGoal, p, log) => {
