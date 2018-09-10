@@ -55,6 +55,7 @@ export class MavenBuilder extends LocalBuilder implements LogInterpretation {
 
     constructor(sdm: SoftwareDeliveryMachine,
                 private readonly skipTests: boolean = false,
+                private readonly args: string[] = [],
                 private readonly deploymentUnitFileLocator: (p: LocalProject, mpi: VersionedArtifact) => string =
                     (p, mpi) => `${p.baseDir}/target/${mpi.artifact}-${mpi.version}.jar`) {
         super("MavenBuilder", sdm);
@@ -71,7 +72,10 @@ export class MavenBuilder extends LocalBuilder implements LogInterpretation {
             const content = await pom.getContent();
             const va = await identification(content);
             const appId = { ...va, name: va.artifact, id };
-            const buildResult = mavenPackage(p, log, this.skipTests);
+            if (this.skipTests) {
+                this.args.push("-DskipTests");
+            }
+            const buildResult = mavenPackage(p, log, this.args);
             const rb = new UpdatingBuild(id, buildResult, atomistTeam, log.url);
             rb.ai = appId;
             rb.deploymentUnitFile = this.deploymentUnitFileLocator(p, va);
@@ -82,10 +86,10 @@ export class MavenBuilder extends LocalBuilder implements LogInterpretation {
 
 export async function mavenPackage(p: GitProject,
                                    progressLog: ProgressLog,
-                                   skipTests: boolean = false): Promise<ChildProcessResult> {
+                                   args: string[]): Promise<ChildProcessResult> {
     const useMavenWrapper = hasMavenWrapper(p);
     const mavenExec = useMavenWrapper ? "./mvnw" : "mvn";
-    const cmd = `${mavenExec} package${skipTests ? " -DskipTests" : ""}`;
+    const cmd = `${mavenExec} package ${args.join(" ")}`;
     return spawnAndWatch(
         asSpawnCommand(cmd),
         {

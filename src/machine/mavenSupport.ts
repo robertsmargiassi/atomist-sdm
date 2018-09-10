@@ -57,7 +57,7 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     BuildGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-package",
-        builder: new MavenBuilder(sdm),
+        builder: new MavenBuilder(sdm, false, ["-Dskip.npm", "-Dskip.webpack"]),
     });
 
     VersionGoal.with({
@@ -135,5 +135,5 @@ const mavenIncrementPatchCmd = asSpawnCommand("./mvnw build-helper:parse-version
     "-\${parsedVersion.qualifier} versions:commit");
 
 export async function mavenCompilePreparation(p: GitProject, goalInvocation: GoalInvocation): Promise<ExecuteGoalResult> {
-    return mavenPackage(p, goalInvocation.progressLog, true);
+    return mavenPackage(p, goalInvocation.progressLog, ["-DskipTests"]);
 }
