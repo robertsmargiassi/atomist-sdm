@@ -102,4 +102,3 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
 
     return sdm;
 }
-
