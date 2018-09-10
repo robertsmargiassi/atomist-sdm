@@ -33,7 +33,7 @@ import * as df from "dateformat";
 import { MavenBuilder, mavenPackage } from "../maven/MavenBuilder";
 import {
     BuildGoal,
-    DockerBuildGoal, PublishGoal,
+    DockerBuildGoal, PublishGoal, ReleaseDocsGoal, ReleaseNpmGoal,
     ReleaseVersionGoal,
     VersionGoal,
 } from "./goals";
@@ -84,6 +84,19 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     PublishGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-publish",
+        goalExecutor: () =>  Success,
+    });
+
+    ReleaseDocsGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-docs-release",
+        goalExecutor: () =>  Success,
+    });
+
+    // No need to release npm for a Maven project. Maybe make this a more generic goal.
+    ReleaseNpmGoal.with({
+        ...MavenDefaultOptions,
+        name: "mvn-release",
         goalExecutor: () =>  Success,
     });
 
