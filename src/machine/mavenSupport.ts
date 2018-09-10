@@ -15,31 +15,31 @@
  */
 
 import { Success } from "@atomist/automation-client/HandlerResult";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { asSpawnCommand } from "@atomist/automation-client/util/spawned";
-import { ProjectVersioner } from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
 import {
-    DefaultDockerImageNameCreator, DockerOptions,
+    DefaultDockerImageNameCreator,
+    DockerOptions,
 } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
+import {
+    MavenBuilder,
+    MavenCompilePreparation,
+    MavenIncrementPatchCommand,
+    MavenProjectVersioner,
+    MavenVersionPreparation,
+} from "@atomist/sdm-pack-spring";
 import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
-import { ExecuteGoalResult } from "@atomist/sdm/api/goal/ExecuteGoalResult";
-import { GoalInvocation } from "@atomist/sdm/api/goal/GoalInvocation";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import { ProgressLog } from "@atomist/sdm/spi/log/ProgressLog";
-import * as df from "dateformat";
-import { MavenBuilder, mavenPackage } from "../maven/MavenBuilder";
 import {
     BuildGoal,
-    DockerBuildGoal, PublishGoal, ReleaseDocsGoal, ReleaseNpmGoal,
+    DockerBuildGoal,
+    PublishGoal,
+    ReleaseDocsGoal,
+    ReleaseNpmGoal,
     ReleaseVersionGoal,
     VersionGoal,
 } from "./goals";
-import {
-    executeReleaseVersion,
-} from "./release";
+import { executeReleaseVersion } from "./release";
 
 const MavenDefaultOptions = {
     pushTest: IsMaven,
@@ -57,7 +57,7 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     BuildGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-package",
-        builder: new MavenBuilder(sdm, false, ["-Dskip.npm", "-Dskip.webpack"]),
+        builder: new MavenBuilder(sdm, [{ name: "skip.npm" }, { name: "skip.webpack" }]),
     });
 
     VersionGoal.with({
@@ -70,7 +70,7 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     DockerBuildGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-docker-build",
-        preparations: [mavenVersionPreparation, mavenCompilePreparation],
+        preparations: [MavenVersionPreparation, MavenCompilePreparation],
         imageNameCreator: DefaultDockerImageNameCreator,
         options: sdm.configuration.sdm.docker.hub as DockerOptions,
     });
@@ -78,62 +78,28 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     ReleaseVersionGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-release-version",
-        goalExecutor: executeReleaseVersion(MavenProjectIdentifier, mavenIncrementPatchCmd),
+        goalExecutor: executeReleaseVersion(MavenProjectIdentifier, MavenIncrementPatchCommand),
     });
 
     PublishGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-publish",
-        goalExecutor: () =>  Success,
+        goalExecutor: () => Success,
     });
 
     ReleaseDocsGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-docs-release",
-        goalExecutor: () =>  Success,
+        goalExecutor: () => Success,
     });
 
     // No need to release npm for a Maven project. Maybe make this a more generic goal.
     ReleaseNpmGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-release",
-        goalExecutor: () =>  Success,
+        goalExecutor: () => Success,
     });
 
     return sdm;
 }
 
-async function newVersion(sdmGoal, p): Promise<string> {
-    const pi = await MavenProjectIdentifier(p);
-    const branch = sdmGoal.branch.split("/").join(".");
-    return `${pi.version}-${branch}.${df(new Date(), "yyyymmddHHMMss")}`;
-}
-
-export const MavenProjectVersioner: ProjectVersioner = async (sdmGoal, p, log) => {
-    const version = await newVersion(sdmGoal, p);
-    await changeMavenVersion(version, p.baseDir, log);
-    return version;
-};
-
-export async function mavenVersionPreparation(p: GitProject, goalInvocation: GoalInvocation): Promise<ExecuteGoalResult> {
-    const version = await newVersion(goalInvocation.sdmGoal, p);
-    return changeMavenVersion(version, p.baseDir, goalInvocation.progressLog);
-}
-
-async function changeMavenVersion(version: string, baseDir: string, progressLog: ProgressLog): Promise<ExecuteGoalResult> {
-    const cmd = `./mvnw build-helper:parse-version versions:set -DnewVersion="${version}" versions:commit`;
-    return spawnAndWatch(
-        asSpawnCommand(cmd),
-        {
-            cwd: baseDir,
-        },
-        progressLog);
-}
-
-const mavenIncrementPatchCmd = asSpawnCommand("./mvnw build-helper:parse-version versions:set -DnewVersion=" +
-    "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}" +
-    "-\${parsedVersion.qualifier} versions:commit");
-
-export async function mavenCompilePreparation(p: GitProject, goalInvocation: GoalInvocation): Promise<ExecuteGoalResult> {
-    return mavenPackage(p, goalInvocation.progressLog, ["-DskipTests"]);
-}
