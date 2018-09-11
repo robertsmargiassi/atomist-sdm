@@ -16,12 +16,8 @@
 
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import {
-    ReleaseTagGoal, TagGoal,
-} from "./goals";
-import {
-    executeReleaseTag,
-} from "./release";
+import { ReleaseTagGoal } from "./goals";
+import { executeReleaseTag } from "./release";
 
 /**
  * Add GitHub implementations of goals to SDM.
@@ -34,11 +30,6 @@ export function addGithubSupport(sdm: SoftwareDeliveryMachine): SoftwareDelivery
     ReleaseTagGoal.with({
         name: "tag-release",
         goalExecutor: executeReleaseTag(),
-        logInterpreter: LogSuppressor,
-    });
-
-    TagGoal.with({
-        name: "tag",
         logInterpreter: LogSuppressor,
     });
 

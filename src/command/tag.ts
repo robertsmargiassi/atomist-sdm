@@ -26,14 +26,14 @@ import { Parameters } from "@atomist/automation-client/decorators";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { CommandHandlerRegistration } from "@atomist/sdm";
 import {
-    fetchDefaultBranchTip,
-    tipOfBranch,
-} from "@atomist/sdm-core/handlers/events/delivery/goals/resetGoals";
-import {
     createTag,
     createTagReference,
     Tag,
 } from "@atomist/sdm-core/util/github/ghub";
+import {
+    fetchBranchTips,
+    tipOfBranch,
+} from "@atomist/sdm-core/util/graph/queryCommits";
 import { success } from "@atomist/sdm/api-helper/misc/slack/messages";
 import { codeLine } from "@atomist/slack-messages";
 
@@ -70,7 +70,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
     listener: async ci => {
 
         // figure out which commit
-        const repoData = await fetchDefaultBranchTip(ci.context, ci.parameters);
+        const repoData = await fetchBranchTips(ci.context, ci.parameters);
         const branch = ci.parameters.branch || repoData.defaultBranch;
         const sha = ci.parameters.sha || tipOfBranch(repoData, branch);
         const id = GitHubRepoRef.from({ owner: ci.parameters.owner, repo: ci.parameters.repo, sha, branch });

@@ -30,6 +30,7 @@ import {
     IsInLocalMode,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
+import { GoalState } from "@atomist/sdm-core/pack/goalState/goalState";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import {
@@ -150,6 +151,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         changelogSupport(ReleaseChangelogGoal),
         BadgeSupport,
         buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => { /* intentionally left empty */ }}}),
+        GoalState,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
 
