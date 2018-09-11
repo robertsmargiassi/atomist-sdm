@@ -137,20 +137,20 @@ export const CheckGoals = goals("Check")
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal)
+    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
     .plan(DockerBuildGoal).after(BuildGoal)
     .plan(StagingDeploymentGoal).after(DockerBuildGoal);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal)
+    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
     .plan(TagGoal, PublishGoal).after(BuildGoal);
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal)
+    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
     .plan(TagGoal).after(BuildGoal)
     .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal)
     .plan(ReleaseNpmGoal, ReleaseDocsGoal).after(PublishGoal)
@@ -165,7 +165,7 @@ export const DockerGoals = goals("Docker Build")
 // Build including docker build
 export const DockerReleaseGoals = goals("Docker Build with Release")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal)
+    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
     .plan(DockerBuildGoal).after(BuildGoal)
     .plan(TagGoal).after(DockerBuildGoal)
     .plan({ ...PublishGoal.definition, approvalRequired: true }).after(BuildGoal, DockerBuildGoal)
