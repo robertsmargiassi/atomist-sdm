@@ -29,9 +29,9 @@ import { SdmGoalEvent } from "@atomist/sdm/api/goal/SdmGoalEvent";
 import { ProductionEnvironment, StagingEnvironment } from "@atomist/sdm/api/goal/support/environment";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { SoftwareDeliveryMachineConfiguration } from "@atomist/sdm/api/machine/SoftwareDeliveryMachineOptions";
-import { ProductionDeploymentGoal, StagingDeploymentGoal } from "@atomist/sdm/api/machine/wellKnownGoals";
 import { IsDeployEnabled } from "@atomist/sdm/api/mapping/support/deployPushTests";
 import { allSatisfied } from "@atomist/sdm/api/mapping/support/pushTestUtils";
+import { ProductionDeploymentGoal, StagingDeploymentGoal } from "./goals";
 
 /**
  * Add Kubernetes implementations of goals to SDM.
