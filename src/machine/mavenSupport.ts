@@ -15,20 +15,23 @@
  */
 
 import { Success } from "@atomist/automation-client/HandlerResult";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     DefaultDockerImageNameCreator,
     DockerOptions,
 } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
 import {
     MavenBuilder,
-    MavenCompilePreparation,
     MavenIncrementPatchCommand,
     MavenProjectVersioner,
     MavenVersionPreparation,
 } from "@atomist/sdm-pack-spring";
+import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
 import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
+import { ExecuteGoalResult } from "@atomist/sdm/api/goal/ExecuteGoalResult";
+import { GoalInvocation } from "@atomist/sdm/api/goal/GoalInvocation";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import {
     BuildGoal,
@@ -70,7 +73,9 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     DockerBuildGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-docker-build",
-        preparations: [MavenVersionPreparation, MavenCompilePreparation],
+        preparations: [MavenVersionPreparation, mavenCompilePreparationWithArgs(
+            ["skipTests", "skip.npm", "skip.webpack"],
+        )],
         imageNameCreator: DefaultDockerImageNameCreator,
         options: sdm.configuration.sdm.docker.hub as DockerOptions,
     });
@@ -84,21 +89,30 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     PublishGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-publish",
-        goalExecutor: () => Success,
+        goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),
     });
 
     ReleaseDocsGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-docs-release",
-        goalExecutor: () => Success,
+        goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),
     });
 
     // No need to release npm for a Maven project. Maybe make this a more generic goal.
     ReleaseNpmGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-release",
-        goalExecutor: () => Success,
+        goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),
     });
 
     return sdm;
+}
+
+function mavenCompilePreparationWithArgs(args: string[] = []):
+(p: GitProject, goalInvocation: GoalInvocation) => Promise<ExecuteGoalResult> {
+    return (p: GitProject, goalInvocation: GoalInvocation) => {
+        return mavenPackage(p, goalInvocation.progressLog, args.map(n => {
+            return { name: n };
+        }));
+    };
 }
