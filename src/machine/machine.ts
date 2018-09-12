@@ -16,7 +16,6 @@
 
 import {
     DoNotSetAnyGoals,
-    FingerprintGoal,
     IsDeployEnabled,
     not,
     SoftwareDeliveryMachine,
@@ -65,6 +64,7 @@ import {
     CheckGoals,
     DockerGoals,
     DockerReleaseGoals,
+    FingerprintGoal,
     KubernetesDeployGoals,
     LocalGoals,
     ReleaseChangelogGoal,
