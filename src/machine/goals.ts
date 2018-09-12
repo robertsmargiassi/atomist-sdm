@@ -20,13 +20,13 @@ import {
     Autofix,
     Build,
     CodeInspectionGoal,
+    FingerprintGoal,
     goals,
     GoalWithFulfillment,
     IndependentOfEnvironment,
     ProductionEnvironment,
     PushReactionGoal,
     StagingEnvironment,
-    FingerprintGoal,
 } from "@atomist/sdm";
 import {
     Tag,
