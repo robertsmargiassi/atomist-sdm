@@ -26,6 +26,7 @@ import {
     ProductionEnvironment,
     PushReactionGoal,
     StagingEnvironment,
+    FingerprintGoal,
 } from "@atomist/sdm";
 import {
     Tag,
@@ -132,7 +133,7 @@ export const SmokeTestGoal = new GoalWithFulfillment({
 
 // Just running review and autofix
 export const CheckGoals = goals("Check")
-    .plan(VersionGoal, CodeInspectionGoal, AutofixGoal, PushReactionGoal);
+    .plan(VersionGoal, CodeInspectionGoal, AutofixGoal, PushReactionGoal, FingerprintGoal);
 
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
