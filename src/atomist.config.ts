@@ -16,7 +16,7 @@
 
 import { Configuration } from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
-import { configureLogzio } from "@atomist/automation-client-ext-logzio";
+// import { configureLogzio } from "@atomist/automation-client-ext-logzio";
 import { configureRaven } from "@atomist/automation-client-ext-raven";
 import { ConfigurationValueType } from "@atomist/sdm";
 import {
@@ -40,33 +40,8 @@ const machineOptions: ConfigureOptions = {
 
 export const configuration: Configuration = {
     postProcessors: [
-        configureLogzio,
+        // configureLogzio,
         configureRaven,
-        // TODO cd this function should probably move over into sdm-core
-        async config => {
-            if (isInLocalMode()) {
-                machineOptions.requiredConfigurationValues.forEach(
-                    rv => {
-                        const path = typeof rv === "string" ? rv : rv.path;
-                        const type = typeof rv === "string" ? ConfigurationValueType.String : rv.type;
-                        if (!_.get(config, path)) {
-                            switch (type) {
-                                case ConfigurationValueType.String:
-                                    _.set(config, path, "not.a.real.value");
-                                    break;
-                                case ConfigurationValueType.Boolean:
-                                    _.set(config, path, false);
-                                    break;
-                                case ConfigurationValueType.Number:
-                                    _.set(config, path, 0);
-                                    break;
-                            }
-                        }
-                    });
-                _.set(config, "sdm.k8.environment", config.environment);
-            }
-            return config;
-        },
         // configureEventLog(),
         configureSdm(machine, machineOptions),
     ],
