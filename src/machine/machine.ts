@@ -16,6 +16,7 @@
 
 import {
     DoNotSetAnyGoals,
+    FingerprintGoal,
     IsDeployEnabled,
     not,
     SoftwareDeliveryMachine,
@@ -33,7 +34,7 @@ import {
 import { GoalState } from "@atomist/sdm-core/pack/goalState/goalState";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
-import {FingerprintSupport} from "@atomist/sdm-pack-fingerprints";
+import { fingerprintSupport } from "@atomist/sdm-pack-fingerprints";
 import {
     IsAtomistAutomationClient,
     IsNode,
@@ -43,7 +44,10 @@ import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/api-helper/pushtest/configuration/configurationTests";
 import { githubTeamVoter } from "@atomist/sdm/api-helper/voter/githubTeamVoter";
-import { allSatisfied, anySatisfied } from "@atomist/sdm/api/mapping/support/pushTestUtils";
+import {
+    allSatisfied,
+    anySatisfied,
+} from "@atomist/sdm/api/mapping/support/pushTestUtils";
 import { buildAwareCodeTransforms } from "@atomist/sdm/pack/build-aware-transform";
 import { NoGoals } from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";
@@ -153,7 +157,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         BadgeSupport,
         buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => { /* intentionally left empty */ }}}),
         GoalState,
-        FingerprintSupport,
+        fingerprintSupport(FingerprintGoal),
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
 

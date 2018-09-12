@@ -20,7 +20,7 @@ import {
     Autofix,
     Build,
     CodeInspectionGoal,
-    FingerprintGoal,
+    Fingerprint,
     goals,
     GoalWithFulfillment,
     IndependentOfEnvironment,
@@ -40,6 +40,7 @@ export const AutofixGoal = new Autofix();
 export const BuildGoal = new Build();
 export const TagGoal = new Tag();
 export const DockerBuildGoal = new DockerBuild();
+export const FingerprintGoal = new Fingerprint();
 
 export const PublishGoal = new GoalWithFulfillment({
     uniqueName: "publish",
