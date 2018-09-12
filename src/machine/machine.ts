@@ -33,6 +33,7 @@ import {
 import { GoalState } from "@atomist/sdm-core/pack/goalState/goalState";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
+import {FingerprintSupport} from "@atomist/sdm-pack-fingerprints";
 import {
     IsAtomistAutomationClient,
     IsNode,
@@ -152,6 +153,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         BadgeSupport,
         buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => { /* intentionally left empty */ }}}),
         GoalState,
+        FingerprintSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
 
