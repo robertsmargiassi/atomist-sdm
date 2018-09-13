@@ -15,7 +15,7 @@
  */
 
 import { logger } from "@atomist/automation-client";
-import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client/util/spawned";
+import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
     AutofixRegistration,
     hasFile,

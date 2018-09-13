@@ -19,9 +19,9 @@ import {
     MessageOptions,
     Parameter,
     Parameters,
+    SuccessIsReturn0ErrorFinder,
 } from "@atomist/automation-client";
 import { guid } from "@atomist/automation-client/internal/util/string";
-import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client/util/spawned";
 import {
     CodeTransform,
     CodeTransformRegistration,
@@ -94,7 +94,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
         await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
 `);
 
-        if (!(await (p as GitProject).isClean()).success) {
+        if (!(await (p as GitProject).isClean())) {
             await sendMessage(`\nVersions updated. Running ${codeLine("npm install")}`);
             // NPM doesn't like to go back to older versions; hence we delete the lock file here to force the
             // dependencies in

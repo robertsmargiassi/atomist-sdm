@@ -20,7 +20,6 @@ import {
     logger,
     Success,
 } from "@atomist/automation-client";
-import { CommandResult } from "@atomist/automation-client/action/cli/commandLine";
 import { configurationValue } from "@atomist/automation-client/configuration";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
@@ -181,10 +180,10 @@ function spawnExecuteLogger(swc: SpawnWatchCommand): ExecuteLogger {
  * returned or exception caught, the returned code is guaranteed to be
  * non-zero.
  */
-function gitExecuteLogger(gp: GitCommandGitProject, op: () => Promise<CommandResult<GitCommandGitProject>>): ExecuteLogger {
+function gitExecuteLogger(gp: GitCommandGitProject, op: () => Promise<GitCommandGitProject>): ExecuteLogger {
 
     return async (log: ProgressLog) => {
-        let res: CommandResult<GitCommandGitProject>;
+        let res: GitCommandGitProject;
         try {
             res = await op();
         } catch (e) {
@@ -546,7 +545,7 @@ export function executeReleaseDocs(
             const targetUrl = `https://${docGitProject.id.owner}.github.io/${docGitProject.id.repo}`;
             const rrr = project.id as RemoteRepoRef;
 
-            const gitOps: Array<() => Promise<CommandResult<GitCommandGitProject>>> = [
+            const gitOps: Array<() => Promise<GitCommandGitProject>> = [
                 () => docGitProject.init(),
                 () => docGitProject.commit(commitMsg),
                 () => docGitProject.createBranch("gh-pages"),

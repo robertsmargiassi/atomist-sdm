@@ -16,7 +16,7 @@
 
 import { Configuration } from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
-// import { configureLogzio } from "@atomist/automation-client-ext-logzio";
+import { configureLogzio } from "@atomist/automation-client-ext-logzio";
 import { configureRaven } from "@atomist/automation-client-ext-raven";
 import { configureSdm } from "@atomist/sdm-core";
 import { ConfigureOptions } from "@atomist/sdm-core/internal/machine/configureSdm";
@@ -35,7 +35,7 @@ const machineOptions: ConfigureOptions = {
 
 export const configuration: Configuration = {
     postProcessors: [
-        // configureLogzio,
+        configureLogzio,
         configureRaven,
         // configureEventLog(),
         configureSdm(machine, machineOptions),
