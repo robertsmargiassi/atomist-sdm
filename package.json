@@ -30,7 +30,7 @@
     "@atomist/sdm-core": "1.0.0-master.20180913110440",
     "@atomist/sdm-pack-changelog": "1.0.0-master.20180913123450",
     "@atomist/sdm-pack-docker": "1.0.0-master.20180913141855",
-    "@atomist/sdm-pack-fingerprints": "0.2.0-master.20180913112341",
+    "@atomist/sdm-pack-fingerprints": "^0.3.0-master.20180913202611",
     "@atomist/sdm-pack-k8": "1.0.0-master.20180913113458",
     "@atomist/sdm-pack-node": "1.0.0-master.20180913122607",
     "@atomist/sdm-pack-spring": "1.0.0-master.20180913143917",
