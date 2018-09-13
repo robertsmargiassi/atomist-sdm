@@ -20,7 +20,7 @@ import {
 } from "@atomist/automation-client";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
-import { HasDockerfile } from "@atomist/sdm-pack-docker/docker/dockerPushTests";
+import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import { createKubernetesData } from "@atomist/sdm-pack-k8/dist";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";

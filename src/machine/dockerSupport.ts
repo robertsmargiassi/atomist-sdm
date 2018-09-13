@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-import { HasDockerfile } from "@atomist/sdm-pack-docker/docker/dockerPushTests";
-import { DockerOptions } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
+import {
+    DockerOptions,
+    HasDockerfile,
+} from "@atomist/sdm-pack-docker";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { ReleaseDockerGoal } from "./goals";
-import { DockerReleasePreparations, executeReleaseDocker } from "./release";
+import {
+    DockerReleasePreparations,
+    executeReleaseDocker,
+} from "./release";
 
 /**
  * Add Docker implementations of goals to SDM.

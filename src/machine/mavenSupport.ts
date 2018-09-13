@@ -19,7 +19,7 @@ import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
     DefaultDockerImageNameCreator,
     DockerOptions,
-} from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
+} from "@atomist/sdm-pack-docker";
 import {
     MavenBuilder,
     MavenIncrementPatchCommand,

@@ -21,8 +21,10 @@ import {
     not,
 } from "@atomist/sdm";
 import { tagRepo } from "@atomist/sdm-core";
-import { DockerOptions } from "@atomist/sdm-pack-docker";
-import { DefaultDockerImageNameCreator } from "@atomist/sdm-pack-docker/docker/executeDockerBuild";
+import {
+    DefaultDockerImageNameCreator,
+    DockerOptions,
+} from "@atomist/sdm-pack-docker";
 import {
     executePublish,
     IsNode,
