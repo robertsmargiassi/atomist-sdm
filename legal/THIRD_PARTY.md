@@ -9,7 +9,7 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 | License | Count |
 |---------|-------|
 |[AFLv2.1](#aflv21)|1|
-|[Apache-2.0](#apache-20)|35|
+|[Apache-2.0](#apache-20)|34|
 |[Artistic-2.0](#artistic-20)|4|
 |[BSD-2-Clause](#bsd-2-clause)|19|
 |[BSD-3-Clause](#bsd-3-clause)|29|
@@ -17,7 +17,7 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 |[CC-BY-3.0](#cc-by-30)|3|
 |[CC0-1.0](#cc0-10)|4|
 |[GPL-2.0](#gpl-20)|1|
-|[GPL-3.0](#gpl-30)|7|
+|[GPL-3.0](#gpl-30)|4|
 |[ISC](#isc)|117|
 |[MIT](#mit)|798|
 |[Public Domain](#public-domain)|1|
@@ -35,19 +35,18 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/automation-client-ext-dashboard`|`1.0.0-master.20180904144352`|Atomist|[https://github.com/atomist/automation-client-ext-dashboard](https://github.com/atomist/automation-client-ext-dashboard)|
-|`@atomist/automation-client-ext-logzio`|`1.0.0-master.20180913094411`|Atomist|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
-|`@atomist/automation-client-ext-raven`|`1.0.0-master.20180904143545`|Atomist|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
+|`@atomist/automation-client-ext-dashboard`|`1.0.0-master.20180913112739`|Atomist|[https://github.com/atomist/automation-client-ext-dashboard](https://github.com/atomist/automation-client-ext-dashboard)|
+|`@atomist/automation-client-ext-logzio`|`1.0.0-master.20180913145546`|Atomist|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
+|`@atomist/automation-client-ext-raven`|`1.0.0-master.20180913112725`|Atomist|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
 |`@atomist/clj-editors`|`0.4.5`||[https://github.com/atomisthq/clj-editors](https://github.com/atomisthq/clj-editors)|
 |`@atomist/sdm-core`|`1.0.0-master.20180913110440`|Atomist|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
-|`@atomist/sdm-pack-changelog`|`1.0.0-master.20180904173056`|Atomist|[https://github.com/atomist/sdm-pack-changelog](https://github.com/atomist/sdm-pack-changelog)|
-|`@atomist/sdm-pack-docker`|`1.0.0-master.20180910233715`|Atomist|[https://github.com/atomist/sdm-pack-docker](https://github.com/atomist/sdm-pack-docker)|
-|`@atomist/sdm-pack-fingerprints`|`0.2.0-master.20180912215023`|Atomist|[https://github.com/atomist/sdm-pack-fingerprints](https://github.com/atomist/sdm-pack-fingerprints)|
-|`@atomist/sdm-pack-k8`|`1.0.0-master.20180904172235`|Atomist|[https://github.com/atomist/sdm-pack-k8](https://github.com/atomist/sdm-pack-k8)|
-|`@atomist/sdm-pack-node`|`1.0.0-master.20180911084152`|Atomist|[https://github.com/atomist/sdm-pack-node](https://github.com/atomist/sdm-pack-node)|
-|`@atomist/sdm-pack-spring`|`1.0.0-master.20180910235452`|Atomist|[https://github.com/atomist/sdm-pack-spring](https://github.com/atomist/sdm-pack-spring)|
+|`@atomist/sdm-pack-changelog`|`1.0.0-master.20180913123450`|Atomist|[https://github.com/atomist/sdm-pack-changelog](https://github.com/atomist/sdm-pack-changelog)|
+|`@atomist/sdm-pack-docker`|`1.0.0-master.20180913141855`|Atomist|[https://github.com/atomist/sdm-pack-docker](https://github.com/atomist/sdm-pack-docker)|
+|`@atomist/sdm-pack-fingerprints`|`0.2.0-master.20180913112341`|Atomist|[https://github.com/atomist/sdm-pack-fingerprints](https://github.com/atomist/sdm-pack-fingerprints)|
+|`@atomist/sdm-pack-k8`|`1.0.0-master.20180913113458`|Atomist|[https://github.com/atomist/sdm-pack-k8](https://github.com/atomist/sdm-pack-k8)|
+|`@atomist/sdm-pack-node`|`1.0.0-master.20180913122607`|Atomist|[https://github.com/atomist/sdm-pack-node](https://github.com/atomist/sdm-pack-node)|
+|`@atomist/sdm-pack-spring`|`1.0.0-master.20180913143917`|Atomist|[https://github.com/atomist/sdm-pack-spring](https://github.com/atomist/sdm-pack-spring)|
 |`@atomist/sdm`|`1.0.0-master.20180913101258`|Atomist|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
-|`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`@atomist/slack-messages`|`1.0.0`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`@atomist/slack-messages`|`1.0.1-master.20180830190736`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`JSONStream`|`1.3.4`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
@@ -182,12 +181,9 @@ GNU General Public License v3.0 only - [http://www.gnu.org/licenses/gpl-3.0-stan
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/antlr`|`0.3.0`|Atomist, Inc.|[https://github.com/atomist/antlr-ts](https://github.com/atomist/antlr-ts)|
-|`@atomist/automation-client`|`1.0.0-asyncHooks.20180913093353`|Atomist|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
-|`@atomist/microgrammar`|`0.7.0`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
-|`@atomist/microgrammar`|`0.8.1`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
-|`@atomist/microgrammar`|`1.0.0-M.1`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
-|`@atomist/tree-path`|`0.1.9`|Atomist, Inc.|[https://github.com/atomist/tree-path-ts](https://github.com/atomist/tree-path-ts)|
+|`@atomist/antlr`|`1.0.0-master.20180913084531`|Atomist|[https://github.com/atomist/antlr-ts](https://github.com/atomist/antlr-ts)|
+|`@atomist/automation-client`|`1.0.0-asyncHooks.20180913135347`|Atomist|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
+|`@atomist/microgrammar`|`1.0.0-master.20180829162516`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/tree-path`|`1.0.0-master.20180913033718`|Atomist|[https://github.com/atomist/tree-path-ts](https://github.com/atomist/tree-path-ts)|
 
 #### ISC
