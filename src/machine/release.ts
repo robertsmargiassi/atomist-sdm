@@ -180,42 +180,28 @@ function spawnExecuteLogger(swc: SpawnWatchCommand): ExecuteLogger {
  * returned or exception caught, the returned code is guaranteed to be
  * non-zero.
  */
-function gitExecuteLogger(gp: GitCommandGitProject, op: () => Promise<GitCommandGitProject>): ExecuteLogger {
+function gitExecuteLogger(
+    gp: GitCommandGitProject,
+    op: () => Promise<GitCommandGitProject>,
+    name: string,
+): ExecuteLogger {
 
     return async (log: ProgressLog) => {
-        let res: GitCommandGitProject;
+        log.write(`Running: git ${name}`);
         try {
-            res = await op();
+            await op();
+            log.write(`Success: git ${name}`);
+            return { code: 0 };
         } catch (e) {
-            res = {
-                error: e,
-                success: false,
-                childProcess: {
-                    exitCode: -1,
-                    killed: true,
-                    pid: 99999,
-                },
-                stdout: `Error: ${e.message}`,
-                stderr: `Error: ${e.stack}`,
-                target: gp,
+            log.write(e.stdout);
+            log.write(e.stderr);
+            const message = `Failure: git ${name}: ${e.message}`;
+            log.write(message);
+            return {
+                code: e.code,
+                message,
             };
         }
-        log.write(res.stdout);
-        log.write(res.stderr);
-        if (res.error) {
-            res.childProcess.exitCode = (res.childProcess.exitCode === 0) ? 999 : res.childProcess.exitCode;
-        }
-        const message = (res.error && res.error.message) ? res.error.message :
-            ((res.childProcess.exitCode !== 0) ? `Git command failed: ${res.stderr}` : undefined);
-        if (res.childProcess.exitCode !== 0) {
-            logger.error(message);
-            log.write(message);
-        }
-        const egr: ExecuteGoalResult = {
-            code: res.childProcess.exitCode,
-            message,
-        };
-        return egr;
     };
 }
 
@@ -545,14 +531,13 @@ export function executeReleaseDocs(
             const targetUrl = `https://${docGitProject.id.owner}.github.io/${docGitProject.id.repo}`;
             const rrr = project.id as RemoteRepoRef;
 
-            const gitOps: Array<() => Promise<GitCommandGitProject>> = [
-                () => docGitProject.init(),
-                () => docGitProject.commit(commitMsg),
-                () => docGitProject.createBranch("gh-pages"),
-                () => docGitProject.setRemote(rrr.cloneUrl(credentials)),
-                () => docGitProject.push({ force: true }),
-            ];
-            els.push(...gitOps.map(op => gitExecuteLogger(docGitProject, op)));
+            els.push(
+                gitExecuteLogger(docGitProject, () => docGitProject.init(), "init"),
+                gitExecuteLogger(docGitProject, () => docGitProject.commit(commitMsg), "commit"),
+                gitExecuteLogger(docGitProject, () => docGitProject.createBranch("gh-pages"), "createBranch"),
+                gitExecuteLogger(docGitProject, () => docGitProject.setRemote(rrr.cloneUrl(credentials)), "setRemote"),
+                gitExecuteLogger(docGitProject, () => docGitProject.push({ force: true }), "push"),
+            );
             const gitRes = await executeLoggers(els, gi.progressLog);
             if (gitRes.code !== 0) {
                 return gitRes;
@@ -583,7 +568,7 @@ export function executeReleaseVersion(
             const branch = gi.sdmGoal.branch;
             const remote = gp.remote || "origin";
             const preEls: ExecuteLogger[] = [
-                gitExecuteLogger(gp, () => gp.checkout(branch)),
+                gitExecuteLogger(gp, () => gp.checkout(branch), "checkout"),
                 spawnExecuteLogger({ cmd: { command: "git", args: ["pull", remote, branch] }, cwd: gp.baseDir }),
             ];
             await loglog(log, `Pulling ${branch} of ${slug}`);
@@ -606,8 +591,8 @@ export function executeReleaseVersion(
                 spawnExecuteLogger({ cmd: incrementPatchCmd, cwd: gp.baseDir }),
                 gitExecuteLogger(gp, () => gp.commit(`Version: increment after ${versionRelease} release
 
-[atomist:generated]`)),
-                gitExecuteLogger(gp, () => gp.push()),
+[atomist:generated]`), "commit"),
+                gitExecuteLogger(gp, () => gp.push(), "push"),
             ];
             await loglog(log, `Incrementing version and committing for ${slug}`);
             await log.close();

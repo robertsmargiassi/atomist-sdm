@@ -19,10 +19,12 @@ import {
     TokenCredentials,
 } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
 
-import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
+import {
+    ChildProcessResult,
+    RemoteRepoRef,
+} from "@atomist/automation-client";
 import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { ChildProcessResult } from "@atomist/automation-client/util/spawned";
 import {
     ExecuteGoal,
     ExecuteGoalResult,
@@ -57,43 +59,48 @@ export function executeSmokeTests(
         return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false },
             async (project: GitProject) => {
 
-            process.env.NODE_ENV = "development";
+                process.env.NODE_ENV = "development";
 
-            const sdmProcess = startSdm(sdmUnderTest, project.baseDir, gi.progressLog, credentials);
+                const sdmProcess = startSdm(sdmUnderTest, project.baseDir, gi.progressLog, credentials);
 
-            // how to know when sdm is started? timeout is a hack
-            await new Promise<any>(res => setTimeout(res, 10000));
+                // how to know when sdm is started? timeout is a hack
+                await new Promise<any>(res => setTimeout(res, 10000));
 
-            let testResult;
-            try {
-                testResult = await runSmokeTests(sdmUnderTest, smokeTestRepo, gi.progressLog, credentials,
-                    featureName);
-            } catch (e) {
-                testResult = {
-                    code: 1,
-                    message: e.message,
+                let testResult;
+                try {
+                    testResult = await runSmokeTests(sdmUnderTest, smokeTestRepo, gi.progressLog, credentials,
+                        featureName);
+                } catch (e) {
+                    testResult = {
+                        code: 1,
+                        message: e.message,
+                    };
+                }
+
+                gi.progressLog.write(`Stopping SDM`);
+                flushLog(gi.progressLog);
+                sdmProcess.kill();
+
+                const egr: ExecuteGoalResult = {
+                    code: testResult.code,
+                    message: testResult.message,
+                    targetUrl: gi.progressLog.url,
                 };
-            }
-
-            gi.progressLog.write(`Stopping SDM`);
-            flushLog(gi.progressLog);
-            sdmProcess.kill();
-
-            const egr: ExecuteGoalResult = {
-                code: testResult.code,
-                message: testResult.message,
-                targetUrl: gi.progressLog.url,
-            };
-            gi.progressLog.write(`Smoke tests complete: ${egr}`);
-            return egr;
-        });
+                gi.progressLog.write(`Smoke tests complete: ${egr}`);
+                return egr;
+            });
     };
 }
 
-function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: ProgressLog,
-                  credentials: ProjectOperationCredentials): ChildProcess {
+function startSdm(
+    sdmUnderTest: SdmUnderTest,
+    baseDir: string,
+    progressLog: ProgressLog,
+    credentials: ProjectOperationCredentials,
+): ChildProcess {
+
     installAndBuild("SDM", progressLog, baseDir);
-    const config: {[k: string]: any} = {
+    const config: { [k: string]: any } = {
         teamIds: [
             sdmUnderTest.team,
         ],
@@ -119,7 +126,7 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
             graphql: sdmUnderTest.graphql,
         };
     }
-    const env: {[k: string]: any} = {
+    const env: { [k: string]: any } = {
         LOCAL_ATOMIST_ADMIN_PASSWORD: localAtomistAdminPassword,
         GITHUB_TOKEN: (credentials as TokenCredentials).token,
         HOME: process.env.HOME,
@@ -134,7 +141,7 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
     flushLog(progressLog);
     const runningSdm = child_process.spawn("node",
         ["node_modules/@atomist/automation-client/start.client.js"],
-        {cwd: baseDir, env});
+        { cwd: baseDir, env });
     progressLog.write(`Started SDM with PID=${runningSdm.pid}`);
     flushLog(progressLog);
 
@@ -152,8 +159,14 @@ function startSdm(sdmUnderTest: SdmUnderTest, baseDir: string, progressLog: Prog
     return runningSdm;
 }
 
-async function runSmokeTests(sdmUnderTest: SdmUnderTest, repo: RemoteRepoRef, progressLog: ProgressLog,
-                             credentials: ProjectOperationCredentials, featureName: string): Promise<ChildProcessResult> {
+async function runSmokeTests(
+    sdmUnderTest: SdmUnderTest,
+    repo: RemoteRepoRef,
+    progressLog: ProgressLog,
+    credentials: ProjectOperationCredentials,
+    featureName: string,
+): Promise<ChildProcessResult> {
+
     progressLog.write(`Cloning ${repo.owner}:${repo.repo}`);
     flushLog(progressLog);
     const smokeTestProject = await GitCommandGitProject.cloned(credentials, repo);
@@ -207,5 +220,5 @@ function installAndBuild(targetName: string, progressLog: ProgressLog, baseDir: 
 }
 
 function executeCommandAndBlock(cwd: string, command: string): string {
-    return child_process.execSync(command, {cwd, env: process.env}).toString();
+    return child_process.execSync(command, { cwd, env: process.env }).toString();
 }
