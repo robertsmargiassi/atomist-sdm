@@ -37,7 +37,7 @@ export class RewriteImportsTransformParameters {
         pattern: /^.+$/,
         required: false,
     })
-    public module: string = "@atomist/automation-client,@atomist/sdm";
+    public module: string = "@atomist/automation-client,@atomist/sdm,@atomist/sdm-core";
 
     public commitMessage: string;
 
@@ -48,7 +48,7 @@ export const RewriteImportsTransform: CodeTransform<RewriteImportsTransformParam
         const modules = params.module;
 
         for (const module of modules.split(",")) {
-            const regexp = new RegExp(`import\\s*?{([\\sa-zA-Z,-]*?)}\\s*from\\s*"${module.replace("/", "\/")}.*";`, "gi");
+            const regexp = new RegExp(`import\\s*?{([\\sa-zA-Z,-]*?)}\\s*from\\s*"${module.replace("/", "\/")}(?:\/.*"|");`, "gi");
             const files = await toPromise(p.streamFiles("**/*.ts"));
 
             for (const f of files) {

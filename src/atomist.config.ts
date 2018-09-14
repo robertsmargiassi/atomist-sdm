@@ -48,5 +48,8 @@ export const configuration: Configuration = {
                 },
             },
         },
+        k8: {
+            environment: "test",
+        }
     },
 };
