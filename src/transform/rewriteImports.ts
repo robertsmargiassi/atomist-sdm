@@ -33,7 +33,7 @@ export class RewriteImportsTransformParameters {
 
     @Parameter({
         displayName: "Module to update imports for",
-        description: "The NPM module we want imports to be rewritten to come from index.js",
+        description: "The NPM module we want imports to be rewritten to come from index. Can be a comma seperated list of module names.",
         pattern: /^.+$/,
         required: false,
     })
