@@ -34,17 +34,18 @@ import {
     NpmOptions,
     NpmPreparations,
     NpmProgressReporter,
-    PackageLockFingerprinter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
+import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { AutomationClientTagger } from "../support/tagger";
+import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
 import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtomistPeerDependencies";
 import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
@@ -92,6 +93,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
     AutofixGoal.with(AddAtomistTypeScriptHeader)
         .with(tslintFix)
+        .with(TypeScriptImports)
         .with(AddThirdPartyLicense)
         .with(npmDockerfileFix("npm", "@atomist/cli"));
 
@@ -162,8 +164,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
     });
 
-    sdm.addFirstPushListener(tagRepo(AutomationClientTagger))
-        .addFingerprinterRegistration(new PackageLockFingerprinter());
+    sdm.addFirstPushListener(tagRepo(AutomationClientTagger));
 
     sdm.addEvent(deleteDistTagOnBranchDeletion(
         sdm.configuration.sdm.projectLoader,
@@ -172,7 +173,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     sdm.addCodeTransformCommand(TryToUpdateAtomistDependencies)
         .addCodeTransformCommand(UpdatePackageVersion)
         .addCodeTransformCommand(TryToUpdateAtomistPeerDependencies)
-        .addCodeTransformCommand(UpdatePackageAuthor);
+        .addCodeTransformCommand(UpdatePackageAuthor)
+        .addCodeTransformCommand(RewriteImports);
 
     return sdm;
 }

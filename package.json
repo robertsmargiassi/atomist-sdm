@@ -43,7 +43,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "@atomist/sdm-local": "1.0.0-master.20180910202515",
+    "@atomist/sdm-local": "1.0.0-master.20180914072630",
     "@types/fs-extra": "^5.0.2",
     "@types/lodash": "^4.14.116",
     "@types/mocha": "^5.2.5",
