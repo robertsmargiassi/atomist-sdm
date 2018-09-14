@@ -34,7 +34,10 @@ import {
     SoftwareDeliveryMachineConfiguration,
     StagingEnvironment,
 } from "@atomist/sdm";
-import { ProductionDeploymentGoal, StagingDeploymentGoal } from "./goals";
+import {
+    ProductionDeploymentGoal,
+    StagingDeploymentGoal,
+} from "./goals";
 
 /**
  * Add Kubernetes implementations of goals to SDM.
