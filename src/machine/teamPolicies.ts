@@ -26,8 +26,8 @@ import {
     warning,
 } from "@atomist/sdm";
 import {
-    truncateCommitMessage,
     github,
+    truncateCommitMessage,
 } from "@atomist/sdm-core";
 import {
     bold,

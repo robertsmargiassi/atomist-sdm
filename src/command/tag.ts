@@ -30,8 +30,8 @@ import {
 } from "@atomist/sdm";
 import {
     fetchBranchTips,
-    tipOfBranch,
     github,
+    tipOfBranch,
 } from "@atomist/sdm-core";
 import { codeLine } from "@atomist/slack-messages";
 

@@ -15,13 +15,13 @@
  */
 
 import {
-    DockerOptions,
-    HasDockerfile,
-} from "@atomist/sdm-pack-docker";
-import {
     LogSuppressor,
     SoftwareDeliveryMachine,
 } from "@atomist/sdm";
+import {
+    DockerOptions,
+    HasDockerfile,
+} from "@atomist/sdm-pack-docker";
 import { ReleaseDockerGoal } from "./goals";
 import {
     DockerReleasePreparations,

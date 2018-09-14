@@ -40,9 +40,9 @@ import {
 } from "@atomist/sdm";
 import {
     createTagForStatus,
+    github,
     ProjectIdentifier,
     readSdmVersion,
-    github,
 } from "@atomist/sdm-core";
 import { DockerOptions } from "@atomist/sdm-pack-docker";
 import {

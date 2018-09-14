@@ -19,6 +19,12 @@ import {
     Success,
 } from "@atomist/automation-client";
 import {
+    ExecuteGoalResult,
+    GoalInvocation,
+    LogSuppressor,
+    SoftwareDeliveryMachine,
+} from "@atomist/sdm";
+import {
     DefaultDockerImageNameCreator,
     DockerOptions,
 } from "@atomist/sdm-pack-docker";
@@ -31,12 +37,6 @@ import {
 import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
 import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import {
-    ExecuteGoalResult,
-    GoalInvocation,
-    LogSuppressor,
-    SoftwareDeliveryMachine,
-} from "@atomist/sdm";
 import {
     BuildGoal,
     DockerBuildGoal,

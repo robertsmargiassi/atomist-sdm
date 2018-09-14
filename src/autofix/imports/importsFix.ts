@@ -33,12 +33,13 @@ export const TypeScriptImports: AutofixRegistration = {
             regexp.lastIndex = 0;
             let file = f.getContentSync();
             let match;
+            // tslint:disable-next-line:no-conditional-assignment
             while (match = regexp.exec(file)) {
                 const imports = match[1].split(",").map(i => i.trim());
                 const module = match[2];
 
                 if (imports.length > 1) {
-                    file = file.replace(match[0], `import {\n    ${imports.filter(f => f.length > 0)
+                    file = file.replace(match[0], `import {\n    ${imports.filter(i => i.length > 0)
                         .sort((f1, f2) => f1.localeCompare(f2)).join(",\n    ")},\n} from "${module}";`);
                 } else {
                     file = file.replace(match[0], `import { ${imports[0]} } from "${module}";`);
@@ -47,9 +48,7 @@ export const TypeScriptImports: AutofixRegistration = {
 
             f.setContentSync(file);
         }
-        ;
 
         return p;
     },
 };
-

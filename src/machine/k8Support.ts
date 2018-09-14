@@ -23,7 +23,7 @@ import {
     StagingEnvironment,
 } from "@atomist/sdm";
 import { KubernetesDeploymentOptions } from "@atomist/sdm-pack-k8";
-import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
+import { IsMaven } from "@atomist/sdm-pack-spring";
 
 export function kubernetesDeploymentData(sdm: SoftwareDeliveryMachine) {
     return async (goal: SdmGoalEvent, context: RepoContext): Promise<KubernetesDeploymentOptions> => {
