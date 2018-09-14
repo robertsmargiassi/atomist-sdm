@@ -18,8 +18,10 @@ import {
     DockerOptions,
     HasDockerfile,
 } from "@atomist/sdm-pack-docker";
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import {
+    LogSuppressor,
+    SoftwareDeliveryMachine,
+} from "@atomist/sdm";
 import { ReleaseDockerGoal } from "./goals";
 import {
     DockerReleasePreparations,

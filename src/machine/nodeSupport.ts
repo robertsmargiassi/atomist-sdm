@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
     hasFile,
+    LogSuppressor,
     not,
+    SoftwareDeliveryMachine,
 } from "@atomist/sdm";
 import { tagRepo } from "@atomist/sdm-core";
 import {
@@ -37,8 +39,6 @@ import {
     tslintFix,
 } from "@atomist/sdm-pack-node";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";

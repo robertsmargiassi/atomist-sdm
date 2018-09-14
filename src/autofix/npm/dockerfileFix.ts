@@ -19,9 +19,9 @@ import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
     AutofixRegistration,
     hasFile,
+    spawnAndWatch,
+    StringCapturingProgressLog,
 } from "@atomist/sdm";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 
 /**
  * Change the version of NPM that gets installed into our Docker images

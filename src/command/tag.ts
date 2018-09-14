@@ -15,26 +15,26 @@
  */
 
 import {
+    GitHubRepoRef,
     MappedParameter,
     MappedParameters,
     Parameter,
+    Parameters,
     Secret,
     Secrets,
     Success,
 } from "@atomist/automation-client";
-import { Parameters } from "@atomist/automation-client/decorators";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { CommandHandlerRegistration } from "@atomist/sdm";
+import {
+    CommandHandlerRegistration,
+    success,
+} from "@atomist/sdm";
 import {
     createTag,
     createTagReference,
-    Tag,
-} from "@atomist/sdm-core/util/github/ghub";
-import {
     fetchBranchTips,
+    Tag,
     tipOfBranch,
-} from "@atomist/sdm-core/util/graph/queryCommits";
-import { success } from "@atomist/sdm/api-helper/misc/slack/messages";
+} from "@atomist/sdm-core";
 import { codeLine } from "@atomist/slack-messages";
 
 @Parameters()

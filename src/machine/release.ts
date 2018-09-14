@@ -17,22 +17,26 @@
 // tslint:disable:max-file-line-count
 
 import {
+    configurationValue,
+    GitCommandGitProject,
+    GitHubRepoRef,
+    GitProject,
     logger,
+    NodeFsLocalProject,
+    RemoteRepoRef,
     Success,
+    TokenCredentials,
 } from "@atomist/automation-client";
-import { configurationValue } from "@atomist/automation-client/configuration";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
 import {
+    ChildProcessResult,
+    DelimitedWriteProgressLogDecorator,
     ExecuteGoal,
     ExecuteGoalResult,
     GoalInvocation,
     PrepareForGoalExecution,
     ProgressLog,
+    spawnAndWatch,
+    SpawnCommand,
 } from "@atomist/sdm";
 import {
     createRelease,
@@ -46,12 +50,6 @@ import {
     DevelopmentEnvOptions,
     NpmOptions,
 } from "@atomist/sdm-pack-node";
-import { DelimitedWriteProgressLogDecorator } from "@atomist/sdm/api-helper/log/DelimitedWriteProgressLogDecorator";
-import {
-    ChildProcessResult,
-    spawnAndWatch,
-    SpawnCommand,
-} from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as fs from "fs-extra";
 import * as _ from "lodash";

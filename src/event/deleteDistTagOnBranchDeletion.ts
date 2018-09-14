@@ -15,14 +15,14 @@
  */
 
 import {
+    GitHubRepoRef,
+    OnEvent,
     Parameters,
     Secret,
     Secrets,
+    subscription,
     Success,
 } from "@atomist/automation-client";
-import { subscription } from "@atomist/automation-client/graph/graphQL";
-import { OnEvent } from "@atomist/automation-client/onEvent";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import {
     EventHandlerRegistration,
     ProjectLoader,

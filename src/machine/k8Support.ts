@@ -16,21 +16,24 @@
 
 import {
     Configuration,
+    GitProject,
     logger,
 } from "@atomist/automation-client";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
+import { KubernetesOptions } from "@atomist/sdm-core";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import { kubernetesSupport } from "@atomist/sdm-pack-k8";
 import { createKubernetesData } from "@atomist/sdm-pack-k8/dist";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import { RepoContext } from "@atomist/sdm/api/context/SdmContext";
-import { SdmGoalEvent } from "@atomist/sdm/api/goal/SdmGoalEvent";
-import { ProductionEnvironment, StagingEnvironment } from "@atomist/sdm/api/goal/support/environment";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import { SoftwareDeliveryMachineConfiguration } from "@atomist/sdm/api/machine/SoftwareDeliveryMachineOptions";
-import { IsDeployEnabled } from "@atomist/sdm/api/mapping/support/deployPushTests";
-import { allSatisfied } from "@atomist/sdm/api/mapping/support/pushTestUtils";
+import {
+    allSatisfied,
+    IsDeployEnabled,
+    ProductionEnvironment,
+    RepoContext,
+    SdmGoalEvent,
+    SoftwareDeliveryMachine,
+    SoftwareDeliveryMachineConfiguration,
+    StagingEnvironment,
+} from "@atomist/sdm";
 import { ProductionDeploymentGoal, StagingDeploymentGoal } from "./goals";
 
 /**

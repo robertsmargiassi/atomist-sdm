@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-import { Success } from "@atomist/automation-client";
-import { ProjectOperationCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { Issue } from "@atomist/automation-client/util/gitHub";
+import {
+    Issue,
+    ProjectOperationCredentials,
+    RemoteRepoRef,
+    Success,
+} from "@atomist/automation-client";
 import {
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
+    warning,
 } from "@atomist/sdm";
-import { updateIssue } from "@atomist/sdm-core";
-import { truncateCommitMessage } from "@atomist/sdm-core/util/lifecycleHelpers";
-import { warning } from "@atomist/sdm/api-helper/misc/slack/messages";
+import {
+    truncateCommitMessage,
+    updateIssue,
+} from "@atomist/sdm-core";
 import {
     bold,
     codeLine,

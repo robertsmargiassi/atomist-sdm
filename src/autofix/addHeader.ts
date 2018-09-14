@@ -15,13 +15,15 @@
  */
 
 import {
+    doWithFiles,
     Parameter,
     Parameters,
+    Project,
 } from "@atomist/automation-client";
-import { Project } from "@atomist/automation-client/project/Project";
-import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
-import { CodeTransformRegistration } from "@atomist/sdm";
-import { ParametersInvocation } from "@atomist/sdm/api/listener/ParametersInvocation";
+import {
+    CodeTransformRegistration,
+    ParametersInvocation,
+} from "@atomist/sdm";
 import * as minimatch from "minimatch";
 import { CFamilyLanguageSourceFiles } from "./GlobPatterns";
 import { RequestedCommitParameters } from "./RequestedCommitParameters";

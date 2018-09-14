@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { Project } from "@atomist/automation-client/project/Project";
-import { NoParameters } from "@atomist/automation-client/SmartParameters";
+import {
+    GitProject,
+    NoParameters,
+    Project,
+} from "@atomist/automation-client";
 import {
     allSatisfied,
+    AutofixRegistration,
     CodeTransform,
     not,
     PushTest,
+    spawnAndWatch,
+    StringCapturingProgressLog,
     ToDefaultBranch,
 } from "@atomist/sdm";
 import { IsInLocalMode } from "@atomist/sdm-core";
 import { IsNode } from "@atomist/sdm-pack-node";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
-import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import * as fs from "fs-extra";
 import * as lc from "license-checker";
 import * as _ from "lodash";

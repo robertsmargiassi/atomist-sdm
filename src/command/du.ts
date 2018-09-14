@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-import { CommandHandlerRegistration } from "@atomist/sdm";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
+import {
+    CommandHandlerRegistration,
+    spawnAndWatch,
+    StringCapturingProgressLog,
+} from "@atomist/sdm";
 import { codeBlock } from "@atomist/slack-messages";
 
 export const DiskUsageCommandRegistration: CommandHandlerRegistration = {

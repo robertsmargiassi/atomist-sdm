@@ -16,11 +16,11 @@
 
 import {
     allSatisfied,
+    AutofixRegistration,
     hasFileContaining,
     PushTest,
 } from "@atomist/sdm";
 import { IsTypeScript } from "@atomist/sdm-pack-node";
-import { AutofixRegistration } from "@atomist/sdm/api/registration/AutofixRegistration";
 import {
     AddHeaderParameters,
     addHeaderTransform,

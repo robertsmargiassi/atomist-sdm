@@ -15,16 +15,18 @@
  */
 
 import {
+    addressEvent,
     automationClientInstance,
+    guid,
     MappedParameter,
     MappedParameters,
     Parameters,
 } from "@atomist/automation-client";
-import { guid } from "@atomist/automation-client/internal/util/string";
-import { addressEvent } from "@atomist/automation-client/spi/message/MessageClient";
-import { ExtensionPack } from "@atomist/sdm";
-import { metadata } from "@atomist/sdm/api-helper/misc/extensionPack";
-import { success } from "@atomist/sdm/api-helper/misc/slack/messages";
+import {
+    ExtensionPack,
+    metadata,
+    success,
+} from "@atomist/sdm";
 import {
     bold,
     codeBlock,

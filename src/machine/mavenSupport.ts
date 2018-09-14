@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import { Success } from "@atomist/automation-client/HandlerResult";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import {
+    GitProject,
+    Success,
+} from "@atomist/automation-client";
 import {
     DefaultDockerImageNameCreator,
     DockerOptions,
@@ -29,10 +31,12 @@ import {
 import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
 import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { ExecuteGoalResult } from "@atomist/sdm/api/goal/ExecuteGoalResult";
-import { GoalInvocation } from "@atomist/sdm/api/goal/GoalInvocation";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import {
+    ExecuteGoalResult,
+    GoalInvocation,
+    LogSuppressor,
+    SoftwareDeliveryMachine,
+} from "@atomist/sdm";
 import {
     BuildGoal,
     DockerBuildGoal,

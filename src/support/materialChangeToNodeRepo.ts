@@ -16,14 +16,12 @@
 
 import { logger } from "@atomist/automation-client";
 import {
-    PushTest,
-    pushTest,
-} from "@atomist/sdm";
-import {
     anyFileChangedSuchThat,
     anyFileChangedWithExtension,
     filesChangedSince,
-} from "@atomist/sdm/api-helper/misc/git/filesChangedSince";
+    pushTest,
+    PushTest,
+} from "@atomist/sdm";
 import * as _ from "lodash";
 
 const FilesWithExtensionToWatch = ["ts", "json", "graphql"];
