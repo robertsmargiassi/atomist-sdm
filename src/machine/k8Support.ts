@@ -14,83 +14,38 @@
  * limitations under the License.
  */
 
+import { logger } from "@atomist/automation-client";
 import {
-    Configuration,
-    logger,
-} from "@atomist/automation-client";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { KubernetesOptions } from "@atomist/sdm-core/handlers/events/delivery/goals/k8s/launchGoalK8";
-import { HasDockerfile } from "@atomist/sdm-pack-docker";
-import { kubernetesSupport } from "@atomist/sdm-pack-k8";
-import { createKubernetesData } from "@atomist/sdm-pack-k8/dist";
-import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import { RepoContext } from "@atomist/sdm/api/context/SdmContext";
-import { SdmGoalEvent } from "@atomist/sdm/api/goal/SdmGoalEvent";
-import { ProductionEnvironment, StagingEnvironment } from "@atomist/sdm/api/goal/support/environment";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
-import { SoftwareDeliveryMachineConfiguration } from "@atomist/sdm/api/machine/SoftwareDeliveryMachineOptions";
-import { IsDeployEnabled } from "@atomist/sdm/api/mapping/support/deployPushTests";
-import { allSatisfied } from "@atomist/sdm/api/mapping/support/pushTestUtils";
-import { ProductionDeploymentGoal, StagingDeploymentGoal } from "./goals";
+    ProductionEnvironment,
+    RepoContext,
+    SdmGoalEvent,
+    SoftwareDeliveryMachine,
+    StagingEnvironment,
+} from "@atomist/sdm";
+import { KubernetesDeploymentOptions } from "@atomist/sdm-pack-k8";
+import { IsMaven } from "@atomist/sdm-pack-spring";
 
-/**
- * Add Kubernetes implementations of goals to SDM.
- *
- * @param sdm Software Delivery machine to modify
- * @return modified software delivery machine
- */
-export function addk8Support(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
-
-    sdm.addExtensionPacks(
-        kubernetesSupport({
-            deployments: [{
-                goal: StagingDeploymentGoal,
-                pushTest: HasDockerfile,
-                callback: kubernetesDataCallback(sdm.configuration),
-            }, {
-                goal: ProductionDeploymentGoal,
-                pushTest: allSatisfied(HasDockerfile, IsDeployEnabled),
-                callback: kubernetesDataCallback(sdm.configuration),
-            }],
-        }),
-    );
-    return sdm;
-}
-
-export function kubernetesDataCallback(
-    configuration: SoftwareDeliveryMachineConfiguration,
-): (goal: SdmGoalEvent, context: RepoContext) => Promise<SdmGoalEvent> {
-
-    return async (goal, ctx) => {
-        return configuration.sdm.projectLoader.doWithProject({
-            credentials: ctx.credentials, id: ctx.id, context: ctx.context, readOnly: true,
+export function kubernetesDeploymentData(sdm: SoftwareDeliveryMachine) {
+    return async (goal: SdmGoalEvent, context: RepoContext): Promise<KubernetesDeploymentOptions> => {
+        return sdm.configuration.sdm.projectLoader.doWithProject({
+            credentials: context.credentials,
+            id: context.id,
+            readOnly: true,
         }, async p => {
-            return kubernetesDataFromGoal(goal, p, configuration);
+            const ns = namespaceFromGoal(goal);
+            const ingress = ingressFromGoal(goal.repo.name, ns);
+            const port = IsMaven.predicate(p) ? 8080 : 2866;
+            return {
+                name: goal.repo.name,
+                environment: sdm.configuration.environment.split("_")[0],
+                port,
+                ns,
+                imagePullSecret: "atomistjfrog",
+                replicas: ns === "production" ? 3 : 1,
+                ...ingress,
+            } as any;
         });
     };
-}
-
-function kubernetesDataFromGoal(
-    goal: SdmGoalEvent,
-    p: GitProject,
-    configuration: Configuration,
-): Promise<SdmGoalEvent> {
-
-    const ns = namespaceFromGoal(goal);
-    const ingress = ingressFromGoal(goal.repo.name, ns);
-    const port = IsMaven.predicate(p) ? 8080 : 2866;
-    return createKubernetesData(
-        goal,
-        {
-            name: goal.repo.name,
-            environment: configuration.environment.split("_")[0],
-            port,
-            ns,
-            imagePullSecret: "atomistjfrog",
-            replicas: ns === "production" ? 3 : 1,
-            ...ingress,
-        } as KubernetesOptions,
-        p);
 }
 
 function namespaceFromGoal(goal: SdmGoalEvent): string {

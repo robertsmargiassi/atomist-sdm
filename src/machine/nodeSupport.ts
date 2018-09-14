@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
     hasFile,
+    LogSuppressor,
     not,
+    SoftwareDeliveryMachine,
 } from "@atomist/sdm";
 import { tagRepo } from "@atomist/sdm-core";
 import {
@@ -37,8 +39,6 @@ import {
     tslintFix,
 } from "@atomist/sdm-pack-node";
 import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
@@ -54,13 +54,18 @@ import {
     AutofixGoal,
     BuildGoal,
     DockerBuildGoal,
+    ProductionDeploymentGoal,
+    ProductionDeploymentWithApprovalGoal,
     PublishGoal,
+    PublishWithApprovalGoal,
     ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseVersionGoal,
     SmokeTestGoal,
+    StagingDeploymentGoal,
     VersionGoal,
 } from "./goals";
+import { kubernetesDeploymentData } from "./k8Support";
 import {
     DocsReleasePreparations,
     executeReleaseDocs,
@@ -120,6 +125,16 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ),
     });
 
+    PublishWithApprovalGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-publish",
+        goalExecutor: executePublish(
+            NodeProjectIdentifier,
+            NpmPreparations,
+            sdm.configuration.sdm.npm as NpmOptions,
+        ),
+    });
+
     DockerBuildGoal.with({
         ...NodeDefaultOptions,
         name: "npm-docker-build",
@@ -163,6 +178,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         name: "npm-release-version",
         goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
     });
+
+    StagingDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
+    ProductionDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
+    ProductionDeploymentWithApprovalGoal.withDeployment(kubernetesDeploymentData(sdm));
 
     sdm.addFirstPushListener(tagRepo(AutomationClientTagger));
 

@@ -17,17 +17,21 @@
 // tslint:disable:max-file-line-count
 
 import {
+    ChildProcessResult,
+    configurationValue,
+    GitCommandGitProject,
+    GitHubRepoRef,
+    GitProject,
     logger,
+    NodeFsLocalProject,
+    RemoteRepoRef,
+    spawnAndWatch,
+    SpawnCommand,
     Success,
+    TokenCredentials,
 } from "@atomist/automation-client";
-import { configurationValue } from "@atomist/automation-client/configuration";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { TokenCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
-import { NodeFsLocalProject } from "@atomist/automation-client/project/local/NodeFsLocalProject";
 import {
+    DelimitedWriteProgressLogDecorator,
     ExecuteGoal,
     ExecuteGoalResult,
     GoalInvocation,
@@ -35,9 +39,8 @@ import {
     ProgressLog,
 } from "@atomist/sdm";
 import {
-    createRelease,
-    createStatus,
     createTagForStatus,
+    github,
     ProjectIdentifier,
     readSdmVersion,
 } from "@atomist/sdm-core";
@@ -46,12 +49,6 @@ import {
     DevelopmentEnvOptions,
     NpmOptions,
 } from "@atomist/sdm-pack-node";
-import { DelimitedWriteProgressLogDecorator } from "@atomist/sdm/api-helper/log/DelimitedWriteProgressLogDecorator";
-import {
-    ChildProcessResult,
-    spawnAndWatch,
-    SpawnCommand,
-} from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
@@ -338,7 +335,7 @@ export function executeReleaseNpm(
                 version: pi.version,
             });
             if (options.status) {
-                await createStatus(
+                await github.createStatus(
                     (credentials as TokenCredentials).token,
                     id as GitHubRepoRef,
                     {
@@ -458,7 +455,7 @@ export function executeReleaseTag(): ExecuteGoal {
                 ...Success,
                 targetUrl,
             };
-            return createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
+            return github.createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
                 .then(() => egr);
         });
     };

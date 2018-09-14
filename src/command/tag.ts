@@ -15,26 +15,24 @@
  */
 
 import {
+    GitHubRepoRef,
     MappedParameter,
     MappedParameters,
     Parameter,
+    Parameters,
     Secret,
     Secrets,
     Success,
 } from "@atomist/automation-client";
-import { Parameters } from "@atomist/automation-client/decorators";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { CommandHandlerRegistration } from "@atomist/sdm";
 import {
-    createTag,
-    createTagReference,
-    Tag,
-} from "@atomist/sdm-core/util/github/ghub";
+    CommandHandlerRegistration,
+    success,
+} from "@atomist/sdm";
 import {
     fetchBranchTips,
+    github,
     tipOfBranch,
-} from "@atomist/sdm-core/util/graph/queryCommits";
-import { success } from "@atomist/sdm/api-helper/misc/slack/messages";
+} from "@atomist/sdm-core";
 import { codeLine } from "@atomist/slack-messages";
 
 @Parameters()
@@ -75,7 +73,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
         const sha = ci.parameters.sha || tipOfBranch(repoData, branch);
         const id = GitHubRepoRef.from({ owner: ci.parameters.owner, repo: ci.parameters.repo, sha, branch });
 
-        const tag: Tag = {
+        const tag: github.Tag = {
             tag: ci.parameters.name,
             message: `Created tag ${ci.parameters.name}`,
             object: sha,
@@ -86,8 +84,8 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
                 date: new Date().toISOString(),
             },
         };
-        await createTag({ token: ci.parameters.githubToken }, id, tag);
-        await createTagReference({ token: ci.parameters.githubToken }, id, tag);
+        await github.createTag({ token: ci.parameters.githubToken }, id, tag);
+        await github.createTagReference({ token: ci.parameters.githubToken }, id, tag);
 
         await ci.context.messageClient.respond(
             success(

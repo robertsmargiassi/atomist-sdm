@@ -16,7 +16,7 @@
 
 import * as assert from "power-assert";
 
-import { Project } from "@atomist/automation-client/project/Project";
+import { Project } from "@atomist/automation-client";
 import * as appRoot from "app-root-path";
 import { addThirdPartyLicenseTransform } from "../../../src/autofix/license/thirdPartyLicense";
 

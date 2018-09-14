@@ -16,20 +16,20 @@
 
 import {
     automationClientInstance,
+    guid,
     logger,
     MessageOptions,
     Parameters,
+    spawnAndWatch,
 } from "@atomist/automation-client";
-import { guid } from "@atomist/automation-client/internal/util/string";
 import {
     CodeTransform,
     CodeTransformRegistration,
     EditMode,
     GitProject,
+    StringCapturingProgressLog,
 } from "@atomist/sdm";
-import { StringCapturingProgressLog } from "@atomist/sdm/api-helper/log/StringCapturingProgressLog";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
-import { DryRunMessage } from "@atomist/sdm/pack/build-aware-transform/support/makeBuildAware";
+import { DryRunMessage } from "@atomist/sdm/lib/pack/build-aware-transform/support/makeBuildAware";
 import {
     codeLine,
     SlackMessage,

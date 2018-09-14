@@ -15,23 +15,21 @@
  */
 
 import {
-    ProjectOperationCredentials,
-    TokenCredentials,
-} from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-
-import {
     ChildProcessResult,
+    GitCommandGitProject,
+    GitProject,
+    ProjectOperationCredentials,
     RemoteRepoRef,
+    TokenCredentials,
 } from "@atomist/automation-client";
-import { GitCommandGitProject } from "@atomist/automation-client/project/git/GitCommandGitProject";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+
 import {
     ExecuteGoal,
     ExecuteGoalResult,
     GoalInvocation,
     ProgressLog,
+    spawnAndWatch,
 } from "@atomist/sdm";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 import * as child_process from "child_process";
 import { ChildProcess } from "child_process";
 

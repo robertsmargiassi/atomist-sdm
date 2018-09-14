@@ -15,15 +15,13 @@
  */
 
 import {
-    Parameter,
-    Parameters,
-} from "@atomist/automation-client";
-import { GitBranchRegExp } from "@atomist/automation-client/operations/common/params/gitHubPatterns";
-import {
     BranchCommit,
     EditMode,
+    GitBranchRegExp,
+    Parameter,
+    Parameters,
     PullRequest,
-} from "@atomist/automation-client/operations/edit/editModes";
+} from "@atomist/automation-client";
 
 /**
  * Allow user to specify a branch (with default master).

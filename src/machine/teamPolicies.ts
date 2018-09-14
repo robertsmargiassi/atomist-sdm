@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-import { Success } from "@atomist/automation-client";
-import { ProjectOperationCredentials } from "@atomist/automation-client/operations/common/ProjectOperationCredentials";
-import { RemoteRepoRef } from "@atomist/automation-client/operations/common/RepoId";
-import { Issue } from "@atomist/automation-client/util/gitHub";
+import {
+    Issue,
+    ProjectOperationCredentials,
+    RemoteRepoRef,
+    Success,
+} from "@atomist/automation-client";
 import {
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
+    warning,
 } from "@atomist/sdm";
-import { updateIssue } from "@atomist/sdm-core";
-import { truncateCommitMessage } from "@atomist/sdm-core/util/lifecycleHelpers";
-import { warning } from "@atomist/sdm/api-helper/misc/slack/messages";
+import {
+    github,
+    truncateCommitMessage,
+} from "@atomist/sdm-core";
 import {
     bold,
     codeLine,
@@ -79,7 +83,7 @@ async function upperCaseTitle(issueOrPr: { title?: string, body?: string, number
             title: _.upperFirst(title),
             body: issueOrPr.body,
         };
-        await updateIssue(credentials, rr, issueOrPr.number, newIssue);
+        await github.updateIssue(credentials, rr, issueOrPr.number, newIssue);
     }
     return Success;
 }

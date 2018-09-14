@@ -24,9 +24,9 @@ import {
     CodeTransformRegistration,
     EditMode,
     GitProject,
+    LoggingProgressLog,
+    spawnAndWatch,
 } from "@atomist/sdm";
-import { LoggingProgressLog } from "@atomist/sdm/api-helper/log/LoggingProgressLog";
-import { spawnAndWatch } from "@atomist/sdm/api-helper/misc/spawned";
 
 @Parameters()
 export class UpdatePackageVersionParameters {

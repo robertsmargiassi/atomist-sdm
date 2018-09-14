@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
-import { SoftwareDeliveryMachine } from "@atomist/sdm/api/machine/SoftwareDeliveryMachine";
+import {
+    LogSuppressor,
+    SoftwareDeliveryMachine,
+} from "@atomist/sdm";
 import { ReleaseTagGoal } from "./goals";
 import { executeReleaseTag } from "./release";
 
