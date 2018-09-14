@@ -16,11 +16,11 @@
 
 import {
     GitHubRepoRef,
+    GraphQL,
     OnEvent,
     Parameters,
     Secret,
     Secrets,
-    subscription,
     Success,
 } from "@atomist/automation-client";
 import {
@@ -71,6 +71,6 @@ export function deleteDistTagOnBranchDeletion(
         tags: ["branch", "npm", "dist-tag"],
         paramsMaker: TokenParameters,
         listener: deleteDistTagOnBranchDeletionHandle(projectLoader, options),
-        subscription: subscription("onDeletedBranch"),
+        subscription: GraphQL.subscription("onDeletedBranch"),
     };
 }

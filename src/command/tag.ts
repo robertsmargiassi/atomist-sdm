@@ -29,11 +29,9 @@ import {
     success,
 } from "@atomist/sdm";
 import {
-    createTag,
-    createTagReference,
     fetchBranchTips,
-    Tag,
     tipOfBranch,
+    github,
 } from "@atomist/sdm-core";
 import { codeLine } from "@atomist/slack-messages";
 
@@ -75,7 +73,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
         const sha = ci.parameters.sha || tipOfBranch(repoData, branch);
         const id = GitHubRepoRef.from({ owner: ci.parameters.owner, repo: ci.parameters.repo, sha, branch });
 
-        const tag: Tag = {
+        const tag: github.Tag = {
             tag: ci.parameters.name,
             message: `Created tag ${ci.parameters.name}`,
             object: sha,
@@ -86,8 +84,8 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
                 date: new Date().toISOString(),
             },
         };
-        await createTag({ token: ci.parameters.githubToken }, id, tag);
-        await createTagReference({ token: ci.parameters.githubToken }, id, tag);
+        await github.createTag({ token: ci.parameters.githubToken }, id, tag);
+        await github.createTagReference({ token: ci.parameters.githubToken }, id, tag);
 
         await ci.context.messageClient.respond(
             success(

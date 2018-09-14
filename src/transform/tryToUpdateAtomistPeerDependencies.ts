@@ -20,16 +20,16 @@ import {
     logger,
     MessageOptions,
     Parameters,
+    spawnAndWatch,
 } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
-    DryRunMessage,
     EditMode,
     GitProject,
-    spawnAndWatch,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
+import { DryRunMessage } from "@atomist/sdm/lib/pack/build-aware-transform/support/makeBuildAware";
 import {
     codeLine,
     SlackMessage,

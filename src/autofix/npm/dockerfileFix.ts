@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
+import {
+    logger,
+    spawnAndWatch,
+} from "@atomist/automation-client";
 import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
     AutofixRegistration,
     hasFile,
-    spawnAndWatch,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
 

@@ -17,10 +17,10 @@
 import {
     HandlerContext,
     Project,
-    Tags,
+    TaggerTags,
 } from "@atomist/automation-client";
 
-export const AutomationClientTagger: (p: Project, context: HandlerContext, params?: any) => Promise<Tags> =
+export const AutomationClientTagger: (p: Project, context: HandlerContext, params?: any) => Promise<TaggerTags> =
     async p => {
         return {
             repoId: p.id,

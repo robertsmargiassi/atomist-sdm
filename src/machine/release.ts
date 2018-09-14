@@ -17,6 +17,7 @@
 // tslint:disable:max-file-line-count
 
 import {
+    ChildProcessResult,
     configurationValue,
     GitCommandGitProject,
     GitHubRepoRef,
@@ -24,26 +25,24 @@ import {
     logger,
     NodeFsLocalProject,
     RemoteRepoRef,
+    spawnAndWatch,
+    SpawnCommand,
     Success,
     TokenCredentials,
 } from "@atomist/automation-client";
 import {
-    ChildProcessResult,
     DelimitedWriteProgressLogDecorator,
     ExecuteGoal,
     ExecuteGoalResult,
     GoalInvocation,
     PrepareForGoalExecution,
     ProgressLog,
-    spawnAndWatch,
-    SpawnCommand,
 } from "@atomist/sdm";
 import {
-    createRelease,
-    createStatus,
     createTagForStatus,
     ProjectIdentifier,
     readSdmVersion,
+    github,
 } from "@atomist/sdm-core";
 import { DockerOptions } from "@atomist/sdm-pack-docker";
 import {
@@ -336,7 +335,7 @@ export function executeReleaseNpm(
                 version: pi.version,
             });
             if (options.status) {
-                await createStatus(
+                await github.createStatus(
                     (credentials as TokenCredentials).token,
                     id as GitHubRepoRef,
                     {
@@ -456,7 +455,7 @@ export function executeReleaseTag(): ExecuteGoal {
                 ...Success,
                 targetUrl,
             };
-            return createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
+            return github.createRelease((credentials as TokenCredentials).token, id as GitHubRepoRef, release)
                 .then(() => egr);
         });
     };

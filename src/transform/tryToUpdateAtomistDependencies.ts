@@ -19,18 +19,18 @@ import {
     MessageOptions,
     Parameter,
     Parameters,
+    spawnAndWatch,
     SuccessIsReturn0ErrorFinder,
 } from "@atomist/automation-client";
 import { guid } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
-    DryRunMessage,
     EditMode,
     GitProject,
-    spawnAndWatch,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
+import { DryRunMessage } from "@atomist/sdm/lib/pack/build-aware-transform/support/makeBuildAware";
 import {
     codeLine,
     SlackMessage,

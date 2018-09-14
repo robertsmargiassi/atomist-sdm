@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import { spawnAndWatch } from "@atomist/automation-client";
 import {
     CommandHandlerRegistration,
-    spawnAndWatch,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
 import { codeBlock } from "@atomist/slack-messages";

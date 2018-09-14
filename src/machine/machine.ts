@@ -17,13 +17,9 @@
 import {
     allSatisfied,
     anySatisfied,
-    buildAwareCodeTransforms,
     DoNotSetAnyGoals,
     githubTeamVoter,
-    HasTravisFile,
     IsDeployEnabled,
-    isSdmEnabled,
-    NoGoals,
     not,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
@@ -45,8 +41,14 @@ import {
     IsAtomistAutomationClient,
     IsNode,
 } from "@atomist/sdm-pack-node";
-import { MaterialChangeToJavaRepo } from "@atomist/sdm-pack-spring/lib/java/pushTests";
-import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
+import {
+    IsMaven,
+    MaterialChangeToJavaRepo,
+} from "@atomist/sdm-pack-spring";
+import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
+import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
+import { buildAwareCodeTransforms } from "@atomist/sdm/lib/pack/build-aware-transform";
+import { NoGoals } from "@atomist/sdm/lib/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";
 import { CreateTag } from "../command/tag";
 import {
@@ -67,18 +69,16 @@ import {
     LocalGoals,
     ReleaseChangelogGoal,
     SimplifiedKubernetesDeployGoals,
-    StagingKubernetesDeployGoals,
 } from "./goals";
-import { addk8Support } from "./k8Support";
 import { addMavenSupport } from "./mavenSupport";
 import { addNodeSupport } from "./nodeSupport";
 import { addTeamPolicies } from "./teamPolicies";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
-        name: "Atomist Software Delivery Machine",
-        configuration,
-    },
+            name: "Atomist Software Delivery Machine",
+            configuration,
+        },
 
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
@@ -113,11 +113,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Simplified Deploy")
             .setGoals(SimplifiedKubernetesDeployGoals),
 
-        whenPushSatisfies(IsNode, HasDockerfile, ToDefaultBranch, IsAtomistAutomationClient,
-            isNamed("sample-sdm"))
-            .itMeans("Staging Deploy")
-            .setGoals(StagingKubernetesDeployGoals),
-
         whenPushSatisfies(anySatisfied(IsNode, IsMaven), HasDockerfile, ToDefaultBranch, IsDeployEnabled)
             .itMeans("Deploy")
             .setGoals(KubernetesDeployGoals),
@@ -145,7 +140,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
     addGithubSupport(sdm);
     addDockerSupport(sdm);
-    addk8Support(sdm);
     addMavenSupport(sdm);
     addNodeSupport(sdm);
     addTeamPolicies(sdm);
@@ -153,7 +147,12 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addExtensionPacks(
         changelogSupport(ReleaseChangelogGoal),
         BadgeSupport,
-        buildAwareCodeTransforms({ issueRouter: { raiseIssue: async () => { /* intentionally left empty */ }}}),
+        buildAwareCodeTransforms({
+            issueRouter: {
+                raiseIssue: async () => { /* intentionally left empty */
+                },
+            },
+        }),
         GoalState,
         fingerprintSupport(FingerprintGoal),
     );

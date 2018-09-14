@@ -54,13 +54,18 @@ import {
     AutofixGoal,
     BuildGoal,
     DockerBuildGoal,
+    ProductionDeploymentGoal,
+    ProductionDeploymentWithApprovalGoal,
     PublishGoal,
+    PublishWithApprovalGoal,
     ReleaseDocsGoal,
     ReleaseNpmGoal,
     ReleaseVersionGoal,
     SmokeTestGoal,
+    StagingDeploymentGoal,
     VersionGoal,
 } from "./goals";
+import { kubernetesDeploymentData } from "./k8Support";
 import {
     DocsReleasePreparations,
     executeReleaseDocs,
@@ -120,6 +125,16 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         ),
     });
 
+    PublishWithApprovalGoal.with({
+        ...NodeDefaultOptions,
+        name: "npm-publish",
+        goalExecutor: executePublish(
+            NodeProjectIdentifier,
+            NpmPreparations,
+            sdm.configuration.sdm.npm as NpmOptions,
+        ),
+    });
+
     DockerBuildGoal.with({
         ...NodeDefaultOptions,
         name: "npm-docker-build",
@@ -163,6 +178,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         name: "npm-release-version",
         goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
     });
+
+    StagingDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
+    ProductionDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
+    ProductionDeploymentWithApprovalGoal.withDeployment(kubernetesDeploymentData(sdm));
 
     sdm.addFirstPushListener(tagRepo(AutomationClientTagger));
 

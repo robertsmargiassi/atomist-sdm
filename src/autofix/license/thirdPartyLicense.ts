@@ -18,6 +18,7 @@ import {
     GitProject,
     NoParameters,
     Project,
+    spawnAndWatch,
 } from "@atomist/automation-client";
 import {
     allSatisfied,
@@ -25,7 +26,6 @@ import {
     CodeTransform,
     not,
     PushTest,
-    spawnAndWatch,
     StringCapturingProgressLog,
     ToDefaultBranch,
 } from "@atomist/sdm";

@@ -27,7 +27,7 @@ import {
 } from "@atomist/sdm";
 import {
     truncateCommitMessage,
-    updateIssue,
+    github,
 } from "@atomist/sdm-core";
 import {
     bold,
@@ -83,7 +83,7 @@ async function upperCaseTitle(issueOrPr: { title?: string, body?: string, number
             title: _.upperFirst(title),
             body: issueOrPr.body,
         };
-        await updateIssue(credentials, rr, issueOrPr.number, newIssue);
+        await github.updateIssue(credentials, rr, issueOrPr.number, newIssue);
     }
     return Success;
 }
