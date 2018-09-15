@@ -49,7 +49,7 @@ const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPee
         try {
             const pjFile = await p.getFile("package.json");
             const pj = JSON.parse(await pjFile.getContent());
-            let versions = [];
+            let versions: string[] = [];
 
             const message: SlackMessage = {
                 text: `Updating @atomist NPM peer dependencies of ${codeLine(pj.name)}`,

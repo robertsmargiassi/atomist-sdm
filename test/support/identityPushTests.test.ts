@@ -15,7 +15,7 @@
  */
 
 import * as assert from "assert";
-import { isNamed } from "../../src/support/identityPushTests";
+import { isNamed } from "../../lib/support/identityPushTests";
 
 describe("isNamed push test", () => {
 

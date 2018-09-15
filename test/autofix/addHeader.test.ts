@@ -23,7 +23,7 @@ import {
     addHeaderTransform,
     ApacheHeader,
     hasDifferentHeader,
-} from "../../src/autofix/addHeader";
+} from "../../lib/autofix/addHeader";
 
 describe("addHeader", () => {
 

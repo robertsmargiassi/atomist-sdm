@@ -22,7 +22,7 @@ import assert = require("power-assert");
 import {
     npmDockerfileFix,
     updateNpmInstall,
-} from "../../../src/autofix/npm/dockerfileFix";
+} from "../../../lib/autofix/npm/dockerfileFix";
 
 const dockerfile = `FROM ubuntu:17.10
 
@@ -45,7 +45,7 @@ describe("dockerfileFix", () => {
 
             assert(await df.getContent() !== dockerfile);
 
-        }).timeout(1000 * 5);
+        }).timeout(1000 * 10);
 
     });
 

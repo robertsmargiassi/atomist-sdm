@@ -84,7 +84,7 @@ export const AddApacheLicenseTransform: CodeTransformRegistration<AddHeaderParam
 export async function addHeaderTransform(p: Project,
                                          ci: ParametersInvocation<AddHeaderParameters>): Promise<Project> {
 
-    let filesWithDifferentHeaders = [];
+    let filesWithDifferentHeaders: any[] = [];
     await doWithFiles(p, ci.parameters.glob, async f => {
         if (ci.parameters.excludeGlob && minimatch(f.path, ci.parameters.excludeGlob)) {
             return;

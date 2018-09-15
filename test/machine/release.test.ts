@@ -19,7 +19,7 @@ import {
     SdmGoalEvent,
 } from "@atomist/sdm";
 import * as assert from "assert";
-import { releaseOrPreRelease } from "../../src/machine/release";
+import { releaseOrPreRelease } from "../../lib/machine/release";
 
 describe("release", () => {
 
