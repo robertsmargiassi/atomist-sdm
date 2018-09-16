@@ -15,6 +15,7 @@
  */
 
 import {
+    asSpawnCommand,
     GitProject,
     Success,
 } from "@atomist/automation-client";
@@ -30,7 +31,6 @@ import {
 } from "@atomist/sdm-pack-docker";
 import {
     MavenBuilder,
-    MavenIncrementPatchCommand,
     MavenProjectVersioner,
     MavenVersionPreparation,
 } from "@atomist/sdm-pack-spring";
@@ -87,8 +87,9 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     ReleaseVersionGoal.with({
         ...MavenDefaultOptions,
         name: "mvn-release-version",
-        goalExecutor: executeReleaseVersion(MavenProjectIdentifier, MavenIncrementPatchCommand),
-    });
+        goalExecutor: executeReleaseVersion(MavenProjectIdentifier, asSpawnCommand("./mvnw build-helper:parse-version versions:set -DnewVersion=" +
+            "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}" +
+            "-\${parsedVersion.qualifier} versions:commit"))});
 
     PublishGoal.with({
         ...MavenDefaultOptions,
