@@ -43,8 +43,8 @@ export const DockerBuildGoal = new DockerBuild();
 export const FingerprintGoal = new Fingerprint();
 
 export const StagingDeploymentGoal = new KubernetesDeploy({ environment: "testing", approval: true });
-export const ProductionDeploymentGoal = new KubernetesDeploy({ environment: "testing" });
-export const ProductionDeploymentWithApprovalGoal = new KubernetesDeploy({ environment: "testing", approval: true });
+export const ProductionDeploymentGoal = new KubernetesDeploy({ environment: "production" });
+export const ProductionDeploymentWithApprovalGoal = new KubernetesDeploy({ environment: "production", approval: true });
 
 export const PublishGoal = new GoalWithFulfillment({
     uniqueName: "publish",
@@ -174,7 +174,8 @@ export const DockerReleaseGoals = goals("Docker Build with Release")
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = goals("Deploy")
-    .plan(DockerGoals, StagingDeploymentGoal)
+    .plan(DockerGoals)
+    .plan(StagingDeploymentGoal).after(DockerBuildGoal)
     .plan(ProductionDeploymentGoal, ReleaseNpmGoal, ReleaseDockerGoal , ReleaseDocsGoal).after(StagingDeploymentGoal)
     .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
     .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
