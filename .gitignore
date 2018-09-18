@@ -16,3 +16,6 @@ node_modules/
 /doc/
 /log/
 git-info.json
+
+# This is generated in compile:gql
+lib/typings/types.ts

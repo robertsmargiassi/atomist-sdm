@@ -21,6 +21,8 @@ import {
     Success,
 } from "@atomist/automation-client";
 import {
+    PushFields,
+    PushImpactListenerInvocation,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     warning,
@@ -49,29 +51,40 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
 
     // Check case of commit message; they should use upper case too
     sdm.addPushImpactListener(async l => {
-        const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         const commits = l.push.commits.filter(c => !isUpperCase(c.message));
+        const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         if (screenName && commits.length > 0) {
-            const msg = warning(
-                "Commit Message",
-                `Please make sure that your commit messages start with an upper case letter.
-
-The following ${commits.length > 1 ? "commits" : "commit"} in ${bold(`${l.push.repo.owner}/${l.push.repo.name}/${l.push.branch}`)} ${
-                    commits.length > 1 ? "don't" : "doesn't"} follow that standard:
-
-${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.message, l.push.repo)}`).join("\n")}`,
-                l.context, {
-                    footer: `${sdm.configuration.name}:${sdm.configuration.version}`,
-                });
-            await l.context.messageClient.addressUsers(
-                msg,
-                screenName,
-                {
-                    id: `team_policies/commit_messages/${l.push.after.sha}`,
-                });
+            await warnAboutLowercaseCommitTitles(sdm, l, commits, screenName);
         }
         return Success;
     });
+}
+
+async function warnAboutLowercaseCommitTitles(
+    sdm: SoftwareDeliveryMachine,
+    pushImpactListenerInvocation: PushImpactListenerInvocation,
+    commits: PushFields.Commits[],
+    screenName: string) {
+    const msg = warning(
+        "Commit Message",
+        `Please make sure that your commit messages start with an upper case letter.
+
+The following ${commits.length > 1 ? "commits" : "commit"} in ${
+        bold(`${pushImpactListenerInvocation.push.repo.owner}/${
+            pushImpactListenerInvocation.push.repo.name}/${
+            pushImpactListenerInvocation.push.branch}`)} ${
+        commits.length > 1 ? "don't" : "doesn't"} follow that standard:
+
+${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.message, pushImpactListenerInvocation.push.repo)}`).join("\n")}`,
+        pushImpactListenerInvocation.context, {
+            footer: `${sdm.configuration.name}:${sdm.configuration.version}`,
+        });
+    await pushImpactListenerInvocation.context.messageClient.addressUsers(
+        msg,
+        screenName,
+        {
+            id: `team_policies/commit_messages/${pushImpactListenerInvocation.push.after.sha}`,
+        });
 }
 
 async function upperCaseTitle(issueOrPr: { title?: string, body?: string, number?: number },
