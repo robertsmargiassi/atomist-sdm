@@ -37,6 +37,7 @@ import {
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import { fingerprintSupport } from "@atomist/sdm-pack-fingerprints";
+import { IssuesSupport } from "@atomist/sdm-pack-issues";
 import {
     IsAtomistAutomationClient,
     IsNode,
@@ -155,6 +156,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         }),
         GoalState,
         fingerprintSupport(FingerprintGoal),
+        IssuesSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
 
