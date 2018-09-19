@@ -296,7 +296,7 @@ export function executeReleaseNpm(
     if (!options.npmrc) {
         throw new Error(`No npmrc defined in NPM options`);
     }
-    return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
+    return async (gi: GoalInvocation) => {
         const { configuration, credentials, id, context } = gi;
         return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
 
@@ -304,7 +304,7 @@ export function executeReleaseNpm(
 
             for (const preparation of preparations) {
                 const pResult = await preparation(project, gi);
-                if (pResult.code !== 0) {
+                if (pResult && pResult.code !== 0) {
                     return pResult;
                 }
             }
@@ -387,7 +387,7 @@ export function executeReleaseDocker(
     options?: DockerOptions,
 ): ExecuteGoal {
 
-    return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
+    return async (gi: GoalInvocation) => {
         const { configuration, credentials, id, context } = gi;
         if (!options.registry) {
             throw new Error(`No registry defined in Docker options`);
@@ -396,7 +396,7 @@ export function executeReleaseDocker(
 
             for (const preparation of preparations) {
                 const pResult = await preparation(project, gi);
-                if (pResult.code !== 0) {
+                if (pResult && pResult.code !== 0) {
                     return pResult;
                 }
             }
@@ -502,13 +502,13 @@ export function executeReleaseDocs(
     preparations: PrepareForGoalExecution[] = DocsReleasePreparations,
 ): ExecuteGoal {
 
-    return async (gi: GoalInvocation): Promise<ExecuteGoalResult> => {
+    return async (gi: GoalInvocation) => {
         const { configuration, credentials, id, context } = gi;
         return configuration.sdm.projectLoader.doWithProject({ credentials, id, context, readOnly: false }, async (project: GitProject) => {
 
             for (const preparation of preparations) {
                 const pResult = await preparation(project, gi);
-                if (pResult.code !== 0) {
+                if (pResult && pResult.code !== 0) {
                     return pResult;
                 }
             }
