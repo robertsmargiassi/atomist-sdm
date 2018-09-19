@@ -9,7 +9,7 @@ This page details all runtime OSS dependencies of `@atomist/atomist-sdm`.
 | License | Count |
 |---------|-------|
 |[AFLv2.1](#aflv21)|1|
-|[Apache-2.0](#apache-20)|36|
+|[Apache-2.0](#apache-20)|37|
 |[Artistic-2.0](#artistic-20)|4|
 |[BSD-2-Clause](#bsd-2-clause)|19|
 |[BSD-3-Clause](#bsd-3-clause)|29|
@@ -44,6 +44,7 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |`@atomist/sdm-pack-changelog`|`1.0.0-master.20180918212510`|Atomist|[https://github.com/atomist/sdm-pack-changelog](https://github.com/atomist/sdm-pack-changelog)|
 |`@atomist/sdm-pack-docker`|`1.0.0-master.20180919081356`|Atomist|[https://github.com/atomist/sdm-pack-docker](https://github.com/atomist/sdm-pack-docker)|
 |`@atomist/sdm-pack-fingerprints`|`1.0.0-master.20180919053125`|Atomist|[https://github.com/atomist/sdm-pack-fingerprints](https://github.com/atomist/sdm-pack-fingerprints)|
+|`@atomist/sdm-pack-issues`|`0.1.0-master.20180919161816`|Atomist|[https://github.com/atomist/sdm-pack-issues](https://github.com/atomist/sdm-pack-issues)|
 |`@atomist/sdm-pack-k8`|`1.0.0-master.20180916171528`|Atomist|[https://github.com/atomist/sdm-pack-k8](https://github.com/atomist/sdm-pack-k8)|
 |`@atomist/sdm-pack-node`|`1.0.0-master.20180916165427`|Atomist|[https://github.com/atomist/sdm-pack-node](https://github.com/atomist/sdm-pack-node)|
 |`@atomist/sdm-pack-spring`|`1.0.0-master.20180919043421`|Atomist|[https://github.com/atomist/sdm-pack-spring](https://github.com/atomist/sdm-pack-spring)|
