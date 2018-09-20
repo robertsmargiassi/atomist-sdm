@@ -30,8 +30,8 @@ import {
     createSoftwareDeliveryMachine,
     DisableDeploy,
     EnableDeploy,
-    GoalState,
     IsInLocalMode,
+    pack,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
@@ -48,7 +48,6 @@ import {
 } from "@atomist/sdm-pack-spring";
 import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
-import { buildAwareCodeTransforms } from "@atomist/sdm/lib/pack/build-aware-transform";
 import { NoGoals } from "@atomist/sdm/lib/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";
 import { CreateTag } from "../command/tag";
@@ -148,13 +147,13 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addExtensionPacks(
         changelogSupport(ReleaseChangelogGoal),
         BadgeSupport,
-        buildAwareCodeTransforms({
+        pack.buildAware.buildAwareCodeTransforms({
             issueRouter: {
                 raiseIssue: async () => { /* intentionally left empty */
                 },
             },
         }),
-        GoalState,
+        pack.goalState.GoalState,
         fingerprintSupport(FingerprintGoal),
         IssueSupport,
     );
