@@ -30,13 +30,13 @@ import {
     DockerOptions,
 } from "@atomist/sdm-pack-docker";
 import {
+    IsMaven,
     MavenBuilder,
+    MavenProjectIdentifier,
     MavenProjectVersioner,
     MavenVersionPreparation,
 } from "@atomist/sdm-pack-spring";
 import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
-import { MavenProjectIdentifier } from "@atomist/sdm-pack-spring/lib/maven/parse/pomParser";
-import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
 import {
     BuildGoal,
     DockerBuildGoal,

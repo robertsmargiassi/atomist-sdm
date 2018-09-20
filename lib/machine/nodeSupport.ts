@@ -38,7 +38,7 @@ import {
     NpmProgressReporter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
-import { IsMaven } from "@atomist/sdm-pack-spring/lib/maven/pushTests";
+import { IsMaven } from "@atomist/sdm-pack-spring";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";

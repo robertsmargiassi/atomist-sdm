@@ -30,7 +30,7 @@ import {
     GitProject,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
-import { DryRunMessage } from "@atomist/sdm/lib/pack/build-aware-transform/support/makeBuildAware";
+import { pack } from "@atomist/sdm-core";
 import {
     codeLine,
     SlackMessage,
@@ -122,7 +122,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
 ${versions.join("\n")}
 
-${DryRunMessage} ${AutoMergeCheckSuccessTag}`;
+${pack.buildAware.BuildAwareMarker} ${AutoMergeCheckSuccessTag}`;
 
         return p;
     };
