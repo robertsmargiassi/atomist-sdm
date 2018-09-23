@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import { GitHubRepoRef } from "@atomist/automation-client";
+import {
+    GitHubRepoRef,
+    spawnAndWatch,
+    SuccessIsReturn0ErrorFinder,
+} from "@atomist/automation-client";
 import {
     allSatisfied,
+    GoalProjectHook,
+    GoalProjectHookPhase,
     hasFile,
     LogSuppressor,
     not,
@@ -38,7 +44,12 @@ import {
     NpmProgressReporter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
+import {
+    npmCompilePreparation,
+    npmVersionPreparation,
+} from "@atomist/sdm-pack-node/lib/build/npmBuilder";
 import { IsMaven } from "@atomist/sdm-pack-spring";
+import * as fs from "fs-extra";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
@@ -100,51 +111,50 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(tslintFix)
         .with(TypeScriptImports)
         .with(AddThirdPartyLicense)
-        .with(npmDockerfileFix("npm", "@atomist/cli"));
+        .with(npmDockerfileFix("npm", "@atomist/cli"))
+        .withProjectHook(NodeModulesProjectHook);
 
     BuildGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-ci-npm-run-build",
-        builder: nodeBuilder(sdm, "npm ci", "npm run build"),
-        pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
-    })
-        .with({
             ...NodeDefaultOptions,
-            name: "npm-i-npm-run-build",
-            builder: nodeBuilder(sdm, "npm i", "npm run build"),
-            pushTest: allSatisfied(NodeDefaultOptions.pushTest, not(hasPackageLock)),
-        });
+            name: "npm-run-build",
+            builder: nodeBuilder(sdm,"npm run build"),
+            pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
+        })
+        .withProjectHook(NodeModulesProjectHook);
 
     PublishGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-publish",
-        goalExecutor: executePublish(
-            NodeProjectIdentifier,
-            NpmPreparations,
-            sdm.configuration.sdm.npm as NpmOptions,
-        ),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-publish",
+            goalExecutor: executePublish(
+                NodeProjectIdentifier,
+                [npmVersionPreparation, npmCompilePreparation],
+                sdm.configuration.sdm.npm as NpmOptions,
+            ),
+        })
+        .withProjectHook(NodeModulesProjectHook);
 
     PublishWithApprovalGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-publish",
-        goalExecutor: executePublish(
-            NodeProjectIdentifier,
-            NpmPreparations,
-            sdm.configuration.sdm.npm as NpmOptions,
-        ),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-publish",
+            goalExecutor: executePublish(
+                NodeProjectIdentifier,
+                [npmVersionPreparation, npmCompilePreparation],
+                sdm.configuration.sdm.npm as NpmOptions,
+            ),
+        })
+        .withProjectHook(NodeModulesProjectHook);;
 
     DockerBuildGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-docker-build",
-        preparations: NpmPreparations,
-        imageNameCreator: DefaultDockerImageNameCreator,
-        options: {
-            ...sdm.configuration.sdm.docker.hub as DockerOptions,
-            push: true,
-        },
-    });
+            ...NodeDefaultOptions,
+            name: "npm-docker-build",
+            preparations: NpmPreparations,
+            imageNameCreator: DefaultDockerImageNameCreator,
+            options: {
+                ...sdm.configuration.sdm.docker.hub as DockerOptions,
+                push: true,
+            },
+        })
+        .withProjectHook(NodeModulesProjectHook);
 
     ReleaseNpmGoal.with({
         ...NodeDefaultOptions,
@@ -197,3 +207,96 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
     return sdm;
 }
+
+const NodeModulesProjectHook: GoalProjectHook = async (p, gi, phase) => {
+    // Check if project has a package.json
+    if (!(await p.hasFile("package.json"))) {
+        return;
+    }
+
+    if (phase === GoalProjectHookPhase.pre) {
+        // If project already has a node_modules dir there is nothing left to do
+        if (await p.hasDirectory("node_modules")) {
+            return;
+        }
+        // Check cache for a previously cached node_modules cache archive
+        const cacheFileName = `/opt/data/${gi.sdmGoal.goalSetId}-node_modules.tar.gz`;
+        let requiresInstall = true;
+        let installed = false;
+
+        if (await fs.pathExists(cacheFileName)) {
+            const result = await spawnAndWatch(
+                {
+                    command: "tar",
+                    args: ["-xf", cacheFileName],
+                },
+                {
+                    cwd: p.baseDir,
+                },
+                gi.progressLog,
+                {
+                    errorFinder: SuccessIsReturn0ErrorFinder,
+                });
+            requiresInstall = result.code !== 0;
+        }
+
+        if (requiresInstall) {
+            let result;
+            if (await p.hasFile("package-lock.json")) {
+                result = await spawnAndWatch(
+                    {
+                        command: "npm",
+                        args: ["ci"],
+                    },
+                    {
+                        cwd: p.baseDir,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
+                    },
+                    gi.progressLog,
+                    {
+                        errorFinder: SuccessIsReturn0ErrorFinder,
+                    });
+            } else {
+                result = await spawnAndWatch(
+                    {
+                        command: "npm",
+                        args: ["install"],
+                    },
+                    {
+                        cwd: p.baseDir,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
+                    },
+                    gi.progressLog,
+                    {
+                        errorFinder: SuccessIsReturn0ErrorFinder,
+                    });
+            }
+            installed = result.code === 0;
+        }
+        // Cache the node_modules folder
+        if (installed) {
+            const tempCacheFileName = `${cacheFileName}.${process.pid}`;
+            const result = await spawnAndWatch(
+                {
+                    command: "tar",
+                    args: ["-zcf", tempCacheFileName, "node_modules"],
+                },
+                {
+                    cwd: p.baseDir,
+                },
+                gi.progressLog,
+                {
+                    errorFinder: SuccessIsReturn0ErrorFinder,
+                });
+            if (result.code === 0) {
+                await fs.move(tempCacheFileName, cacheFileName, { overwrite: true });
+            }
+        }
+    }
+};

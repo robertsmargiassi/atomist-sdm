@@ -24,7 +24,7 @@ describe("thirdPartyLicense", () => {
 
     it("should create license file", () => {
         let fc: string;
-        return addThirdPartyLicenseTransform(false)({
+        return addThirdPartyLicenseTransform()({
             baseDir: appRoot.path,
             addFile: (name: string, content: string) => { fc = content; },
             getFile: (name: string) => {
