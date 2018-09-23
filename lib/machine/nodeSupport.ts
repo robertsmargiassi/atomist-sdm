@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-import { GitHubRepoRef } from "@atomist/automation-client";
+import {
+    GitHubRepoRef,
+    spawnAndWatch,
+    SuccessIsReturn0ErrorFinder,
+} from "@atomist/automation-client";
 import {
     allSatisfied,
+    GoalProjectListener,
+    GoalProjectListenerEvent,
+    GoalProjectListenerRegistration,
     hasFile,
     LogSuppressor,
     not,
@@ -42,6 +49,7 @@ import {
     npmVersionPreparation,
 } from "@atomist/sdm-pack-node/lib/build/npmBuilder";
 import { IsMaven } from "@atomist/sdm-pack-spring";
+import * as fs from "fs-extra";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
@@ -105,15 +113,26 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(TypeScriptImports)
         .with(AddThirdPartyLicense)
         .with(npmDockerfileFix("npm", "@atomist/cli"))
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+>>>>>>> Move to code level project hooks
 
     BuildGoal.with({
             ...NodeDefaultOptions,
             name: "npm-run-build",
+<<<<<<< HEAD
             builder: nodeBuilder(sdm, "npm run build"),
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
         .withProjectHook(NodeModulesProjectHook);
+=======
+            builder: nodeBuilder(sdm,"npm run build"),
+            pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
+        })
+        .withProjectListener(CachingNodeModulesProjectListener);
+>>>>>>> Move to code level project hooks
 
     PublishGoal.with({
             ...NodeDefaultOptions,
@@ -124,7 +143,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+>>>>>>> Move to code level project hooks
 
     PublishWithApprovalGoal.with({
             ...NodeDefaultOptions,
@@ -135,7 +158,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);;
+>>>>>>> Move to code level project hooks
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
@@ -147,7 +174,11 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 push: true,
             },
         })
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+>>>>>>> Move to code level project hooks
 
     ReleaseNpmGoal.with({
             ...NodeDefaultOptions,
@@ -199,4 +230,103 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addCodeTransformCommand(RewriteImports);
 
     return sdm;
+}
+
+const NodeModulesProjectListener: GoalProjectListener = async (p, gi, phase) => {
+    // Check if project has a package.json
+    if (!(await p.hasFile("package.json"))) {
+        return;
+    }
+
+    if (phase === GoalProjectListenerEvent.before_action) {
+        // If project already has a node_modules dir there is nothing left to do
+        if (await p.hasDirectory("node_modules")) {
+            return;
+        }
+        // Check cache for a previously cached node_modules cache archive
+        const cacheFileName = `/opt/data/${gi.sdmGoal.goalSetId}-node_modules.tar.gz`;
+        let requiresInstall = true;
+        let installed = false;
+
+        if (await fs.pathExists(cacheFileName)) {
+            const result = await spawnAndWatch(
+                {
+                    command: "tar",
+                    args: ["-xf", cacheFileName],
+                },
+                {
+                    cwd: p.baseDir,
+                },
+                gi.progressLog,
+                {
+                    errorFinder: SuccessIsReturn0ErrorFinder,
+                });
+            requiresInstall = result.code !== 0;
+        }
+
+        if (requiresInstall) {
+            let result;
+            if (await p.hasFile("package-lock.json")) {
+                result = await spawnAndWatch(
+                    {
+                        command: "npm",
+                        args: ["ci"],
+                    },
+                    {
+                        cwd: p.baseDir,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
+                    },
+                    gi.progressLog,
+                    {
+                        errorFinder: SuccessIsReturn0ErrorFinder,
+                    });
+            } else {
+                result = await spawnAndWatch(
+                    {
+                        command: "npm",
+                        args: ["install"],
+                    },
+                    {
+                        cwd: p.baseDir,
+                        env: {
+                            ...process.env,
+                            NODE_ENV: "development",
+                        },
+                    },
+                    gi.progressLog,
+                    {
+                        errorFinder: SuccessIsReturn0ErrorFinder,
+                    });
+            }
+            installed = result.code === 0;
+        }
+        // Cache the node_modules folder
+        if (installed) {
+            const tempCacheFileName = `${cacheFileName}.${process.pid}`;
+            const result = await spawnAndWatch(
+                {
+                    command: "tar",
+                    args: ["-zcf", tempCacheFileName, "node_modules"],
+                },
+                {
+                    cwd: p.baseDir,
+                },
+                gi.progressLog,
+                {
+                    errorFinder: SuccessIsReturn0ErrorFinder,
+                });
+            if (result.code === 0) {
+                await fs.move(tempCacheFileName, cacheFileName, { overwrite: true });
+            }
+        }
+    }
+};
+
+const CachingNodeModulesProjectListener: GoalProjectListenerRegistration = {
+    name: "npm install",
+    pushTest: IsNode,
+    listener: NodeModulesProjectListener,
 }
