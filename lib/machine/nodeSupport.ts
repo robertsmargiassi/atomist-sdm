@@ -117,7 +117,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     BuildGoal.with({
             ...NodeDefaultOptions,
             name: "npm-run-build",
-            builder: nodeBuilder(sdm,"npm run build"),
+            builder: nodeBuilder(sdm, "npm run build"),
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
         .withProjectHook(NodeModulesProjectHook);
@@ -142,7 +142,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
-        .withProjectHook(NodeModulesProjectHook);;
+        .withProjectHook(NodeModulesProjectHook);
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
