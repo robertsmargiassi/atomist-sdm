@@ -123,12 +123,16 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ...NodeDefaultOptions,
             name: "npm-run-build",
 <<<<<<< HEAD
+<<<<<<< HEAD
             builder: nodeBuilder(sdm, "npm run build"),
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
         .withProjectHook(NodeModulesProjectHook);
 =======
             builder: nodeBuilder(sdm,"npm run build"),
+=======
+            builder: nodeBuilder(sdm, "npm run build"),
+>>>>>>> Autofix: tslint
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
         .withProjectListener(CachingNodeModulesProjectListener);
@@ -159,10 +163,17 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ),
         })
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);;
 >>>>>>> Move to code level project hooks
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);;
+=======
+        .withProjectHook(NodeModulesProjectHook);
+>>>>>>> Autofix: tslint
+>>>>>>> Autofix: tslint
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
@@ -324,9 +335,12 @@ const NodeModulesProjectListener: GoalProjectListener = async (p, gi, phase) => 
         }
     }
 };
+<<<<<<< HEAD
 
 const CachingNodeModulesProjectListener: GoalProjectListenerRegistration = {
     name: "npm install",
     pushTest: IsNode,
     listener: NodeModulesProjectListener,
 }
+=======
+>>>>>>> Autofix: tslint
