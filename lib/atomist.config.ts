@@ -53,5 +53,9 @@ export const configuration: Configuration = {
         k8: {
             environment: "test",
         },
+        cache: {
+            enabled: true,
+            path: "/opt/data",
+        },
     },
 };
