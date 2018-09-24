@@ -51,6 +51,7 @@ RUN npm config set loglevel silly
 # Install app dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
+RUN npm cache clean -f
 
 # Bundle app source
 COPY . .
