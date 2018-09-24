@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import {
-    GitHubRepoRef,
-    spawnAndWatch,
-    SuccessIsReturn0ErrorFinder,
-} from "@atomist/automation-client";
+import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
+<<<<<<< HEAD
     GoalProjectListener,
     GoalProjectListenerEvent,
     GoalProjectListenerRegistration,
+=======
+>>>>>>> Extract caching of node_modules
     hasFile,
     LogSuppressor,
     not,
@@ -49,7 +48,6 @@ import {
     npmVersionPreparation,
 } from "@atomist/sdm-pack-node/lib/build/npmBuilder";
 import { IsMaven } from "@atomist/sdm-pack-spring";
-import * as fs from "fs-extra";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
@@ -242,6 +240,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
     return sdm;
 }
+<<<<<<< HEAD
 
 const NodeModulesProjectListener: GoalProjectListener = async (p, gi, phase) => {
     // Check if project has a package.json
@@ -344,3 +343,5 @@ const CachingNodeModulesProjectListener: GoalProjectListenerRegistration = {
 }
 =======
 >>>>>>> Autofix: tslint
+=======
+>>>>>>> Extract caching of node_modules
