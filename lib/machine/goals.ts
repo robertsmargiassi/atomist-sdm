@@ -136,9 +136,7 @@ export const CheckGoals = goals("Check")
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
-    .plan(DockerBuildGoal).after(BuildGoal)
-    .plan(StagingDeploymentGoal).after(DockerBuildGoal);
+    .plan(BuildGoal).after(AutofixGoal, VersionGoal);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")

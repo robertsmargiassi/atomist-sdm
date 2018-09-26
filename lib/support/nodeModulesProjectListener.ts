@@ -26,21 +26,26 @@ import {
 import {
     ExecuteGoalResult,
     GoalInvocation,
-    GoalProjectHook,
-    GoalProjectHookPhase,
+    GoalProjectListenerEvent,
+    GoalProjectListenerRegistration,
 } from "@atomist/sdm";
+import { IsNode } from "@atomist/sdm-pack-node";
 import * as fs from "fs-extra";
 import * as _ from "lodash";
 
-export const NodeModulesProjectHook: GoalProjectHook = async (p, gi, phase) => {
-    // Check if project has a package.json
-    if (!(await p.hasFile("package.json"))) {
-        return;
-    }
+export const NodeModulesProjectListener: GoalProjectListenerRegistration = {
+    name: "npm install",
+    listener: async (p, gi, phase) => {
+        // Check if project has a package.json
+        if (!(await p.hasFile("package.json"))) {
+            return;
+        }
 
-    if (phase === GoalProjectHookPhase.pre) {
-        return cacheNodeModules(p, gi);
-    }
+        if (phase === GoalProjectListenerEvent.before_action) {
+            return cacheNodeModules(p, gi);
+        }
+    },
+    pushTest: IsNode,
 };
 
 async function cacheNodeModules(p: GitProject, gi: GoalInvocation): Promise<void | ExecuteGoalResult> {

@@ -53,7 +53,7 @@ import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
-import { NodeModulesProjectHook } from "../support/nodeModulesProjectHook";
+import { NodeModulesProjectListener } from "../support/nodeModulesProjectListener";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -112,10 +112,17 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(AddThirdPartyLicense)
         .with(npmDockerfileFix("npm", "@atomist/cli"))
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
 >>>>>>> Move to code level project hooks
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
+>>>>>>> Update
 
     BuildGoal.with({
             ...NodeDefaultOptions,
@@ -133,8 +140,15 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 >>>>>>> Autofix: tslint
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
+<<<<<<< HEAD
         .withProjectListener(CachingNodeModulesProjectListener);
+<<<<<<< HEAD
 >>>>>>> Move to code level project hooks
+=======
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
+>>>>>>> Update
 
     PublishGoal.with({
             ...NodeDefaultOptions,
@@ -146,10 +160,17 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ),
         })
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
 >>>>>>> Move to code level project hooks
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
+>>>>>>> Update
 
     PublishWithApprovalGoal.with({
             ...NodeDefaultOptions,
@@ -162,16 +183,25 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         })
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);;
 >>>>>>> Move to code level project hooks
 =======
+=======
+>>>>>>> Update
         .withProjectListener(CachingNodeModulesProjectListener);;
 =======
         .withProjectHook(NodeModulesProjectHook);
 >>>>>>> Autofix: tslint
+<<<<<<< HEAD
 >>>>>>> Autofix: tslint
+=======
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
+>>>>>>> Update
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
@@ -184,10 +214,17 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             },
         })
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
 >>>>>>> Move to code level project hooks
+=======
+        .withProjectListener(CachingNodeModulesProjectListener);
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
+>>>>>>> Update
 
     ReleaseNpmGoal.with({
             ...NodeDefaultOptions,
