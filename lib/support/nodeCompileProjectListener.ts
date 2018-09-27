@@ -29,5 +29,5 @@ export const NodeCompileProjectListener: GoalProjectListenerRegistration = {
         if (GoalProjectListenerEvent.before_action === event) {
             return npmCompilePreparation(p, r);
         }
-    }
-}
+    },
+};
