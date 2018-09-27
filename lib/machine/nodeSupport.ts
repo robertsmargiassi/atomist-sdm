@@ -47,7 +47,9 @@ import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
+import { NodeCompileProjectListener } from "../support/nodeCompileProjectListener";
 import { NodeModulesProjectListener } from "../support/nodeModulesProjectListener";
+import { NodeVersionProjectListener } from "../support/nodeVersionProjectListener";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -120,34 +122,39 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             name: "npm-publish",
             goalExecutor: executePublish(
                 NodeProjectIdentifier,
-                [npmVersionPreparation, npmCompilePreparation],
+                [],
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
-        .withProjectListener(NodeModulesProjectListener);
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     PublishWithApprovalGoal.with({
             ...NodeDefaultOptions,
             name: "npm-publish",
             goalExecutor: executePublish(
                 NodeProjectIdentifier,
-                [npmVersionPreparation, npmCompilePreparation],
+                [],
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
-        .withProjectListener(NodeModulesProjectListener);
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
             name: "npm-docker-build",
-            preparations: [npmVersionPreparation, npmCompilePreparation],
             imageNameCreator: DefaultDockerImageNameCreator,
             options: {
                 ...sdm.configuration.sdm.docker.hub as DockerOptions,
                 push: true,
             },
         })
-        .withProjectListener(NodeModulesProjectListener);
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     ReleaseNpmGoal.with({
             ...NodeDefaultOptions,
