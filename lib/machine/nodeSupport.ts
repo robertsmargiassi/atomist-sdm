@@ -17,7 +17,6 @@
 import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
-    hasFile,
     LogSuppressor,
     not,
     SoftwareDeliveryMachine,
@@ -37,10 +36,6 @@ import {
     NpmProgressReporter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
-import {
-    npmCompilePreparation,
-    npmVersionPreparation,
-} from "@atomist/sdm-pack-node/lib/build/npmBuilder";
 import { IsMaven } from "@atomist/sdm-pack-spring";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
@@ -94,7 +89,6 @@ const NodeDefaultOptions = {
  * @return modified software delivery machine
  */
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
-    const hasPackageLock = hasFile("package-lock.json");
 
     VersionGoal.with({
         ...NodeDefaultOptions,
@@ -113,9 +107,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ...NodeDefaultOptions,
             name: "npm-run-build",
             builder: nodeBuilder(sdm, "npm run build"),
-            pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
+            pushTest: NodeDefaultOptions.pushTest,
         })
-        .withProjectListener(NodeModulesProjectListener);
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener);
 
     PublishGoal.with({
             ...NodeDefaultOptions,

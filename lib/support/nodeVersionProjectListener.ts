@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * Copyright © 2018 Atomist, Inc.
  *
@@ -14,12 +15,20 @@
  * limitations under the License.
  */
 
-import { GoalProjectListenerRegistration } from "@atomist/sdm";
+import {
+    ExecuteGoalResult,
+    GoalProjectListenerEvent,
+    GoalProjectListenerRegistration,
+} from "@atomist/sdm";
 import { IsNode } from "@atomist/sdm-pack-node";
 import { npmVersionPreparation } from "@atomist/sdm-pack-node/lib/build/npmBuilder";
 
 export const NodeVersionProjectListener: GoalProjectListenerRegistration = {
     name: "npm version",
     pushTest: IsNode,
-    listener: npmVersionPreparation,
+    listener: async (p, r, event): Promise<void | ExecuteGoalResult> => {
+        if (GoalProjectListenerEvent.before_action === event) {
+            return npmVersionPreparation(p, r);
+        }
+    },
 };
