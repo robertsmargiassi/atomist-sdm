@@ -22,4 +22,4 @@ export const NodeCompileProjectListener: GoalProjectListenerRegistration = {
     name: "npm compile",
     pushTest: IsNode,
     listener: npmCompilePreparation,
-}
+};

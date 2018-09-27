@@ -22,4 +22,4 @@ export const NodeVersionProjectListener: GoalProjectListenerRegistration = {
     name: "npm version",
     pushTest: IsNode,
     listener: npmVersionPreparation,
-}
+};
