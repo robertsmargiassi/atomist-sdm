@@ -24,6 +24,7 @@
   "dependencies": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@atomist/automation-client": "1.0.0-master.20180918193639",
     "@atomist/automation-client-ext-dashboard": "1.0.0-master.20180916133155",
     "@atomist/automation-client-ext-logzio": "1.0.0-master.20180916133209",
@@ -41,6 +42,8 @@
 =======
 =======
 >>>>>>> Extract caching of node_modules
+=======
+>>>>>>> Update
     "@atomist/automation-client": "1.0.0-M.5",
     "@atomist/automation-client-ext-dashboard": "1.0.0-M.5",
     "@atomist/automation-client-ext-logzio": "1.0.0-M.5",
@@ -55,6 +58,7 @@
     "@atomist/sdm-pack-node": "1.0.0-M.5",
     "@atomist/sdm-pack-spring": "1.0.0-M.5",
     "@atomist/slack-messages": "1.0.0",
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> Update to latest dependencies
 =======
@@ -75,6 +79,8 @@
     "@atomist/slack-messages": "1.0.1-master.20180830190736",
 >>>>>>> Extract caching of node_modules
 >>>>>>> Extract caching of node_modules
+=======
+>>>>>>> Update
     "fs-extra": "^7.0.0",
     "license-checker": "^20.2.0",
     "lodash": "^4.17.10",

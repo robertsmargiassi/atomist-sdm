@@ -17,12 +17,6 @@
 import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
-<<<<<<< HEAD
-    GoalProjectListener,
-    GoalProjectListenerEvent,
-    GoalProjectListenerRegistration,
-=======
->>>>>>> Extract caching of node_modules
     hasFile,
     LogSuppressor,
     not,
@@ -113,6 +107,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(npmDockerfileFix("npm", "@atomist/cli"))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
@@ -123,6 +118,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
 >>>>>>> Update
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
 
     BuildGoal.with({
             ...NodeDefaultOptions,
@@ -132,6 +130,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             builder: nodeBuilder(sdm, "npm run build"),
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
             builder: nodeBuilder(sdm,"npm run build"),
@@ -149,6 +148,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
 >>>>>>> Update
+=======
+        .withProjectListener(NodeModulesProjectListener);
+>>>>>>> Update
 
     PublishGoal.with({
             ...NodeDefaultOptions,
@@ -161,6 +163,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         })
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
@@ -170,6 +173,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 =======
         .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
+>>>>>>> Update
+=======
+        .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
 
     PublishWithApprovalGoal.with({
@@ -184,6 +190,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);;
@@ -201,6 +208,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 =======
         .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
+>>>>>>> Update
+=======
+        .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
 
     DockerBuildGoal.with({
@@ -215,6 +225,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         })
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         .withProjectHook(NodeModulesProjectHook);
 =======
         .withProjectListener(CachingNodeModulesProjectListener);
@@ -224,6 +235,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 =======
         .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
+>>>>>>> Update
+=======
+        .withProjectListener(NodeModulesProjectListener);
 >>>>>>> Update
 
     ReleaseNpmGoal.with({
@@ -277,108 +291,3 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
     return sdm;
 }
-<<<<<<< HEAD
-
-const NodeModulesProjectListener: GoalProjectListener = async (p, gi, phase) => {
-    // Check if project has a package.json
-    if (!(await p.hasFile("package.json"))) {
-        return;
-    }
-
-    if (phase === GoalProjectListenerEvent.before_action) {
-        // If project already has a node_modules dir there is nothing left to do
-        if (await p.hasDirectory("node_modules")) {
-            return;
-        }
-        // Check cache for a previously cached node_modules cache archive
-        const cacheFileName = `/opt/data/${gi.sdmGoal.goalSetId}-node_modules.tar.gz`;
-        let requiresInstall = true;
-        let installed = false;
-
-        if (await fs.pathExists(cacheFileName)) {
-            const result = await spawnAndWatch(
-                {
-                    command: "tar",
-                    args: ["-xf", cacheFileName],
-                },
-                {
-                    cwd: p.baseDir,
-                },
-                gi.progressLog,
-                {
-                    errorFinder: SuccessIsReturn0ErrorFinder,
-                });
-            requiresInstall = result.code !== 0;
-        }
-
-        if (requiresInstall) {
-            let result;
-            if (await p.hasFile("package-lock.json")) {
-                result = await spawnAndWatch(
-                    {
-                        command: "npm",
-                        args: ["ci"],
-                    },
-                    {
-                        cwd: p.baseDir,
-                        env: {
-                            ...process.env,
-                            NODE_ENV: "development",
-                        },
-                    },
-                    gi.progressLog,
-                    {
-                        errorFinder: SuccessIsReturn0ErrorFinder,
-                    });
-            } else {
-                result = await spawnAndWatch(
-                    {
-                        command: "npm",
-                        args: ["install"],
-                    },
-                    {
-                        cwd: p.baseDir,
-                        env: {
-                            ...process.env,
-                            NODE_ENV: "development",
-                        },
-                    },
-                    gi.progressLog,
-                    {
-                        errorFinder: SuccessIsReturn0ErrorFinder,
-                    });
-            }
-            installed = result.code === 0;
-        }
-        // Cache the node_modules folder
-        if (installed) {
-            const tempCacheFileName = `${cacheFileName}.${process.pid}`;
-            const result = await spawnAndWatch(
-                {
-                    command: "tar",
-                    args: ["-zcf", tempCacheFileName, "node_modules"],
-                },
-                {
-                    cwd: p.baseDir,
-                },
-                gi.progressLog,
-                {
-                    errorFinder: SuccessIsReturn0ErrorFinder,
-                });
-            if (result.code === 0) {
-                await fs.move(tempCacheFileName, cacheFileName, { overwrite: true });
-            }
-        }
-    }
-};
-<<<<<<< HEAD
-
-const CachingNodeModulesProjectListener: GoalProjectListenerRegistration = {
-    name: "npm install",
-    pushTest: IsNode,
-    listener: NodeModulesProjectListener,
-}
-=======
->>>>>>> Autofix: tslint
-=======
->>>>>>> Extract caching of node_modules
