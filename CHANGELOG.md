@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 -   Update src to lib in dependencies. [#54](https://github.com/atomist/atomist-sdm/issues/54)
+-   Move to projectListeners for nom install, version and compile. [#65](https://github.com/atomist/atomist-sdm/issues/65)
 
 ## [0.2.0](https://github.com/atomist/atomist-sdm/compare/0.1.5...0.2.0) - 2018-09-11
 
