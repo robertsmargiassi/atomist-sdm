@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * Copyright © 2018 Atomist, Inc.
  *
