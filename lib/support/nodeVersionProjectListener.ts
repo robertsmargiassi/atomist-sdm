@@ -26,7 +26,7 @@ export const NodeVersionProjectListener: GoalProjectListenerRegistration = {
     name: "npm version",
     pushTest: IsNode,
     listener: async (p, r, event): Promise<void | ExecuteGoalResult> => {
-        if (GoalProjectListenerEvent.before_action === event) {
+        if (GoalProjectListenerEvent.before === event) {
             return npmVersionPreparation(p, r);
         }
     },

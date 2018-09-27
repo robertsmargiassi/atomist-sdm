@@ -109,8 +109,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             builder: nodeBuilder(sdm, "npm run build"),
             pushTest: NodeDefaultOptions.pushTest,
         })
-        .withProjectListener(NodeModulesProjectListener)
-        .withProjectListener(NodeVersionProjectListener);
+        .withProjectListener(NodeModulesProjectListener);
 
     PublishGoal.with({
             ...NodeDefaultOptions,

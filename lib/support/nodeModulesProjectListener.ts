@@ -38,7 +38,7 @@ export const NodeModulesProjectListener: GoalProjectListenerRegistration = {
             return;
         }
 
-        if (phase === GoalProjectListenerEvent.before_action) {
+        if (phase === GoalProjectListenerEvent.before) {
             return cacheNodeModules(p, gi);
         }
     },
