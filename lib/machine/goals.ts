@@ -138,10 +138,6 @@ export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
     .plan(BuildGoal).after(AutofixGoal, VersionGoal);
 
-// Local goals for SDM local
-export const LocalGoals = goals("Local")
-    .plan(CheckGoals, BuildGoal);
-
 // Just running the build and publish
 export const BuildGoals = goals("Build")
     .plan(CheckGoals)

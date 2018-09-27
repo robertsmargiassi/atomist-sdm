@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * Copyright © 2018 Atomist, Inc.
  *
@@ -15,8 +14,6 @@
  * limitations under the License.
  */
 
-=======
->>>>>>> Extract caching of node_modules
 import {
     ChildProcessResult,
     GitProject,

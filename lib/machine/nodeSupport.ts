@@ -105,52 +105,15 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(TypeScriptImports)
         .with(AddThirdPartyLicense)
         .with(npmDockerfileFix("npm", "@atomist/cli"))
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        .withProjectHook(NodeModulesProjectHook);
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
->>>>>>> Move to code level project hooks
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
-=======
         .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
->>>>>>> Update
-=======
-        .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
 
     BuildGoal.with({
             ...NodeDefaultOptions,
             name: "npm-run-build",
-<<<<<<< HEAD
-<<<<<<< HEAD
             builder: nodeBuilder(sdm, "npm run build"),
             pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
         })
-<<<<<<< HEAD
-        .withProjectHook(NodeModulesProjectHook);
-=======
-            builder: nodeBuilder(sdm,"npm run build"),
-=======
-            builder: nodeBuilder(sdm, "npm run build"),
->>>>>>> Autofix: tslint
-            pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
-        })
-<<<<<<< HEAD
-        .withProjectListener(CachingNodeModulesProjectListener);
-<<<<<<< HEAD
->>>>>>> Move to code level project hooks
-=======
-=======
         .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
->>>>>>> Update
-=======
-        .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
 
     PublishGoal.with({
             ...NodeDefaultOptions,
@@ -161,22 +124,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        .withProjectHook(NodeModulesProjectHook);
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
->>>>>>> Move to code level project hooks
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
-=======
         .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
->>>>>>> Update
-=======
-        .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
 
     PublishWithApprovalGoal.with({
             ...NodeDefaultOptions,
@@ -187,31 +135,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        .withProjectHook(NodeModulesProjectHook);
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);;
->>>>>>> Move to code level project hooks
-=======
-=======
->>>>>>> Update
-        .withProjectListener(CachingNodeModulesProjectListener);;
-=======
-        .withProjectHook(NodeModulesProjectHook);
->>>>>>> Autofix: tslint
-<<<<<<< HEAD
->>>>>>> Autofix: tslint
-=======
-=======
         .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
->>>>>>> Update
-=======
-        .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
 
     DockerBuildGoal.with({
             ...NodeDefaultOptions,
@@ -223,22 +147,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 push: true,
             },
         })
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        .withProjectHook(NodeModulesProjectHook);
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
->>>>>>> Move to code level project hooks
-=======
-        .withProjectListener(CachingNodeModulesProjectListener);
-=======
         .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
->>>>>>> Update
-=======
-        .withProjectListener(NodeModulesProjectListener);
->>>>>>> Update
 
     ReleaseNpmGoal.with({
             ...NodeDefaultOptions,
