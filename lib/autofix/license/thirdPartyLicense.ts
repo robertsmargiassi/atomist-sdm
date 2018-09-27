@@ -18,7 +18,6 @@ import {
     GitProject,
     NoParameters,
     Project,
-    spawnAndWatch,
 } from "@atomist/automation-client";
 import {
     allSatisfied,
@@ -26,7 +25,6 @@ import {
     CodeTransform,
     not,
     PushTest,
-    StringCapturingProgressLog,
     ToDefaultBranch,
 } from "@atomist/sdm";
 import { IsInLocalMode } from "@atomist/sdm-core";
@@ -57,36 +55,13 @@ export function addThirdPartyLicense(pushTest: PushTest): AutofixRegistration {
     return {
         name: "Third party licenses",
         pushTest,
-        transform: addThirdPartyLicenseTransform(true),
+        transform: addThirdPartyLicenseTransform(),
     };
 }
 
-export function addThirdPartyLicenseTransform(runInstall: boolean = true): CodeTransform<NoParameters> {
+export function addThirdPartyLicenseTransform(): CodeTransform<NoParameters> {
     return async p => {
         const cwd = (p as GitProject).baseDir;
-        const hasPackageLock = p.getFile("package-lock.json");
-
-        if (runInstall) {
-            const result = await
-                spawnAndWatch({
-                        command: "npm",
-                        args: [(hasPackageLock ? "ci" : "i")],
-                    },
-                    {
-                        cwd,
-                        env: {
-                            ...process.env,
-                            NODE_ENV: "development",
-                        },
-                    },
-                    new StringCapturingProgressLog(),
-                    {},
-                );
-
-            if (result.code !== 0) {
-                return p;
-            }
-        }
 
         const pj = JSON.parse((await fs.readFile(path.join(cwd, "package.json"))).toString());
         const ownModule = `${pj.name}@${pj.version}`;

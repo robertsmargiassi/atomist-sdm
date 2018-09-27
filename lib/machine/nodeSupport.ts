@@ -17,7 +17,6 @@
 import { GitHubRepoRef } from "@atomist/automation-client";
 import {
     allSatisfied,
-    hasFile,
     LogSuppressor,
     not,
     SoftwareDeliveryMachine,
@@ -34,7 +33,6 @@ import {
     NodeProjectIdentifier,
     NodeProjectVersioner,
     NpmOptions,
-    NpmPreparations,
     NpmProgressReporter,
     tslintFix,
 } from "@atomist/sdm-pack-node";
@@ -44,6 +42,9 @@ import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
+import { NodeCompileProjectListener } from "../support/nodeCompileProjectListener";
+import { NodeModulesProjectListener } from "../support/nodeModulesProjectListener";
+import { NodeVersionProjectListener } from "../support/nodeVersionProjectListener";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -88,7 +89,6 @@ const NodeDefaultOptions = {
  * @return modified software delivery machine
  */
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
-    const hasPackageLock = hasFile("package-lock.json");
 
     VersionGoal.with({
         ...NodeDefaultOptions,
@@ -100,84 +100,89 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(tslintFix)
         .with(TypeScriptImports)
         .with(AddThirdPartyLicense)
-        .with(npmDockerfileFix("npm", "@atomist/cli"));
+        .with(npmDockerfileFix("npm", "@atomist/cli"))
+        .withProjectListener(NodeModulesProjectListener);
 
     BuildGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-ci-npm-run-build",
-        builder: nodeBuilder(sdm, "npm ci", "npm run build"),
-        pushTest: allSatisfied(NodeDefaultOptions.pushTest, hasPackageLock),
-    })
-        .with({
             ...NodeDefaultOptions,
-            name: "npm-i-npm-run-build",
-            builder: nodeBuilder(sdm, "npm i", "npm run build"),
-            pushTest: allSatisfied(NodeDefaultOptions.pushTest, not(hasPackageLock)),
-        });
+            name: "npm-run-build",
+            builder: nodeBuilder(sdm, "npm run build"),
+            pushTest: NodeDefaultOptions.pushTest,
+        })
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener);
 
     PublishGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-publish",
-        goalExecutor: executePublish(
-            NodeProjectIdentifier,
-            NpmPreparations,
-            sdm.configuration.sdm.npm as NpmOptions,
-        ),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-publish",
+            goalExecutor: executePublish(
+                NodeProjectIdentifier,
+                [],
+                sdm.configuration.sdm.npm as NpmOptions,
+            ),
+        })
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     PublishWithApprovalGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-publish",
-        goalExecutor: executePublish(
-            NodeProjectIdentifier,
-            NpmPreparations,
-            sdm.configuration.sdm.npm as NpmOptions,
-        ),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-publish",
+            goalExecutor: executePublish(
+                NodeProjectIdentifier,
+                [],
+                sdm.configuration.sdm.npm as NpmOptions,
+            ),
+        })
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     DockerBuildGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-docker-build",
-        preparations: NpmPreparations,
-        imageNameCreator: DefaultDockerImageNameCreator,
-        options: {
-            ...sdm.configuration.sdm.docker.hub as DockerOptions,
-            push: true,
-        },
-    });
+            ...NodeDefaultOptions,
+            name: "npm-docker-build",
+            imageNameCreator: DefaultDockerImageNameCreator,
+            options: {
+                ...sdm.configuration.sdm.docker.hub as DockerOptions,
+                push: true,
+            },
+        })
+        .withProjectListener(NodeModulesProjectListener)
+        .withProjectListener(NodeVersionProjectListener)
+        .withProjectListener(NodeCompileProjectListener);
 
     ReleaseNpmGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-release",
-        goalExecutor: executeReleaseNpm(
-            NodeProjectIdentifier,
-            NpmReleasePreparations,
-            sdm.configuration.sdm.npm as NpmOptions),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-release",
+            goalExecutor: executeReleaseNpm(
+                NodeProjectIdentifier,
+                NpmReleasePreparations,
+                sdm.configuration.sdm.npm as NpmOptions),
+        });
 
     SmokeTestGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-smoke-test",
-        goalExecutor: executeSmokeTests({
-                team: "AHF8B2MBL",
-                org: "sample-sdm-fidelity",
-                port: 2867,
-            }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
-            "nodeBuild",
-        ),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-smoke-test",
+            goalExecutor: executeSmokeTests({
+                    team: "AHF8B2MBL",
+                    org: "sample-sdm-fidelity",
+                    port: 2867,
+                }, new GitHubRepoRef("atomist", "sdm-smoke-test"),
+                "nodeBuild",
+            ),
+        });
 
     ReleaseDocsGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-docs-release",
-        goalExecutor: executeReleaseDocs(DocsReleasePreparations),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-docs-release",
+            goalExecutor: executeReleaseDocs(DocsReleasePreparations),
+        });
 
     ReleaseVersionGoal.with({
-        ...NodeDefaultOptions,
-        name: "npm-release-version",
-        goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
-    });
+            ...NodeDefaultOptions,
+            name: "npm-release-version",
+            goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
+        });
 
     StagingDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
     ProductionDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
