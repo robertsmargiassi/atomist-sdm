@@ -41,6 +41,10 @@ import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
 import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
+import {
+    RenameTest,
+    RenameTestFix,
+} from "../autofix/test/testNamingFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { NodeCompileProjectListener } from "../support/nodeCompileProjectListener";
 import { NodeModulesProjectListener } from "../support/nodeModulesProjectListener";
@@ -99,6 +103,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     AutofixGoal.with(AddAtomistTypeScriptHeader)
         .with(tslintFix)
         .with(TypeScriptImports)
+        .with(RenameTestFix)
         .with(AddThirdPartyLicense)
         .with(npmDockerfileFix("npm", "@atomist/cli"))
         .withProjectListener(NodeModulesProjectListener);
@@ -197,7 +202,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addCodeTransformCommand(UpdatePackageVersion)
         .addCodeTransformCommand(TryToUpdateAtomistPeerDependencies)
         .addCodeTransformCommand(UpdatePackageAuthor)
-        .addCodeTransformCommand(RewriteImports);
+        .addCodeTransformCommand(RewriteImports)
+        .addCodeTransformCommand(RenameTest);
 
     return sdm;
 }
