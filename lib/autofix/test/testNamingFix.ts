@@ -34,7 +34,7 @@ const RenameTestsTransform: CodeTransform = async project => {
         "test/**/*.ts",
         "//ImportDeclaration//StringLiteral",
         m => {
-            if (!m.$value.includes("/src")) {
+            if (!m.$value.includes("/lib")) {
                 m.$value = m.$value.replace(/Test$/, ".test");
             }
         });
