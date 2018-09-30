@@ -53,4 +53,4 @@ export const RenameTest: CodeTransformRegistration = {
     name: "RenameTest",
     intent: "rename tests",
     transform: RenameTestsTransform,
-}
+};
