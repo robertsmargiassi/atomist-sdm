@@ -30,10 +30,13 @@ import {
     executePublish,
     IsNode,
     nodeBuilder,
+    NodeModulesProjectListener,
     NodeProjectIdentifier,
     NodeProjectVersioner,
+    NpmCompileProjectListener,
     NpmOptions,
     NpmProgressReporter,
+    NpmVersionProjectListener,
     tslintFix,
 } from "@atomist/sdm-pack-node";
 import { IsMaven } from "@atomist/sdm-pack-spring";
@@ -46,9 +49,6 @@ import {
     RenameTestFix,
 } from "../autofix/test/testNamingFix";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
-import { NodeCompileProjectListener } from "../support/nodeCompileProjectListener";
-import { NodeModulesProjectListener } from "../support/nodeModulesProjectListener";
-import { NodeVersionProjectListener } from "../support/nodeVersionProjectListener";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -56,19 +56,19 @@ import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtom
 import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
 import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 import {
-    AutofixGoal,
-    BuildGoal,
-    DockerBuildGoal,
-    ProductionDeploymentGoal,
-    ProductionDeploymentWithApprovalGoal,
-    PublishGoal,
-    PublishWithApprovalGoal,
-    ReleaseDocsGoal,
-    ReleaseNpmGoal,
-    ReleaseVersionGoal,
-    SmokeTestGoal,
-    StagingDeploymentGoal,
-    VersionGoal,
+    autofix,
+    build,
+    dockerBuild,
+    productionDeployment,
+    productionDeploymentWithApproval,
+    publish,
+    publishWithApproval,
+    releaseDocs,
+    releaseNpm,
+    releaseVersion,
+    smokeTest,
+    stagingDeployment,
+    version,
 } from "./goals";
 import { kubernetesDeploymentData } from "./k8Support";
 import {
@@ -94,13 +94,13 @@ const NodeDefaultOptions = {
  */
 export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    VersionGoal.with({
+    version.with({
         ...NodeDefaultOptions,
         name: "npm-versioner",
         versioner: NodeProjectVersioner,
     });
 
-    AutofixGoal.with(AddAtomistTypeScriptHeader)
+    autofix.with(AddAtomistTypeScriptHeader)
         .with(tslintFix)
         .with(TypeScriptImports)
         .with(RenameTestFix)
@@ -108,15 +108,15 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(npmDockerfileFix("npm", "@atomist/cli"))
         .withProjectListener(NodeModulesProjectListener);
 
-    BuildGoal.with({
+    build.with({
             ...NodeDefaultOptions,
             name: "npm-run-build",
-            builder: nodeBuilder(sdm, "npm run build"),
+            builder: nodeBuilder("npm run build"),
             pushTest: NodeDefaultOptions.pushTest,
         })
         .withProjectListener(NodeModulesProjectListener);
 
-    PublishGoal.with({
+    publish.with({
             ...NodeDefaultOptions,
             name: "npm-publish",
             goalExecutor: executePublish(
@@ -126,10 +126,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ),
         })
         .withProjectListener(NodeModulesProjectListener)
-        .withProjectListener(NodeVersionProjectListener)
-        .withProjectListener(NodeCompileProjectListener);
+        .withProjectListener(NpmVersionProjectListener)
+        .withProjectListener(NpmCompileProjectListener);
 
-    PublishWithApprovalGoal.with({
+    publishWithApproval.with({
             ...NodeDefaultOptions,
             name: "npm-publish",
             goalExecutor: executePublish(
@@ -139,10 +139,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ),
         })
         .withProjectListener(NodeModulesProjectListener)
-        .withProjectListener(NodeVersionProjectListener)
-        .withProjectListener(NodeCompileProjectListener);
+        .withProjectListener(NpmVersionProjectListener)
+        .withProjectListener(NpmCompileProjectListener);
 
-    DockerBuildGoal.with({
+    dockerBuild.with({
             ...NodeDefaultOptions,
             name: "npm-docker-build",
             imageNameCreator: DefaultDockerImageNameCreator,
@@ -152,10 +152,10 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             },
         })
         .withProjectListener(NodeModulesProjectListener)
-        .withProjectListener(NodeVersionProjectListener)
-        .withProjectListener(NodeCompileProjectListener);
+        .withProjectListener(NpmVersionProjectListener)
+        .withProjectListener(NpmCompileProjectListener);
 
-    ReleaseNpmGoal.with({
+    releaseNpm.with({
             ...NodeDefaultOptions,
             name: "npm-release",
             goalExecutor: executeReleaseNpm(
@@ -164,7 +164,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
                 sdm.configuration.sdm.npm as NpmOptions),
         });
 
-    SmokeTestGoal.with({
+    smokeTest.with({
             ...NodeDefaultOptions,
             name: "npm-smoke-test",
             goalExecutor: executeSmokeTests({
@@ -176,21 +176,21 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             ),
         });
 
-    ReleaseDocsGoal.with({
+    releaseDocs.with({
             ...NodeDefaultOptions,
             name: "npm-docs-release",
             goalExecutor: executeReleaseDocs(DocsReleasePreparations),
         });
 
-    ReleaseVersionGoal.with({
+    releaseVersion.with({
             ...NodeDefaultOptions,
             name: "npm-release-version",
             goalExecutor: executeReleaseVersion(NodeProjectIdentifier),
         });
 
-    StagingDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
-    ProductionDeploymentGoal.withDeployment(kubernetesDeploymentData(sdm));
-    ProductionDeploymentWithApprovalGoal.withDeployment(kubernetesDeploymentData(sdm));
+    stagingDeployment.withDeployment(kubernetesDeploymentData(sdm));
+    productionDeployment.withDeployment(kubernetesDeploymentData(sdm));
+    productionDeploymentWithApproval.withDeployment(kubernetesDeploymentData(sdm));
 
     sdm.addFirstPushListener(tagRepo(AutomationClientTagger));
 

@@ -31,20 +31,20 @@ import {
 } from "@atomist/sdm-pack-docker";
 import {
     IsMaven,
-    MavenBuilder,
+    mavenBuilder,
     MavenProjectIdentifier,
     MavenProjectVersioner,
     MavenVersionPreparation,
 } from "@atomist/sdm-pack-spring";
 import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
 import {
-    BuildGoal,
-    DockerBuildGoal,
-    PublishGoal,
-    ReleaseDocsGoal,
-    ReleaseNpmGoal,
-    ReleaseVersionGoal,
-    VersionGoal,
+    build,
+    dockerBuild,
+    publish,
+    releaseDocs,
+    releaseNpm,
+    releaseVersion,
+    version,
 } from "./goals";
 import { executeReleaseVersion } from "./release";
 
@@ -61,20 +61,20 @@ const MavenDefaultOptions = {
  */
 export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    BuildGoal.with({
+    build.with({
         ...MavenDefaultOptions,
         name: "mvn-package",
-        builder: new MavenBuilder(sdm, [{ name: "skip.npm" }, { name: "skip.webpack" }]),
+        builder: mavenBuilder([{ name: "skip.npm" }, { name: "skip.webpack" }]),
     });
 
-    VersionGoal.with({
+    version.with({
         ...MavenDefaultOptions,
         name: "mvn-versioner",
         versioner: MavenProjectVersioner,
 
     });
 
-    DockerBuildGoal.with({
+    dockerBuild.with({
         ...MavenDefaultOptions,
         name: "mvn-docker-build",
         preparations: [MavenVersionPreparation, mavenCompilePreparationWithArgs(
@@ -84,27 +84,27 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
         options: sdm.configuration.sdm.docker.hub as DockerOptions,
     });
 
-    ReleaseVersionGoal.with({
+    releaseVersion.with({
         ...MavenDefaultOptions,
         name: "mvn-release-version",
         goalExecutor: executeReleaseVersion(MavenProjectIdentifier, asSpawnCommand("./mvnw build-helper:parse-version versions:set -DnewVersion=" +
             "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}" +
             "-\${parsedVersion.qualifier} versions:commit"))});
 
-    PublishGoal.with({
+    publish.with({
         ...MavenDefaultOptions,
         name: "mvn-publish",
         goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),
     });
 
-    ReleaseDocsGoal.with({
+    releaseDocs.with({
         ...MavenDefaultOptions,
         name: "mvn-docs-release",
         goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),
     });
 
     // No need to release npm for a Maven project. Maybe make this a more generic goal.
-    ReleaseNpmGoal.with({
+    releaseNpm.with({
         ...MavenDefaultOptions,
         name: "mvn-release",
         goalExecutor: (r: GoalInvocation) => Promise.resolve(Success),

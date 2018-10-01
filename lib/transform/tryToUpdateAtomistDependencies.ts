@@ -16,13 +16,13 @@
 
 import {
     automationClientInstance,
+    guid,
     MessageOptions,
     Parameter,
     Parameters,
     spawnAndWatch,
     SuccessIsReturn0ErrorFinder,
 } from "@atomist/automation-client";
-import { guid } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
@@ -30,7 +30,7 @@ import {
     GitProject,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
-import { pack } from "@atomist/sdm-core";
+import { BuildAwareMarker } from "@atomist/sdm-pack-build";
 import {
     codeLine,
     SlackMessage,
@@ -122,7 +122,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
 
 ${versions.join("\n")}
 
-${pack.buildAware.BuildAwareMarker} ${AutoMergeCheckSuccessTag}`;
+${BuildAwareMarker} ${AutoMergeCheckSuccessTag}`;
 
         return p;
     };

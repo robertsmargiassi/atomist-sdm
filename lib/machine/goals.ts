@@ -17,36 +17,38 @@
 // GOAL Definition
 
 import {
+    AutoCodeInspection,
     Autofix,
-    Build,
-    CodeInspectionGoal,
     Fingerprint,
     goals,
     GoalWithFulfillment,
     IndependentOfEnvironment,
     ProductionEnvironment,
-    PushReactionGoal,
+    PushImpact,
 } from "@atomist/sdm";
 import {
     Tag,
     Version,
 } from "@atomist/sdm-core";
+import { Build } from "@atomist/sdm-pack-build";
 import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
 import { DockerBuild } from "@atomist/sdm-pack-docker";
 import { KubernetesDeploy } from "@atomist/sdm-pack-k8/lib/support/KubernetesDeploy";
 
-export const VersionGoal = new Version();
-export const AutofixGoal = new Autofix();
-export const BuildGoal = new Build();
-export const TagGoal = new Tag();
-export const DockerBuildGoal = new DockerBuild();
-export const FingerprintGoal = new Fingerprint();
+export const autoCodeInspection = new AutoCodeInspection();
+export const pushImpact = new PushImpact();
+export const version = new Version();
+export const autofix = new Autofix();
+export const build = new Build();
+export const tag = new Tag();
+export const dockerBuild = new DockerBuild();
+export const fingerprint = new Fingerprint();
 
-export const StagingDeploymentGoal = new KubernetesDeploy({ environment: "testing", approval: true });
-export const ProductionDeploymentGoal = new KubernetesDeploy({ environment: "production" });
-export const ProductionDeploymentWithApprovalGoal = new KubernetesDeploy({ environment: "production", approval: true });
+export const stagingDeployment = new KubernetesDeploy({ environment: "testing", approval: true });
+export const productionDeployment = new KubernetesDeploy({ environment: "production" });
+export const productionDeploymentWithApproval = new KubernetesDeploy({ environment: "production", approval: true });
 
-export const PublishGoal = new GoalWithFulfillment({
+export const publish = new GoalWithFulfillment({
     uniqueName: "publish",
     environment: IndependentOfEnvironment,
     displayName: "publish",
@@ -54,9 +56,9 @@ export const PublishGoal = new GoalWithFulfillment({
     completedDescription: "Published",
     failedDescription: "Publish failed",
     isolated: true,
-}, BuildGoal, DockerBuildGoal);
+}, build, dockerBuild);
 
-export const PublishWithApprovalGoal = new GoalWithFulfillment({
+export const publishWithApproval = new GoalWithFulfillment({
     uniqueName: "publish-approval",
     environment: IndependentOfEnvironment,
     displayName: "publish",
@@ -65,9 +67,9 @@ export const PublishWithApprovalGoal = new GoalWithFulfillment({
     failedDescription: "Publish failed",
     isolated: true,
     approvalRequired: true,
-}, BuildGoal, DockerBuildGoal);
+}, build, dockerBuild);
 
-export const ReleaseNpmGoal = new GoalWithFulfillment({
+export const releaseNpm = new GoalWithFulfillment({
     uniqueName: "release-npm",
     environment: ProductionEnvironment,
     displayName: "release NPM package",
@@ -77,7 +79,7 @@ export const ReleaseNpmGoal = new GoalWithFulfillment({
     isolated: true,
 });
 
-export const ReleaseDockerGoal = new GoalWithFulfillment({
+export const releaseDocker = new GoalWithFulfillment({
     uniqueName: "release-docker",
     environment: ProductionEnvironment,
     displayName: "release Docker image",
@@ -87,7 +89,7 @@ export const ReleaseDockerGoal = new GoalWithFulfillment({
     isolated: true,
 });
 
-export const ReleaseTagGoal = new GoalWithFulfillment({
+export const releaseTag = new GoalWithFulfillment({
     uniqueName: "release-tag",
     environment: ProductionEnvironment,
     displayName: "create release tag",
@@ -96,7 +98,7 @@ export const ReleaseTagGoal = new GoalWithFulfillment({
     failedDescription: "Creating release tag failure",
 });
 
-export const ReleaseDocsGoal = new GoalWithFulfillment({
+export const releaseDocs = new GoalWithFulfillment({
     uniqueName: "release-docs",
     environment: ProductionEnvironment,
     displayName: "publish docs",
@@ -106,18 +108,18 @@ export const ReleaseDocsGoal = new GoalWithFulfillment({
     isolated: true,
 });
 
-export const ReleaseChangelogGoal = releaseChangelogGoal(ReleaseDocsGoal);
+export const releaseChangelog = releaseChangelogGoal(releaseDocs);
 
-export const ReleaseVersionGoal = new GoalWithFulfillment({
+export const releaseVersion = new GoalWithFulfillment({
     uniqueName: "release-version",
     environment: ProductionEnvironment,
     displayName: "increment version",
     workingDescription: "Incrementing version",
     completedDescription: "Incremented version",
     failedDescription: "Incrementing version failure",
-}, ReleaseChangelogGoal);
+}, releaseChangelog);
 
-export const SmokeTestGoal = new GoalWithFulfillment({
+export const smokeTest = new GoalWithFulfillment({
     uniqueName: "smoke-test",
     environment: ProductionEnvironment,
     displayName: "smoke test",
@@ -125,63 +127,63 @@ export const SmokeTestGoal = new GoalWithFulfillment({
     completedDescription: "Run smoke tests",
     failedDescription: "Smoke test failure",
     isolated: true,
-}, BuildGoal);
+}, build);
 
 // GOALSET Definition
 
 // Just running review and autofix
 export const CheckGoals = goals("Check")
-    .plan(VersionGoal, CodeInspectionGoal, AutofixGoal, PushReactionGoal, FingerprintGoal);
+    .plan(version, autoCodeInspection, autofix, pushImpact, fingerprint);
 
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal, VersionGoal);
+    .plan(build).after(autofix, version);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
-    .plan(TagGoal, PublishGoal).after(BuildGoal);
+    .plan(build).after(autofix, version)
+    .plan(tag, publish).after(build);
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
-    .plan(TagGoal).after(BuildGoal)
-    .plan(PublishWithApprovalGoal).after(BuildGoal)
-    .plan(ReleaseNpmGoal, ReleaseDocsGoal).after(PublishWithApprovalGoal)
-    .plan(ReleaseTagGoal).after(ReleaseNpmGoal)
-    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
+    .plan(build).after(autofix, version)
+    .plan(tag).after(build)
+    .plan(publishWithApproval).after(build)
+    .plan(releaseNpm, releaseDocs).after(publishWithApproval)
+    .plan(releaseTag).after(releaseNpm)
+    .plan(releaseChangelog, releaseVersion);
 
 // Build including docker build
 export const DockerGoals = goals("Docker Build")
     .plan(BuildGoals)
-    .plan(DockerBuildGoal).after(BuildGoal);
+    .plan(dockerBuild).after(build);
 
 // Build including docker build
 export const DockerReleaseGoals = goals("Docker Build with Release")
     .plan(CheckGoals)
-    .plan(BuildGoal).after(AutofixGoal, VersionGoal)
-    .plan(DockerBuildGoal).after(BuildGoal)
-    .plan(TagGoal).after(DockerBuildGoal)
-    .plan(PublishWithApprovalGoal).after(BuildGoal, DockerBuildGoal)
-    .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(PublishWithApprovalGoal)
-    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
-    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
+    .plan(build).after(autofix, version)
+    .plan(dockerBuild).after(build)
+    .plan(tag).after(dockerBuild)
+    .plan(publishWithApproval).after(build, dockerBuild)
+    .plan(releaseNpm, releaseDocker, releaseDocs).after(publishWithApproval)
+    .plan(releaseTag).after(releaseNpm, releaseDocker)
+    .plan(releaseChangelog, releaseVersion);
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = goals("Deploy")
     .plan(DockerGoals)
-    .plan(StagingDeploymentGoal).after(DockerBuildGoal)
-    .plan(ProductionDeploymentGoal, ReleaseNpmGoal, ReleaseDockerGoal , ReleaseDocsGoal).after(StagingDeploymentGoal)
-    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
-    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
+    .plan(stagingDeployment).after(dockerBuild)
+    .plan(productionDeployment, releaseNpm, releaseDocker , releaseDocs).after(stagingDeployment)
+    .plan(releaseTag).after(releaseNpm, releaseDocker)
+    .plan(releaseChangelog, releaseVersion);
 
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = goals("Simplified Deploy")
     .plan(DockerGoals)
-    .plan(ProductionDeploymentWithApprovalGoal).after(DockerBuildGoal)
-    .plan(ReleaseNpmGoal, ReleaseDockerGoal, ReleaseDocsGoal).after(ProductionDeploymentWithApprovalGoal)
-    .plan(ReleaseTagGoal).after(ReleaseNpmGoal, ReleaseDockerGoal)
-    .plan(ReleaseChangelogGoal, ReleaseVersionGoal);
+    .plan(productionDeploymentWithApproval).after(dockerBuild)
+    .plan(releaseNpm, releaseDocker, releaseDocs).after(productionDeploymentWithApproval)
+    .plan(releaseTag).after(releaseNpm, releaseDocker)
+    .plan(releaseChangelog, releaseVersion);

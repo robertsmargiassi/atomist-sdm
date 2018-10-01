@@ -29,7 +29,7 @@ import {
     GitProject,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
-import { pack } from "@atomist/sdm-core";
+import { BuildAwareMarker } from "@atomist/sdm-pack-build";
 import {
     codeLine,
     SlackMessage,
@@ -105,7 +105,7 @@ const UpdateAtomistPeerDependenciesStarTransform: CodeTransform<UpdateAtomistPee
 
 ${versions.join("\n")}
 
-${pack.buildAware.BuildAwareMarker} ${AutoMergeCheckSuccessTag}`;
+${BuildAwareMarker} ${AutoMergeCheckSuccessTag}`;
 
             return p;
         } catch (e) {

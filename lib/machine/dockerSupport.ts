@@ -22,7 +22,7 @@ import {
     DockerOptions,
     HasDockerfile,
 } from "@atomist/sdm-pack-docker";
-import { ReleaseDockerGoal } from "./goals";
+import { releaseDocker } from "./goals";
 import {
     DockerReleasePreparations,
     executeReleaseDocker,
@@ -36,7 +36,7 @@ import {
  */
 export function addDockerSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    ReleaseDockerGoal.with({
+    releaseDocker.with({
         name: "docker-release",
         goalExecutor: executeReleaseDocker(
             DockerReleasePreparations,

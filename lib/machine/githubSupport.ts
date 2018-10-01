@@ -18,7 +18,7 @@ import {
     LogSuppressor,
     SoftwareDeliveryMachine,
 } from "@atomist/sdm";
-import { ReleaseTagGoal } from "./goals";
+import { releaseTag } from "./goals";
 import { executeReleaseTag } from "./release";
 
 /**
@@ -29,7 +29,7 @@ import { executeReleaseTag } from "./release";
  */
 export function addGithubSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMachine {
 
-    ReleaseTagGoal.with({
+    releaseTag.with({
         name: "tag-release",
         goalExecutor: executeReleaseTag(),
         logInterpreter: LogSuppressor,

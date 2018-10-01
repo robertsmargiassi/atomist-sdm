@@ -19,6 +19,7 @@ import {
     anySatisfied,
     DoNotSetAnyGoals,
     githubTeamVoter,
+    Immaterial,
     IsDeployEnabled,
     not,
     SoftwareDeliveryMachine,
@@ -34,6 +35,7 @@ import {
     pack,
     summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
+import { buildAwareCodeTransforms } from "@atomist/sdm-pack-build";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
 import { fingerprintSupport } from "@atomist/sdm-pack-fingerprints";
@@ -48,7 +50,6 @@ import {
 } from "@atomist/sdm-pack-spring";
 import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
-import { NoGoals } from "@atomist/sdm/lib/pack/well-known-goals/commonGoals";
 import { BadgeSupport } from "../command/badge";
 import { CreateTag } from "../command/tag";
 import {
@@ -64,10 +65,10 @@ import {
     CheckGoals,
     DockerGoals,
     DockerReleaseGoals,
-    FingerprintGoal,
+    fingerprint,
     KubernetesDeployGoals,
     LocalGoals,
-    ReleaseChangelogGoal,
+    releaseChangelog,
     SimplifiedKubernetesDeployGoals,
 } from "./goals";
 import { addMavenSupport } from "./mavenSupport";
@@ -95,12 +96,12 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         // Node
         whenPushSatisfies(allSatisfied(IsNode, not(IsMaven)), not(MaterialChangeToNodeRepo))
             .itMeans("No Material Change")
-            .setGoals(NoGoals),
+            .setGoals(Immaterial),
 
         // Maven
         whenPushSatisfies(IsMaven, not(MaterialChangeToJavaRepo))
             .itMeans("No Material Change")
-            .setGoals(NoGoals),
+            .setGoals(Immaterial),
 
         whenPushSatisfies(IsNode, HasTravisFile)
             .itMeans("Just Checking")
@@ -145,16 +146,16 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addTeamPolicies(sdm);
 
     sdm.addExtensionPacks(
-        changelogSupport(ReleaseChangelogGoal),
+        changelogSupport(releaseChangelog),
         BadgeSupport,
-        pack.buildAware.buildAwareCodeTransforms({
+        buildAwareCodeTransforms({
             issueRouter: {
                 raiseIssue: async () => { /* intentionally left empty */
                 },
             },
         }),
         pack.goalState.GoalState,
-        fingerprintSupport(FingerprintGoal),
+        fingerprintSupport(fingerprint),
         IssueSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
