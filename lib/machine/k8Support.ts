@@ -34,7 +34,7 @@ export function kubernetesDeploymentData(sdm: SoftwareDeliveryMachine) {
         }, async p => {
             const ns = namespaceFromGoal(goal);
             const ingress = ingressFromGoal(goal.repo.name, ns);
-            const port = IsMaven.predicate(p) ? 8080 : 2866;
+            const port = (await IsMaven.predicate(p)) ? 8080 : 2866;
             return {
                 name: goal.repo.name,
                 environment: sdm.configuration.environment.split("_")[0],
