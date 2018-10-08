@@ -73,12 +73,13 @@ export interface Ingress {
 export function ingressFromGoal(repo: string, ns: string): Ingress {
     let host: string;
     let path: string;
+    const tail = (ns === "production") ? "com" : "services";
     if (repo === "card-automation") {
         host = "pusher";
         path = "/";
     } else if (repo === "sdm-automation") {
         return {
-            host: "badge",
+            host: `badge.atomist.${tail}`,
             path: "/",
         };
     } else if (repo === "intercom-automation") {
@@ -90,7 +91,6 @@ export function ingressFromGoal(repo: string, ns: string): Ingress {
     } else {
         return undefined;
     }
-    const tail = (ns === "production") ? "com" : "services";
     return {
         host: `${host}.atomist.${tail}`,
         path,

@@ -57,6 +57,52 @@ describe("k8Support", () => {
             assert.deepStrictEqual(s, { name: r });
         });
 
+        it("should return .services host for testing intercom-automation", () => {
+            const r = "intercom-automation";
+            const n = "testing";
+            const i = ingressFromGoal(r, n);
+            const e = {
+                host: "intercom.atomist.services",
+                path: "/",
+                tlsSecret: "star-atomist-services",
+            };
+            assert.deepStrictEqual(i, e);
+        });
+
+        it("should return .com host for production intercom-automation", () => {
+            const r = "intercom-automation";
+            const n = "production";
+            const i = ingressFromGoal(r, n);
+            const e = {
+                host: "intercom.atomist.com",
+                path: "/",
+                tlsSecret: "star-atomist-com",
+            };
+            assert.deepStrictEqual(i, e);
+        });
+
+        it("should return non-TLS .services host for testing sdm-automation", () => {
+            const r = "sdm-automation";
+            const n = "testing";
+            const i = ingressFromGoal(r, n);
+            const e = {
+                host: "badge.atomist.services",
+                path: "/",
+            };
+            assert.deepStrictEqual(i, e);
+        });
+
+        it("should return non-TLS .com host for production sdm-automation", () => {
+            const r = "sdm-automation";
+            const n = "production";
+            const i = ingressFromGoal(r, n);
+            const e = {
+                host: "badge.atomist.com",
+                path: "/",
+            };
+            assert.deepStrictEqual(i, e);
+        });
+
     });
 
 });
