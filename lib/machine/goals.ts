@@ -175,7 +175,7 @@ export const KubernetesDeployGoals = goals("Deploy")
     .plan(stagingDeployment).after(dockerBuild)
     .plan(productionDeployment).after(stagingDeployment)
     .plan(releaseNpm, releaseDocker, releaseDocs, releaseChangelog, releaseVersion).after(productionDeployment)
-    .plan(releaseTag).after(releaseNpm, releaseDocker)
+    .plan(releaseTag).after(releaseNpm, releaseDocker);
 
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = goals("Simplified Deploy")
