@@ -13,3 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { Configuration } from "@atomist/automation-client";
+// import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
+import { configureLogzio } from "@atomist/automation-client-ext-logzio";
+import { configureRaven } from "@atomist/automation-client-ext-raven";
+import {
+    ConfigureOptions,
+    configureSdm,
+} from "@atomist/sdm-core";
+import { machine } from "./lib/machine/machine";
+
+const machineOptions: ConfigureOptions = {
+    requiredConfigurationValues: [
+        "sdm.npm.npmrc",
+        "sdm.npm.registry",
+        "sdm.npm.access",
+        "sdm.docker.hub.registry",
+        "sdm.docker.hub.user",
+        "sdm.docker.hub.password",
+    ],
+};
+
+export const configuration: Configuration = {
+    postProcessors: [
+        configureLogzio,
+        configureRaven,
+        // configureEventLog(),
+        configureSdm(machine, machineOptions),
+    ],
+    sdm: {
+        npm: {
+            publish: {
+                tag: {
+                    defaultBranch: true,
+                },
+            },
+        },
+        k8: {
+            environment: "test",
+        },
+        cache: {
+            enabled: true,
+            path: "/opt/data",
+        },
+    },
+};
