@@ -151,9 +151,8 @@ export const BuildReleaseGoals = goals("Build with Release")
     .plan(build).after(autofix, version)
     .plan(tag).after(build)
     .plan(publishWithApproval).after(build)
-    .plan(releaseNpm, releaseDocs).after(publishWithApproval)
-    .plan(releaseTag).after(releaseNpm)
-    .plan(releaseChangelog, releaseVersion);
+    .plan(releaseNpm, releaseDocs, releaseChangelog, releaseVersion).after(publishWithApproval)
+    .plan(releaseTag).after(releaseNpm);
 
 // Build including docker build
 export const DockerGoals = goals("Docker Build")
@@ -167,22 +166,20 @@ export const DockerReleaseGoals = goals("Docker Build with Release")
     .plan(dockerBuild).after(build)
     .plan(tag).after(dockerBuild)
     .plan(publishWithApproval).after(build, dockerBuild)
-    .plan(releaseNpm, releaseDocker, releaseDocs).after(publishWithApproval)
-    .plan(releaseTag).after(releaseNpm, releaseDocker)
-    .plan(releaseChangelog, releaseVersion);
+    .plan(releaseNpm, releaseDocker, releaseDocs, releaseChangelog, releaseVersion).after(publishWithApproval)
+    .plan(releaseTag).after(releaseNpm, releaseDocker);
 
 // Docker build and testing and production kubernetes deploy
 export const KubernetesDeployGoals = goals("Deploy")
     .plan(DockerGoals)
     .plan(stagingDeployment).after(dockerBuild)
-    .plan(productionDeployment, releaseNpm, releaseDocker , releaseDocs).after(stagingDeployment)
+    .plan(productionDeployment).after(stagingDeployment)
+    .plan(releaseNpm, releaseDocker, releaseDocs, releaseChangelog, releaseVersion).after(productionDeployment)
     .plan(releaseTag).after(releaseNpm, releaseDocker)
-    .plan(releaseChangelog, releaseVersion);
 
 // Docker build and testing and production kubernetes deploy
 export const SimplifiedKubernetesDeployGoals = goals("Simplified Deploy")
     .plan(DockerGoals)
     .plan(productionDeploymentWithApproval).after(dockerBuild)
-    .plan(releaseNpm, releaseDocker, releaseDocs).after(productionDeploymentWithApproval)
-    .plan(releaseTag).after(releaseNpm, releaseDocker)
-    .plan(releaseChangelog, releaseVersion);
+    .plan(releaseNpm, releaseDocker, releaseDocs, releaseChangelog, releaseVersion).after(productionDeploymentWithApproval)
+    .plan(releaseTag).after(releaseNpm, releaseDocker);
