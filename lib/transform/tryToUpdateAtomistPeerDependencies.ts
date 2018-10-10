@@ -16,6 +16,8 @@
 
 import {
     automationClientInstance,
+    EditMode,
+    GitProject,
     guid,
     logger,
     MessageOptions,
@@ -25,8 +27,6 @@ import {
 import {
     CodeTransform,
     CodeTransformRegistration,
-    EditMode,
-    GitProject,
     StringCapturingProgressLog,
 } from "@atomist/sdm";
 import { BuildAwareMarker } from "@atomist/sdm-pack-build";

@@ -15,12 +15,11 @@
  */
 
 import {
-    BranchCommit,
     EditMode,
-    GitBranchRegExp,
+    editModes,
     Parameter,
     Parameters,
-    PullRequest,
+    validationPatterns,
 } from "@atomist/automation-client";
 
 /**
@@ -33,7 +32,7 @@ export class RequestedCommitParameters {
     @Parameter({
             required: false,
             description: "Branch to use. Default is 'master'.",
-            ...GitBranchRegExp,
+            ...validationPatterns.GitBranchRegExp,
         },
     )
     private readonly branch = "master";
@@ -75,12 +74,12 @@ export class RequestedCommitParameters {
     get editMode(): EditMode {
         switch (this.presentAs) {
             case "pr" :
-                return new PullRequest(
+                return new editModes.PullRequest(
                     this.branchToUse,
                     this.commitMessage,
                     this.commitMessage);
             case "branch" :
-                return {branch: this.branchToUse, message: this.commitMessage} as BranchCommit;
+                return {branch: this.branchToUse, message: this.commitMessage} as editModes.BranchCommit;
         }
     }
 

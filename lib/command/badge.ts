@@ -25,7 +25,7 @@ import {
 import {
     ExtensionPack,
     metadata,
-    success,
+    slackSuccessMessage,
 } from "@atomist/sdm";
 import {
     bold,
@@ -69,7 +69,7 @@ export const BadgeSupport: ExtensionPack = {
 
                 const url = `http://badge.atomist.com/${cli.context.workspaceId}/${cli.parameters.owner}/${cli.parameters.repo}/${token}`;
 
-                const msg = success(
+                const msg = slackSuccessMessage(
                     "Badge Url",
                     `Successfully created a new badge url for ${bold(`${cli.parameters.owner}/${cli.parameters.repo}`)}.
 

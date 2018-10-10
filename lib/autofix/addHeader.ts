@@ -15,10 +15,10 @@
  */
 
 import {
-    doWithFiles,
     Parameter,
     Parameters,
     Project,
+    projectUtils,
 } from "@atomist/automation-client";
 import {
     CodeTransformRegistration,
@@ -85,7 +85,7 @@ export async function addHeaderTransform(p: Project,
                                          ci: ParametersInvocation<AddHeaderParameters>): Promise<Project> {
 
     let filesWithDifferentHeaders: any[] = [];
-    await doWithFiles(p, ci.parameters.glob, async f => {
+    await projectUtils.doWithFiles(p, ci.parameters.glob, async f => {
         if (ci.parameters.excludeGlob && minimatch(f.path, ci.parameters.excludeGlob)) {
             return;
         }

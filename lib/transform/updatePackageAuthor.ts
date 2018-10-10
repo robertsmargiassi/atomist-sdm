@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { logger } from "@atomist/automation-client";
+import {
+    EditMode,
+    logger,
+} from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
-    EditMode,
 } from "@atomist/sdm";
 
 const UpdatePackageAuthorTransform: CodeTransform =

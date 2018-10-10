@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import {
-    AutofixRegistration,
-    toPromise,
-} from "@atomist/sdm";
+import { projectUtils } from "@atomist/automation-client";
+import { AutofixRegistration } from "@atomist/sdm";
 
 /**
  * Change the version of NPM that gets installed into our Docker images
@@ -27,7 +25,7 @@ export const TypeScriptImports: AutofixRegistration = {
     name: "TypeScript imports",
     transform: async p => {
         const regexp = new RegExp(`import\\s*?{([\\sa-zA-Z,-]*?)}\\s*from\\s*"([@\\S]*)";`, "gi");
-        const files = await toPromise(p.streamFiles("**/*.ts"));
+        const files = await projectUtils.toPromise(p.streamFiles("**/*.ts"));
 
         for (const f of files) {
             regexp.lastIndex = 0;

@@ -15,14 +15,14 @@
  */
 
 import {
+    EditMode,
     Parameter,
     Parameters,
+    projectUtils,
 } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
-    EditMode,
-    toPromise,
 } from "@atomist/sdm";
 
 export const AutoMergeCheckSuccessLabel = "auto-merge:on-check-success";
@@ -49,7 +49,7 @@ export const RewriteImportsTransform: CodeTransform<RewriteImportsTransformParam
 
         for (const module of modules.split(",")) {
             const regexp = new RegExp(`import\\s*?{([\\sa-zA-Z,-]*?)}\\s*from\\s*"${module.replace("/", "\/")}(?:\/.*"|");`, "gi");
-            const allFiles = await toPromise(p.streamFiles("**/*.ts"));
+            const allFiles = await projectUtils.toPromise(p.streamFiles("**/*.ts"));
 
             for (const f of allFiles) {
                 regexp.lastIndex = 0;

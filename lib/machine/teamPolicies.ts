@@ -23,9 +23,9 @@ import {
 import {
     PushFields,
     PushImpactListenerInvocation,
+    slackWarningMessage,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
-    warning,
 } from "@atomist/sdm";
 import {
     github,
@@ -36,6 +36,7 @@ import {
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
+import { pushImpact } from "./goals";
 
 export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>) {
 
@@ -50,7 +51,7 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
     });
 
     // Check case of commit message; they should use upper case too
-    sdm.addPushImpactListener(async l => {
+    pushImpact.withListener(async l => {
         const commits = l.push.commits.filter(c => !isUpperCase(c.message));
         const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         if (screenName && commits.length > 0) {
@@ -65,7 +66,7 @@ async function warnAboutLowercaseCommitTitles(
     pushImpactListenerInvocation: PushImpactListenerInvocation,
     commits: PushFields.Commits[],
     screenName: string) {
-    const msg = warning(
+    const msg = slackWarningMessage(
         "Commit Message",
         `Please make sure that your commit messages start with an upper case letter.
 
