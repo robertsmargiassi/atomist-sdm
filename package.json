@@ -27,7 +27,7 @@
     "@atomist/automation-client-ext-logzio": "1.0.0-master.20181010130620",
     "@atomist/automation-client-ext-raven": "1.0.0-master.20181010130149",
     "@atomist/sdm": "1.0.0-master.20181010145707",
-    "@atomist/sdm-core": "1.0.0-master.20181010145734",
+    "@atomist/sdm-core": "1.0.0-master.20181010162610",
     "@atomist/sdm-pack-build": "1.0.0-master.20181010084152",
     "@atomist/sdm-pack-changelog": "1.0.0-master.20181010110305",
     "@atomist/sdm-pack-docker": "1.0.0-master.20181010105453",
