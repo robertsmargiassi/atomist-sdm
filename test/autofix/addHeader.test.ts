@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
+import { InMemoryProject } from "@atomist/automation-client";
 import * as minimatch from "minimatch";
 import * as assert from "power-assert";
-
-import { InMemoryProject } from "@atomist/sdm";
 import {
     AddHeaderParameters,
     addHeaderTransform,

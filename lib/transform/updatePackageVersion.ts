@@ -15,6 +15,8 @@
  */
 
 import {
+    EditMode,
+    GitProject,
     Parameter,
     Parameters,
 } from "@atomist/automation-client";
@@ -22,8 +24,6 @@ import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,
-    EditMode,
-    GitProject,
     LoggingProgressLog,
     spawnAndWatch,
 } from "@atomist/sdm";

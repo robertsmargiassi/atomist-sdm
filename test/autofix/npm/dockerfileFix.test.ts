@@ -15,8 +15,8 @@
  */
 
 import {
-    InMemoryFile,
     InMemoryProject,
+    InMemoryProjectFile,
 } from "@atomist/automation-client";
 import assert = require("power-assert");
 import {
@@ -39,7 +39,7 @@ describe("dockerfileFix", () => {
     describe("npmDockerfileFix", () => {
 
         it("should update npm version", async () => {
-            const p = InMemoryProject.of(new InMemoryFile("Dockerfile", dockerfile));
+            const p = InMemoryProject.of(new InMemoryProjectFile("Dockerfile", dockerfile));
             const rp = await (npmDockerfileFix("npm", "@atomist/cli") as any).transform(p);
             const df = await rp.getFile("Dockerfile");
 

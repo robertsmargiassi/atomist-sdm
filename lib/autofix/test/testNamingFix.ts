@@ -15,8 +15,8 @@
  */
 
 import {
-    doWithAllMatches,
-    doWithFiles,
+    astUtils,
+    projectUtils,
     TypeScriptES6FileParser,
 } from "@atomist/automation-client";
 import {
@@ -30,7 +30,7 @@ import { IsNode } from "@atomist/sdm-pack-node";
  * CodeTransform that renames tests
  */
 const RenameTestsTransform: CodeTransform = async project => {
-    await doWithAllMatches(project, TypeScriptES6FileParser,
+    await astUtils.doWithAllMatches(project, TypeScriptES6FileParser,
         "test/**/*.ts",
         "//ImportDeclaration//StringLiteral",
         m => {
@@ -38,7 +38,7 @@ const RenameTestsTransform: CodeTransform = async project => {
                 m.$value = m.$value.replace(/Test$/, ".test");
             }
         });
-    return doWithFiles(project, "test/**/*.ts", async f => {
+    return projectUtils.doWithFiles(project, "test/**/*.ts", async f => {
         return f.setPath(f.path.replace(/Test\.ts$/, ".test.ts"));
     });
 };

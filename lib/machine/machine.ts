@@ -33,7 +33,6 @@ import {
     EnableDeploy,
     IsInLocalMode,
     pack,
-    summarizeGoalsInGitHubStatus,
 } from "@atomist/sdm-core";
 import { buildAwareCodeTransforms } from "@atomist/sdm-pack-build";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
@@ -68,7 +67,6 @@ import {
     fingerprint,
     KubernetesDeployGoals,
     LocalGoals,
-    releaseChangelog,
     SimplifiedKubernetesDeployGoals,
 } from "./goals";
 import { addMavenSupport } from "./mavenSupport";
@@ -146,7 +144,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addTeamPolicies(sdm);
 
     sdm.addExtensionPacks(
-        changelogSupport(releaseChangelog),
+        changelogSupport(),
         BadgeSupport,
         buildAwareCodeTransforms({
             issueRouter: {
@@ -155,12 +153,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             },
         }),
         pack.goalState.GoalState,
+        pack.githubGoalStatus.GitHubGoalStatus,
         fingerprintSupport(fingerprint),
         IssueSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
-
-    summarizeGoalsInGitHubStatus(sdm);
 
     return sdm;
 }

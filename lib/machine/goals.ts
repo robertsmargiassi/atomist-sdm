@@ -31,7 +31,7 @@ import {
     Version,
 } from "@atomist/sdm-core";
 import { Build } from "@atomist/sdm-pack-build";
-import { releaseChangelogGoal } from "@atomist/sdm-pack-changelog";
+import { Changelog } from "@atomist/sdm-pack-changelog/lib/goal/Changelog";
 import { DockerBuild } from "@atomist/sdm-pack-docker";
 import { KubernetesDeploy } from "@atomist/sdm-pack-k8/lib/support/KubernetesDeploy";
 
@@ -47,6 +47,7 @@ export const fingerprint = new Fingerprint();
 export const stagingDeployment = new KubernetesDeploy({ environment: "testing", approval: true });
 export const productionDeployment = new KubernetesDeploy({ environment: "production" });
 export const productionDeploymentWithApproval = new KubernetesDeploy({ environment: "production", approval: true });
+export const releaseChangelog = new Changelog();
 
 export const publish = new GoalWithFulfillment({
     uniqueName: "publish",
@@ -107,8 +108,6 @@ export const releaseDocs = new GoalWithFulfillment({
     failedDescription: "Publishing docs failure",
     isolated: true,
 });
-
-export const releaseChangelog = releaseChangelogGoal(releaseDocs);
 
 export const releaseVersion = new GoalWithFulfillment({
     uniqueName: "release-version",

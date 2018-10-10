@@ -26,7 +26,7 @@ import {
 } from "@atomist/automation-client";
 import {
     CommandHandlerRegistration,
-    success,
+    slackSuccessMessage,
 } from "@atomist/sdm";
 import {
     fetchBranchTips,
@@ -88,7 +88,7 @@ export const CreateTag: CommandHandlerRegistration<CreateTagParameters> = {
         await github.createTagReference({ token: ci.parameters.githubToken }, id, tag);
 
         await ci.context.messageClient.respond(
-            success(
+            slackSuccessMessage(
                 "Create Tag",
                 `Successfully created tag ${codeLine(ci.parameters.name)} on commit ${codeLine(sha.slice(0, 7))}`));
 
