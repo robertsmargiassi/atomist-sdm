@@ -132,22 +132,25 @@ export const smokeTest = new GoalWithFulfillment({
 
 // Just running review and autofix
 export const CheckGoals = goals("Check")
-    .plan(version, autoCodeInspection, autofix, pushImpact, fingerprint);
+    .plan(autofix, autoCodeInspection, pushImpact, fingerprint);
 
 // Goals for running in local mode
 export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
+    .plan(version).after(autofix)
     .plan(build).after(autofix, version);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
     .plan(CheckGoals)
+    .plan(version).after(autofix)
     .plan(build).after(autofix, version)
     .plan(tag, publish).after(build);
 
 // Just running the build and publish
 export const BuildReleaseGoals = goals("Build with Release")
     .plan(CheckGoals)
+    .plan(version).after(autofix)
     .plan(build).after(autofix, version)
     .plan(tag).after(build)
     .plan(publishWithApproval).after(build)
@@ -162,6 +165,7 @@ export const DockerGoals = goals("Docker Build")
 // Build including docker build
 export const DockerReleaseGoals = goals("Docker Build with Release")
     .plan(CheckGoals)
+    .plan(version).after(autofix)
     .plan(build).after(autofix, version)
     .plan(dockerBuild).after(build)
     .plan(tag).after(dockerBuild)
