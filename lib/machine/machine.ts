@@ -59,6 +59,7 @@ import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import { addDockerSupport } from "./dockerSupport";
 import { addGithubSupport } from "./githubSupport";
 import {
+    build,
     BuildGoals,
     BuildReleaseGoals,
     CheckGoals,
@@ -147,8 +148,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         changelogSupport(),
         BadgeSupport,
         buildAwareCodeTransforms({
-            issueRouter: {
-                raiseIssue: async () => { /* intentionally left empty */
+            buildGoal: build,
+            issueCreation: {
+                issueRouter: {
+                    raiseIssue: async () => { /* intentionally left empty */
+                    },
                 },
             },
         }),
