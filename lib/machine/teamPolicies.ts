@@ -36,7 +36,11 @@ import {
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
-import { pushImpact } from "./goals";
+import { AddCommunityFiles } from "../autofix/addCommunityFiles";
+import {
+    autofix,
+    pushImpact,
+} from "./goals";
 
 export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>) {
 
@@ -59,13 +63,14 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
         }
         return Success;
     });
+
+    autofix.with(AddCommunityFiles);
 }
 
-async function warnAboutLowercaseCommitTitles(
-    sdm: SoftwareDeliveryMachine,
-    pushImpactListenerInvocation: PushImpactListenerInvocation,
-    commits: PushFields.Commits[],
-    screenName: string) {
+async function warnAboutLowercaseCommitTitles(sdm: SoftwareDeliveryMachine,
+                                              pushImpactListenerInvocation: PushImpactListenerInvocation,
+                                              commits: PushFields.Commits[],
+                                              screenName: string) {
     const msg = slackWarningMessage(
         "Commit Message",
         `Please make sure that your commit messages start with an upper case letter.
