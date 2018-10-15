@@ -18,7 +18,7 @@ import { projectUtils } from "@atomist/automation-client";
 import { AutofixRegistration } from "@atomist/sdm";
 
 /**
- * Change the version of NPM that gets installed into our Docker images
+ * Sort and format TypeScipt imports in a standard way.
  * @type {{name: string; pushTest: PredicatePushTest; transform: (p) => Promise<Project>}}
  */
 export const TypeScriptImports: AutofixRegistration = {
