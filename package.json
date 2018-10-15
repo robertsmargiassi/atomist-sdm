@@ -31,7 +31,6 @@
     "@atomist/sdm-pack-build": "1.0.0-RC.1",
     "@atomist/sdm-pack-changelog": "1.0.0-RC.1",
     "@atomist/sdm-pack-docker": "1.0.0-RC.1",
-    "@atomist/sdm-pack-fingerprints": "1.0.0-RC.1",
     "@atomist/sdm-pack-issue": "1.0.0-RC.1",
     "@atomist/sdm-pack-k8": "1.0.0-RC.1",
     "@atomist/sdm-pack-node": "1.0.0-RC.1",
