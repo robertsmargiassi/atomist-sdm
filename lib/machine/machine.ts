@@ -37,7 +37,6 @@ import {
 import { buildAwareCodeTransforms } from "@atomist/sdm-pack-build";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
 import { HasDockerfile } from "@atomist/sdm-pack-docker";
-import { fingerprintSupport } from "@atomist/sdm-pack-fingerprints";
 import { IssueSupport } from "@atomist/sdm-pack-issue";
 import {
     IsAtomistAutomationClient,
@@ -65,7 +64,6 @@ import {
     CheckGoals,
     DockerGoals,
     DockerReleaseGoals,
-    fingerprint,
     KubernetesDeployGoals,
     LocalGoals,
     SimplifiedKubernetesDeployGoals,
@@ -158,7 +156,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         }),
         pack.goalState.GoalState,
         pack.githubGoalStatus.GitHubGoalStatus,
-        fingerprintSupport(fingerprint),
         IssueSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));

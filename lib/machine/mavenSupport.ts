@@ -16,11 +16,9 @@
 
 import {
     asSpawnCommand,
-    GitProject,
     Success,
 } from "@atomist/automation-client";
 import {
-    ExecuteGoalResult,
     GoalInvocation,
     LogSuppressor,
     SoftwareDeliveryMachine,
@@ -34,9 +32,9 @@ import {
     mavenBuilder,
     MavenProjectIdentifier,
     MavenProjectVersioner,
-    MavenVersionPreparation,
+    MvnPackage,
+    MvnVersion,
 } from "@atomist/sdm-pack-spring";
-import { mavenPackage } from "@atomist/sdm-pack-spring/lib/maven/build/MavenBuilder";
 import {
     build,
     dockerBuild,
@@ -75,14 +73,16 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     });
 
     dockerBuild.with({
-        ...MavenDefaultOptions,
-        name: "mvn-docker-build",
-        preparations: [MavenVersionPreparation, mavenCompilePreparationWithArgs(
-            ["skipTests", "skip.npm", "skip.webpack"],
-        )],
-        imageNameCreator: DefaultDockerImageNameCreator,
-        options: sdm.configuration.sdm.docker.hub as DockerOptions,
-    });
+            ...MavenDefaultOptions,
+            name: "mvn-docker-build",
+            // preparations: [MavenVersionPreparation, mavenCompilePreparationWithArgs(
+            //    ["skipTests", "skip.npm", "skip.webpack"],
+            // )],
+            imageNameCreator: DefaultDockerImageNameCreator,
+            options: sdm.configuration.sdm.docker.hub as DockerOptions,
+        })
+        .withProjectListener(MvnVersion)
+        .withProjectListener(MvnPackage);
 
     releaseVersion.with({
         ...MavenDefaultOptions,
@@ -111,13 +111,4 @@ export function addMavenSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryM
     });
 
     return sdm;
-}
-
-function mavenCompilePreparationWithArgs(args: string[] = []):
-(p: GitProject, goalInvocation: GoalInvocation) => Promise<ExecuteGoalResult> {
-    return (p: GitProject, goalInvocation: GoalInvocation) => {
-        return mavenPackage(p, goalInvocation.progressLog, args.map(n => {
-            return { name: n };
-        }));
-    };
 }
