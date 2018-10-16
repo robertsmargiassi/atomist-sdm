@@ -148,7 +148,9 @@ ${LicenseTableHeader}
 ${deps.join("\n")}`);
         });
 
-        const content = `# ${pj.name}
+        const content = `# \`${pj.name}\`
+
+\`${pj.name}\` is licensed under ${spdx[pj.license].name} - [${spdx[pj.license].url}](${spdx[pj.license].url}).
 
 This page details all runtime OSS dependencies of \`${pj.name}\`.
 
