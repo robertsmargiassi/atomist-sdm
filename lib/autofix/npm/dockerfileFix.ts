@@ -20,9 +20,11 @@ import {
 } from "@atomist/automation-client";
 import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
+    allSatisfied,
     AutofixRegistration,
     hasFile,
     StringCapturingProgressLog,
+    ToDefaultBranch,
 } from "@atomist/sdm";
 
 /**
@@ -32,7 +34,7 @@ import {
 export function npmDockerfileFix(...modules: string[]): AutofixRegistration {
     return {
         name: "Dockerfile NPM install",
-        pushTest: hasFile("Dockerfile"),
+        pushTest: allSatisfied(hasFile("Dockerfile"), ToDefaultBranch),
         transform: async p => {
             const df = await p.getFile("Dockerfile");
 
