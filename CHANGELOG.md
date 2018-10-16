@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 -   Add fingerprint support for npm. [#52](https://github.com/atomist/atomist-sdm/issues/52)
+-   Add autofix for community files. [#71](https://github.com/atomist/atomist-sdm/issues/71)
 
 ### Changed
 
