@@ -36,6 +36,7 @@ describe("thirdPartyLicense", () => {
             deleteDirectory: () => "",
         } as any as Project, undefined)
             .then(() => {
+                // tslint:disable:max-line-length
                 assert(fc.startsWith(`# \`@atomist/atomist-sdm\`
 
 \`@atomist/atomist-sdm\` is licensed under Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
