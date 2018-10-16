@@ -19,6 +19,7 @@ import {
 } from "@atomist/automation-client";
 import {
     AutofixRegistration,
+    ToDefaultBranch,
 } from "@atomist/sdm";
 import * as appRoot from "app-root-path";
 import * as fs from "fs-extra";
@@ -54,5 +55,6 @@ export async function addCommunityFilesToProject(p: Project): Promise<Project> {
 
 export const AddCommunityFiles: AutofixRegistration = {
     name: "Add Community Files",
+    pushTest: ToDefaultBranch,
     transform: addCommunityFilesToProject,
 };
