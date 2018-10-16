@@ -35,8 +35,7 @@ export function addAtomistHeader(name: string,
                                  pushTest: PushTest): AutofixRegistration<AddHeaderParameters> {
     const parametersInstance = new AddHeaderParameters();
     parametersInstance.glob = glob;
-    // Stop it continually editing the barrel and graphql types
-    parametersInstance.excludeGlob = "src/{typings/types,index}.ts";
+    parametersInstance.excludeGlob = "**/*.d.ts";
     return {
         name,
         pushTest: allSatisfied(pushTest, hasFileContaining(LicenseFilename, /Apache License/)),
