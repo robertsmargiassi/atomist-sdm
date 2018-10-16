@@ -17,7 +17,6 @@ log/
 scripts/
 src/
 test/
-CO*.md
 ts*.json
 **/*.log
 **/*.txt
