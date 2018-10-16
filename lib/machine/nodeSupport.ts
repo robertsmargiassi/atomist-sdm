@@ -43,7 +43,6 @@ import { IsMaven } from "@atomist/sdm-pack-spring";
 import { AddAtomistTypeScriptHeader } from "../autofix/addAtomistHeader";
 import { TypeScriptImports } from "../autofix/imports/importsFix";
 import { AddThirdPartyLicense } from "../autofix/license/thirdPartyLicense";
-import { npmDockerfileFix } from "../autofix/npm/dockerfileFix";
 import {
     RenameTest,
     RenameTestFix,
@@ -105,7 +104,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .with(TypeScriptImports)
         .with(RenameTestFix)
         .with(AddThirdPartyLicense)
-        .with(npmDockerfileFix("npm", "@atomist/cli"))
         .withProjectListener(NodeModulesProjectListener);
 
     build.with({
