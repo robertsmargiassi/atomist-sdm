@@ -148,10 +148,10 @@ ${LicenseTableHeader}
 ${deps.join("\n")}`);
         });
 
-        const license = spdx[pj.license] ? `
+        const lic = spdx[pj.license] ? `
 
 \`${pj.name}\` is licensed under ${spdx[pj.license].name} - [${spdx[pj.license].url}](${spdx[pj.license].url}).` : "";
-        const content = `# \`${pj.name}\`${license}
+        const content = `# \`${pj.name}\`${lic}
 
 This page details all runtime OSS dependencies of \`${pj.name}\`.
 
