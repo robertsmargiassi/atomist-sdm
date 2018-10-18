@@ -119,7 +119,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             name: "npm-publish",
             goalExecutor: executePublish(
                 NodeProjectIdentifier,
-                [],
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
@@ -132,7 +131,6 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
             name: "npm-publish",
             goalExecutor: executePublish(
                 NodeProjectIdentifier,
-                [],
                 sdm.configuration.sdm.npm as NpmOptions,
             ),
         })
