@@ -54,7 +54,7 @@ export async function addCommunityFilesToProject(p: Project): Promise<Project> {
 }
 
 export const AddCommunityFiles: AutofixRegistration = {
-    name: "Add Community Files",
+    name: "Add community files",
     pushTest: ToDefaultBranch,
     transform: addCommunityFilesToProject,
 };
