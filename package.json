@@ -22,12 +22,12 @@
     "url": "https://github.com/atomist/atomist-sdm/issues"
   },
   "dependencies": {
-    "@atomist/automation-client": "1.0.0-RC.1",
+    "@atomist/automation-client": "1.0.0-master.20181017160341",
     "@atomist/automation-client-ext-dashboard": "1.0.0-RC.1",
     "@atomist/automation-client-ext-logzio": "1.0.0-RC.1",
     "@atomist/automation-client-ext-raven": "1.0.0-RC.1",
-    "@atomist/sdm": "1.0.0-RC.1",
-    "@atomist/sdm-core": "1.0.0-RC.1",
+    "@atomist/sdm": "1.0.0-master.20181017215705",
+    "@atomist/sdm-core": "1.0.0-master.20181018125126",
     "@atomist/sdm-pack-build": "1.0.0-RC.1",
     "@atomist/sdm-pack-changelog": "1.0.0-RC.1",
     "@atomist/sdm-pack-docker": "1.0.0-RC.1",
@@ -46,7 +46,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "@atomist/sdm-local": "1.0.0-RC.1",
+    "@atomist/sdm-local": "1.0.0-master.20181017154846",
     "@types/fs-extra": "^5.0.2",
     "@types/lodash": "^4.14.116",
     "@types/mocha": "^5.2.5",
