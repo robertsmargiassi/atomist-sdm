@@ -16,8 +16,8 @@
 
 import {
     Configuration,
-    safeExec,
     logger,
+    safeExec,
 } from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
 import { configureLogzio } from "@atomist/automation-client-ext-logzio";
