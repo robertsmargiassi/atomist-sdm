@@ -25,7 +25,7 @@ ENV SUPPRESS_NO_CONFIG_WARNING true
 
 ENTRYPOINT ["dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize_for_size", "--always_compact", "--max_old_space_size=384"]
 
-CMD ["node_modules/.bin/atm-start"]
+CMD ["/opt/app/node_modules/.bin/atm-start"]
 
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -46,7 +46,7 @@ RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes
 
 COPY package.json package-lock.json ./
 
-RUN npm ci \
+RUN NODE_ENV=development npm ci \
     && npm cache clean --force
 
 COPY . .
