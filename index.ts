@@ -78,6 +78,6 @@ export const configuration: Configuration = {
         },
     },
     logging: {
-        level: "debug"
-    }
+        level: "debug",
+    },
 };
