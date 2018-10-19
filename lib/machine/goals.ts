@@ -138,7 +138,8 @@ export const CheckGoals = goals("Check")
 export const LocalGoals = goals("Local Build")
     .plan(CheckGoals)
     .plan(version).after(autofix)
-    .plan(build).after(autofix, version);
+    .plan(build).after(version)
+    .plan(dockerBuild, publish).after(build);
 
 // Just running the build and publish
 export const BuildGoals = goals("Build")
