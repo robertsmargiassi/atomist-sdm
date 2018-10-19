@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-import { Configuration } from "@atomist/automation-client";
+import {
+    Configuration,
+    safeExec,
+} from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
 import { configureLogzio } from "@atomist/automation-client-ext-logzio";
 import { configureRaven } from "@atomist/automation-client-ext-raven";
 import {
     ConfigureOptions,
     configureSdm,
+    isGitHubAction,
 } from "@atomist/sdm-core";
 import { machine } from "./lib/machine/machine";
 
@@ -41,7 +45,14 @@ export const configuration: Configuration = {
         configureRaven,
         // configureEventLog(),
         configureSdm(machine, machineOptions),
-
+        // TODO move into sdm-local
+        async config => {
+            if (isGitHubAction()) {
+                await safeExec("git", ["config", "--global", "user.email", "\"bot@atomist.com\""]);
+                await safeExec("git", ["config", "--global", "user.name", "\"Atomist Bot\""]);
+            }
+            return config;
+        },
         // TODO CD remove
         async config => {
             setTimeout(() => {
@@ -66,4 +77,7 @@ export const configuration: Configuration = {
             path: "/opt/data",
         },
     },
+    logging: {
+        level: "debug"
+    }
 };
