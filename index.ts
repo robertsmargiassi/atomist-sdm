@@ -41,6 +41,14 @@ export const configuration: Configuration = {
         configureRaven,
         // configureEventLog(),
         configureSdm(machine, machineOptions),
+
+        // TODO CD remove
+        async config => {
+            setTimeout(() => {
+                process.exit(1);
+            }, 1000 * 60 * 10)
+            return config;
+        },
     ],
     sdm: {
         npm: {
