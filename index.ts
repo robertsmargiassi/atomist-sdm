@@ -17,6 +17,7 @@
 import {
     Configuration,
     safeExec,
+    logger,
 } from "@atomist/automation-client";
 // import { configureEventLog } from "@atomist/automation-client-ext-eventlog";
 import { configureLogzio } from "@atomist/automation-client-ext-logzio";
@@ -50,6 +51,7 @@ export const configuration: Configuration = {
             if (isGitHubAction()) {
                 await safeExec("git", ["config", "--global", "user.email", "\"bot@atomist.com\""]);
                 await safeExec("git", ["config", "--global", "user.name", "\"Atomist Bot\""]);
+                logger.info(JSON.stringify(process.argv));
             }
             return config;
         },
