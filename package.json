@@ -46,7 +46,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "@atomist/sdm-local": "1.0.0-github-actions.20181019162334",
+    "@atomist/sdm-local": "1.0.0-github-actions.20181019164749",
     "@types/fs-extra": "^5.0.2",
     "@types/lodash": "^4.14.116",
     "@types/mocha": "^5.2.5",
