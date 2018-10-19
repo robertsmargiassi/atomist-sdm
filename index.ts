@@ -77,7 +77,4 @@ export const configuration: Configuration = {
             path: "/opt/data",
         },
     },
-    logging: {
-        level: "debug",
-    },
 };
