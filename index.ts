@@ -46,7 +46,7 @@ export const configuration: Configuration = {
         async config => {
             setTimeout(() => {
                 process.exit(1);
-            }, 1000 * 60 * 10)
+            }, 1000 * 60 * 10);
             return config;
         },
     ],
