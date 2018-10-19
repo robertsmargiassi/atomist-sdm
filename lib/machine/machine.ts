@@ -33,6 +33,7 @@ import {
     EnableDeploy,
     gitHubGoalStatus,
     goalState,
+    IsGitHubAction,
     IsInLocalMode,
 } from "@atomist/sdm-core";
 import { buildAwareCodeTransforms } from "@atomist/sdm-pack-build";
@@ -83,7 +84,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Non Node repository")
             .setGoals(DoNotSetAnyGoals),
 
-        whenPushSatisfies(IsNode, IsInLocalMode)
+        whenPushSatisfies(IsNode, anySatisfied(IsInLocalMode, IsGitHubAction))
             .itMeans("Node repository in local mode")
             .setGoals(LocalGoals),
 
