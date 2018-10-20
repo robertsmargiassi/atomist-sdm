@@ -68,15 +68,16 @@ import {
     LocalGoals,
     SimplifiedKubernetesDeployGoals,
 } from "./goals";
+import { addHomebrewSupport } from "./homebrewSupport";
 import { addMavenSupport } from "./mavenSupport";
 import { addNodeSupport } from "./nodeSupport";
 import { addTeamPolicies } from "./teamPolicies";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
-            name: "Atomist Software Delivery Machine",
-            configuration,
-        },
+        name: "Atomist Software Delivery Machine",
+        configuration,
+    },
 
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
@@ -140,6 +141,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     addDockerSupport(sdm);
     addMavenSupport(sdm);
     addNodeSupport(sdm);
+    addHomebrewSupport(sdm);
     addTeamPolicies(sdm);
 
     sdm.addExtensionPacks(
