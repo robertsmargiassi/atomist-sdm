@@ -31,8 +31,9 @@ import {
     createSoftwareDeliveryMachine,
     DisableDeploy,
     EnableDeploy,
+    gitHubGoalStatus,
+    goalState,
     IsInLocalMode,
-    pack,
 } from "@atomist/sdm-core";
 import { buildAwareCodeTransforms } from "@atomist/sdm-pack-build";
 import { changelogSupport } from "@atomist/sdm-pack-changelog/lib/changelog";
@@ -156,8 +157,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
                 },
             },
         }),
-        pack.goalState.GoalState,
-        pack.githubGoalStatus.GitHubGoalStatus,
+        goalState(),
+        gitHubGoalStatus(),
         IssueSupport,
     );
     sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
