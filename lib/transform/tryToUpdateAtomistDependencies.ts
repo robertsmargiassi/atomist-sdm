@@ -91,8 +91,7 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
             await updateDependencies(pj.devDependencies, tag, range, versions, sendMessage);
         }
 
-        await pjFile.setContent(`${JSON.stringify(pj, null, 2)}
-`);
+        await pjFile.setContent(`${JSON.stringify(pj, undefined, 2)}\n`);
 
         if (!(await (p as GitProject).isClean())) {
             await sendMessage(`\nVersions updated. Running ${codeLine("npm install")}`);
@@ -100,9 +99,9 @@ export const UpdateAtomistDependenciesTransform: CodeTransform<UpdateAtomistDepe
             // dependencies in
             p.deleteFileSync("package-lock.json");
             const result = await spawnAndWatch({
-                    command: "npm",
-                    args: ["i"],
-                },
+                command: "npm",
+                args: ["i"],
+            },
                 {
                     cwd: (p as GitProject).baseDir,
                     env: {
@@ -151,9 +150,9 @@ async function updateDependencies(deps: any,
 async function latestVersion(module: string): Promise<string | undefined> {
     const log = new StringCapturingProgressLog();
     const result = await spawnAndWatch({
-            command: "npm",
-            args: ["show", module, "version"],
-        },
+        command: "npm",
+        args: ["show", module, "version"],
+    },
         {},
         log,
         {
@@ -181,7 +180,7 @@ export const TryToUpdateAtomistDependencies: CodeTransformRegistration<UpdateAto
 
 class BranchCommit implements EditMode {
 
-    constructor(private readonly params: UpdateAtomistDependenciesParameters) {}
+    constructor(private readonly params: UpdateAtomistDependenciesParameters) { }
 
     get message(): string {
         return this.params.commitMessage || "Update @atomist NPM dependencies";

@@ -15,6 +15,7 @@
  */
 
 import {
+    HandlerResult,
     Issue,
     ProjectOperationCredentials,
     RemoteRepoRef,
@@ -36,13 +37,18 @@ import {
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
-import { AddCommunityFiles } from "../autofix/addCommunityFiles";
+import {
+    AddCommunityFiles,
+} from "../autofix/addCommunityFiles";
+import {
+    UpdateSupportFiles,
+} from "../autofix/updateSupportFiles";
 import {
     autofix,
     pushImpact,
 } from "./goals";
 
-export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>) {
+export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMachineConfiguration>): void {
 
     // Upper case the title of a new issue
     sdm.addNewIssueListener(async l => {
@@ -65,12 +71,13 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
     });
 
     autofix.with(AddCommunityFiles);
+    autofix.with(UpdateSupportFiles);
 }
 
 async function warnAboutLowercaseCommitTitles(sdm: SoftwareDeliveryMachine,
                                               pushImpactListenerInvocation: PushImpactListenerInvocation,
                                               commits: PushFields.Commits[],
-                                              screenName: string) {
+                                              screenName: string): Promise<void> {
     const msg = slackWarningMessage(
         "Commit Message",
         `Please make sure that your commit messages start with an upper case letter.
@@ -95,7 +102,7 @@ ${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.mes
 
 async function upperCaseTitle(issueOrPr: { title?: string, body?: string, number?: number },
                               credentials: string | ProjectOperationCredentials,
-                              rr: RemoteRepoRef) {
+                              rr: RemoteRepoRef): Promise<HandlerResult> {
     const title = issueOrPr.title;
     if (!isUpperCase(title)) {
         const newIssue: Issue = {
