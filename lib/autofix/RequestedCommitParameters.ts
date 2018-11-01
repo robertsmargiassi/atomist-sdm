@@ -30,21 +30,21 @@ import {
 export class RequestedCommitParameters {
 
     @Parameter({
-            required: false,
-            description: "Branch to use. Default is 'master'.",
-            ...validationPatterns.GitBranchRegExp,
-        },
+        required: false,
+        description: "Branch to use. Default is 'master'.",
+        ...validationPatterns.GitBranchRegExp,
+    },
     )
-    private readonly branch = "master";
+    private readonly branch: string = "master";
 
     // TODO should really be a boolean, investigate client issue
-    @Parameter({required: false, pattern: /(true|false)/})
+    @Parameter({ required: false, pattern: /(true|false)/ })
     private readonly newBranch: string = "false";
 
-    @Parameter({required: false})
+    @Parameter({ required: false })
     // tslint gets the following variable declaration wrong, producing a compile error
     // tslint:disable-next-line:prefer-readonly
-    private commitMessage = "Command handler commit from Atomist";
+    private commitMessage: string = "Command handler commit from Atomist";
 
     private branchUsed: string;
 
@@ -61,7 +61,7 @@ export class RequestedCommitParameters {
         }
     }
 
-    get branchToUse() {
+    get branchToUse(): string {
         if (!!this.branchUsed) {
             return this.branchUsed;
         }
@@ -73,13 +73,14 @@ export class RequestedCommitParameters {
 
     get editMode(): EditMode {
         switch (this.presentAs) {
-            case "pr" :
+            case "pr":
                 return new editModes.PullRequest(
                     this.branchToUse,
                     this.commitMessage,
                     this.commitMessage);
-            case "branch" :
-                return {branch: this.branchToUse, message: this.commitMessage} as editModes.BranchCommit;
+            case "branch":
+                const bc: editModes.BranchCommit = { branch: this.branchToUse, message: this.commitMessage };
+                return bc;
         }
     }
 

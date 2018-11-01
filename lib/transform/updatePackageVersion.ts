@@ -19,8 +19,8 @@ import {
     GitProject,
     Parameter,
     Parameters,
+    SuccessIsReturn0ErrorFinder,
 } from "@atomist/automation-client";
-import { SuccessIsReturn0ErrorFinder } from "@atomist/automation-client";
 import {
     CodeTransform,
     CodeTransformRegistration,

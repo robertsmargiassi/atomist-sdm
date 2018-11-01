@@ -128,16 +128,6 @@ export const releaseVersion = new GoalWithFulfillment({
     failedDescription: "Incrementing version failure",
 }, releaseChangelog);
 
-export const smokeTest = new GoalWithFulfillment({
-    uniqueName: "smoke-test",
-    environment: ProductionEnvironment,
-    displayName: "smoke test",
-    workingDescription: "Running smoke tests",
-    completedDescription: "Run smoke tests",
-    failedDescription: "Smoke test failure",
-    isolated: true,
-}, build);
-
 // GOALSET Definition
 
 // Just running review and autofix
