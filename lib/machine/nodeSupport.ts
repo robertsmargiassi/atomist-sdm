@@ -46,6 +46,7 @@ import {
     RenameTest,
     RenameTestFix,
 } from "../autofix/test/testNamingFix";
+import { UpdateSupportFilesTransform } from "../autofix/updateSupportFiles";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
@@ -183,6 +184,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
         .addCodeTransformCommand(UpdatePackageVersion)
         .addCodeTransformCommand(TryToUpdateAtomistPeerDependencies)
         .addCodeTransformCommand(UpdatePackageAuthor)
+        .addCodeTransformCommand(UpdateSupportFilesTransform)
         .addCodeTransformCommand(RewriteImports)
         .addCodeTransformCommand(RenameTest);
 

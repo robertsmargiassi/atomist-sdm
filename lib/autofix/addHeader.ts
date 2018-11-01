@@ -57,7 +57,6 @@ export class AddHeaderParameters extends RequestedCommitParameters {
     }
 }
 
-/* tslint:disable */
 export const ApacheHeader = `/*
  * Copyright © 2018 Atomist, Inc.
  *
@@ -84,7 +83,7 @@ export const AddApacheLicenseTransform: CodeTransformRegistration<AddHeaderParam
 export async function addHeaderTransform(p: Project,
                                          ci: ParametersInvocation<AddHeaderParameters>): Promise<Project> {
 
-    let filesWithDifferentHeaders: any[] = [];
+    const filesWithDifferentHeaders: any[] = [];
     await projectUtils.doWithFiles(p, ci.parameters.glob, async f => {
         if (ci.parameters.excludeGlob && minimatch(f.path, ci.parameters.excludeGlob)) {
             return;
@@ -106,15 +105,18 @@ export async function addHeaderTransform(p: Project,
 
 /**
  * There are some lines that really need to be at the top.
- * 
+ *
  * If a file starts with '#!/executable/to/run', leave that at the top.
  * It's invalid to put a comment before it.
- * @param content 
+ * @param content to extract sh-bang line from
+ * @return two-element array, the first element if the sh-bang line or
+ *         an empty string if there is no sh-bang line, the second element
+ *         is the rest of the content.
  */
 function separatePrefixLines(content: string): [string, string] {
     if (content.startsWith("#!")) {
         const lines = content.split("\n");
-        return [lines[0] + "\n", lines.slice(1).join("\n")]
+        return [lines[0] + "\n", lines.slice(1).join("\n")];
     }
     return ["", content];
 }
