@@ -17,6 +17,5 @@ log/
 scripts/
 src/
 test/
-ts*.json
 **/*.log
 **/*.txt

@@ -40,13 +40,14 @@ export async function updateSupportFilesInProject(p: Project): Promise<Project> 
         try {
             const destFile = await p.getFile(src);
             if (!destFile) {
+                logger.debug(`Project ${p.name} has no ${src} to update`);
                 return p;
             }
             const srcPath = path.join(baseDir, src);
             const content = await fs.readFile(srcPath, "utf8");
             await destFile.setContent(content);
         } catch (e) {
-            logger.debug(`Failed to update content of ${src} in ${p.name}`);
+            logger.error(`Failed to update content of ${src} in ${p.name}: ${e.message}`);
         }
         return p;
     }))
