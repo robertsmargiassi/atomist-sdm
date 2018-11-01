@@ -130,6 +130,10 @@ export const releaseVersion = new GoalWithFulfillment({
 
 // GOALSET Definition
 
+// Just autofix
+export const FixGoals = goals("Fix")
+    .plan(autofix);
+
 // Just running review and autofix
 export const CheckGoals = goals("Check")
     .plan(autofix, autoCodeInspection, pushImpact, fingerprint);
