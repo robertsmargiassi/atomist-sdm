@@ -40,9 +40,7 @@ import * as _ from "lodash";
 import {
     AddCommunityFiles,
 } from "../autofix/addCommunityFiles";
-import {
-    UpdateSupportFiles,
-} from "../autofix/updateSupportFiles";
+// import { UpdateSupportFilesFix } from "../autofix/updateSupportFiles";
 import {
     autofix,
     pushImpact,
@@ -71,7 +69,7 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
     });
 
     autofix.with(AddCommunityFiles);
-    autofix.with(UpdateSupportFiles);
+    // autofix.with(UpdateSupportFilesFix);
 }
 
 async function warnAboutLowercaseCommitTitles(sdm: SoftwareDeliveryMachine,

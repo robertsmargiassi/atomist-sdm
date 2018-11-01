@@ -15,13 +15,17 @@
  */
 
 import {
+    EditMode,
+    editModes,
     logger,
     Project,
 } from "@atomist/automation-client";
 import {
     AutofixRegistration,
+    CodeTransformRegistration,
     ToDefaultBranch,
 } from "@atomist/sdm";
+import { BuildAwareMarker } from "@atomist/sdm-pack-build";
 import * as appRoot from "app-root-path";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -29,14 +33,11 @@ import * as path from "path";
 /**
  * Update the TypeScript support files in a project.  They are not
  * added if they do not already exist.
- *
- * @param p Project to add files to
- * @return the project
  */
 export async function updateSupportFilesInProject(p: Project): Promise<Project> {
     const communityFiles = ["tslint.json"];
     const baseDir = appRoot.path;
-    return Promise.all(communityFiles.map(async src => {
+    await Promise.all(communityFiles.map(async src => {
         try {
             const destFile = await p.getFile(src);
             if (!destFile) {
@@ -50,13 +51,46 @@ export async function updateSupportFilesInProject(p: Project): Promise<Project> 
             logger.error(`Failed to update content of ${src} in ${p.name}: ${e.message}`);
         }
         return p;
-    }))
-        .then(() => p);
-
+    }));
+    return p;
 }
 
-export const UpdateSupportFiles: AutofixRegistration = {
+export const UpdateSupportFilesFix: AutofixRegistration = {
     name: "Update support files",
     pushTest: ToDefaultBranch,
     transform: updateSupportFilesInProject,
+};
+
+/**
+ * Create pull request with auto-merge labels.
+ */
+class AutoMergeBranchCommit implements EditMode {
+
+    get message(): string {
+        return `Update TypeScript support files
+
+${BuildAwareMarker}
+`;
+    }
+
+    get branch(): string {
+        return `atomist-update-support-files-${Date.now()}`;
+    }
+
+    get autoMerge(): { mode: editModes.AutoMergeMode, method: editModes.AutoMergeMethod } {
+        return {
+            mode: editModes.AutoMergeMode.SuccessfulCheck,
+            method: editModes.AutoMergeMethod.Rebase,
+        };
+    }
+}
+
+export const UpdateSupportFilesTransform: CodeTransformRegistration = {
+    name: "UpdateSupportFilesAndFix",
+    description: "Update the TypeScript support files",
+    intent: "update support files",
+    transform: updateSupportFilesInProject,
+    transformPresentation: ci => {
+        return new AutoMergeBranchCommit();
+    },
 };
