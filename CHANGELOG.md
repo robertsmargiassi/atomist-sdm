@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Update src to lib in dependencies. [#54](https://github.com/atomist/atomist-sdm/issues/54)
 -   Move to projectListeners for nom install, version and compile. [#65](https://github.com/atomist/atomist-sdm/issues/65)
 -   Update Dockerfile to latest standard. [#72](https://github.com/atomist/atomist-sdm/issues/72)
+-   Make update support files a code transform command. [#80](https://github.com/atomist/atomist-sdm/issues/80)
 
 ### Fixed
 
