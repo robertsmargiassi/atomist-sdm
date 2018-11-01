@@ -74,6 +74,8 @@ import { addMavenSupport } from "./mavenSupport";
 import { addNodeSupport } from "./nodeSupport";
 import { addTeamPolicies } from "./teamPolicies";
 
+const AtomistHQWorkspace = "T095SFFBK";
+
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
         name: "Atomist Software Delivery Machine",
@@ -88,7 +90,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("Node repository in local mode")
             .setGoals(LocalGoals),
 
-        whenPushSatisfies(not(isSdmEnabled(configuration.name)), isTeam("T095SFFBK"))
+        whenPushSatisfies(not(isSdmEnabled(configuration.name)), isTeam(AtomistHQWorkspace))
             .itMeans("Node repository in atomist team that we are already building in atomist-community")
             .setGoals(DoNotSetAnyGoals),
 
