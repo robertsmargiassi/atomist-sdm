@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Add fingerprint support for npm. [#52](https://github.com/atomist/atomist-sdm/issues/52)
 -   Keep collaborator documents up to date. [#68](https://github.com/atomist/atomist-sdm/issues/68)
 -   Update Homebrew formula for CLI when it is released. [#69](https://github.com/atomist/atomist-sdm/issues/69)
+-   Provide autofix for tslint.json. [#77](https://github.com/atomist/atomist-sdm/issues/77)
 
 ### Changed
 
