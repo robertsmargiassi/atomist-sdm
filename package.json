@@ -45,6 +45,9 @@
     "minimatch": "^3.0.4",
     "semver": "^5.6.0",
     "spdx-license-list": "^4.0.0",
+    "tslint": "^5.11.0",
+    "typedoc": "^0.13.0",
+    "typescript": "^3.1.6",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
@@ -65,10 +68,7 @@
     "prettier": "^1.14.2",
     "rimraf": "^2.6.2",
     "supervisor": "^0.12.0",
-    "ts-node": "7.0.1",
-    "tslint": "^5.11.0",
-    "typedoc": "^0.13.0",
-    "typescript": "^3.1.6"
+    "ts-node": "7.0.1"
   },
   "directories": {
     "test": "test"
