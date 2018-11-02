@@ -65,6 +65,7 @@ import {
     CheckGoals,
     DockerGoals,
     DockerReleaseGoals,
+    FixGoals,
     KubernetesDeployGoals,
     LocalGoals,
     SimplifiedKubernetesDeployGoals,
@@ -91,13 +92,13 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(LocalGoals),
 
         whenPushSatisfies(not(isSdmEnabled(configuration.name)), isTeam(AtomistHQWorkspace))
-            .itMeans("Node repository in atomist team that we are already building in atomist-community")
+            .itMeans("Disabled repository in atomisthq workspace")
             .setGoals(DoNotSetAnyGoals),
 
         // Node
         whenPushSatisfies(allSatisfied(IsNode, not(IsMaven)), not(MaterialChangeToNodeRepo))
             .itMeans("No Material Change")
-            .setGoals(Immaterial),
+            .setGoals(FixGoals),
 
         // Maven
         whenPushSatisfies(IsMaven, not(MaterialChangeToJavaRepo))
