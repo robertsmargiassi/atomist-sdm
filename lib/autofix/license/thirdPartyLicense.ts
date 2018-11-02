@@ -18,6 +18,8 @@ import {
     GitProject,
     NoParameters,
     Project,
+    spawnAndWatch,
+    SuccessIsReturn0ErrorFinder,
 } from "@atomist/automation-client";
 import {
     allSatisfied,
@@ -25,6 +27,7 @@ import {
     CodeTransform,
     not,
     PushTest,
+    StringCapturingProgressLog,
     ToDefaultBranch,
 } from "@atomist/sdm";
 import { IsInLocalMode } from "@atomist/sdm-core";
@@ -65,6 +68,23 @@ export function addThirdPartyLicenseTransform(): CodeTransform<NoParameters> {
 
         const pj = JSON.parse((await fs.readFile(path.join(cwd, "package.json"))).toString());
         const ownModule = `${pj.name}@${pj.version}`;
+
+        if (!(await p.hasDirectory("node_modules"))) {
+            const result = await spawnAndWatch({
+                    command: "npm",
+                    args: ["i", "--only-production"],
+                },
+                {
+                    cwd,
+                },
+                new StringCapturingProgressLog(),
+                {
+                    errorFinder: SuccessIsReturn0ErrorFinder,
+                });
+            if (result && result.code !== 0) {
+                return p;
+            }
+        }
 
         const json = await
             promisify(lc.init)({
