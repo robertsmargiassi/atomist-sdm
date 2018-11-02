@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Move to projectListeners for nom install, version and compile. [#65](https://github.com/atomist/atomist-sdm/issues/65)
 -   Update Dockerfile to latest standard. [#72](https://github.com/atomist/atomist-sdm/issues/72)
 -   Make update support files a code transform command. [#80](https://github.com/atomist/atomist-sdm/issues/80)
+-   Run autofix on immaterial changes to Node repos. [#79](https://github.com/atomist/atomist-sdm/issues/79)
 
 ### Fixed
 
