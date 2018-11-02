@@ -34,6 +34,7 @@ describe("thirdPartyLicense", () => {
                 return true;
             },
             deleteDirectory: () => "",
+            hasDirectory: async () => true,
         } as any as Project, undefined)
             .then(() => {
                 // tslint:disable:max-line-length
