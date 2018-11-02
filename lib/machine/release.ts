@@ -528,7 +528,7 @@ export async function docsReleasePreparation(p: GitProject, gi: GoalInvocation):
             cwd: p.baseDir,
         },
         {
-            cmd: { command: "npm", args: ["run", "typedoc"] },
+            cmd: { command: "npm", args: ["run", "doc"] },
             cwd: p.baseDir,
         },
     ];
