@@ -107,9 +107,9 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     build.with({
         ...NodeDefaultOptions,
         name: "npm-run-build",
-        builder: nodeBuilder("npm run build"),
+        builder: nodeBuilder("npm run compile", "npm test"),
         pushTest: NodeDefaultOptions.pushTest,
-    })
+   })
         .withProjectListener(NodeModulesProjectListener);
 
     publish.with({
