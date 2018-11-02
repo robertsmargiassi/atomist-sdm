@@ -38,6 +38,7 @@
     },
     "curly": true,
     "cyclomatic-complexity": {
+      "severity": "warning",
       "options": [10]
     },
     "eofline": true,
@@ -53,12 +54,15 @@
     "jsdoc-format": true,
     "label-position": true,
     "max-classes-per-file": {
+      "severity": "warning",
       "options": [7]
     },
     "max-file-line-count": {
+      "severity": "warning",
       "options": [400]
     },
     "max-line-length": {
+      "severity": "warning",
       "options": [150]
     },
     "member-access": true,
@@ -89,12 +93,16 @@
     "no-import-side-effect": true,
     "no-inferred-empty-object-type": true,
     "no-internal-module": true,
-    "no-invalid-template-strings": true,
+    "no-invalid-template-strings": {
+      "severity": "warning"
+    },
     "no-invalid-this": true,
     "no-magic-numbers": false,
     "no-misused-new": true,
     "no-namespace": true,
-    "no-null-keyword": true,
+    "no-null-keyword": {
+      "severity": "warning"
+    },
     "no-object-literal-type-assertion": true,
     "no-parameter-properties": false,
     "no-parameter-reassignment": true,
