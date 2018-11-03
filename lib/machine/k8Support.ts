@@ -50,7 +50,13 @@ export function kubernetesDeploymentData(sdm: SoftwareDeliveryMachine): (g: SdmG
 
 function namespaceFromGoal(goal: SdmGoalEvent): string {
     const name = goal.repo.name;
-    if (/-sdm$/.test(name) && name !== "sample-sdm" && name !== "spring-sdm") {
+    if (name === "atomist-internal-sdm") {
+        if (goal.environment === StagingEnvironment.replace(/\/$/, "")) {
+            return "sdm-testing";
+        } else if (goal.environment === ProductionEnvironment.replace(/\/$/, "")) {
+            return "sdm";
+        }
+    } else if (/-sdm$/.test(name) && name !== "sample-sdm" && name !== "spring-sdm") {
         return "sdm";
     } else if (name === "k8-automation") {
         return "k8-automation";
@@ -58,10 +64,9 @@ function namespaceFromGoal(goal: SdmGoalEvent): string {
         return "testing";
     } else if (goal.environment === ProductionEnvironment.replace(/\/$/, "")) {
         return "production";
-    } else {
-        logger.debug(`Unmatched goal.environment using default namespace: ${goal.environment}`);
-        return "default";
     }
+    logger.debug(`Unmatched goal.environment using default namespace: ${goal.environment}`);
+    return "default";
 }
 
 export interface Ingress {
