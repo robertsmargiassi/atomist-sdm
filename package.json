@@ -33,7 +33,7 @@
     "@atomist/sdm-pack-docker": "1.0.0-master.20181104121247",
     "@atomist/sdm-pack-issue": "1.0.0-RC.2",
     "@atomist/sdm-pack-k8": "1.0.0-RC.2",
-    "@atomist/sdm-pack-node": "1.0.0-RC.2",
+    "@atomist/sdm-pack-node": "1.0.0-master.20181104122318",
     "@atomist/sdm-pack-spring": "1.0.0-RC.2",
     "@atomist/slack-messages": "1.0.0",
     "@types/app-root-path": "^1.2.4",
