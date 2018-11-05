@@ -28,7 +28,6 @@ import {
     slackWarningMessage,
 } from "@atomist/sdm";
 import {
-    channel,
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";

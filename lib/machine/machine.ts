@@ -70,7 +70,6 @@ import {
     isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
-import { SdmGoalState } from "../typings/types";
 import { addDockerSupport } from "./dockerSupport";
 import { addGithubSupport } from "./githubSupport";
 import {
@@ -205,7 +204,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             const msg: SlackMessage = {
                 attachments: [{
                     text: `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
-                        codeLine(`${gi.goal.repo.owner}/${gi.goal.repo.name}`} requires confirmation for approval`,
+                        codeLine(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires confirmation for approval`,
                     fallback: "Goal requires approval",
                     actions: [buttonForCommand(
                         { text: "Approve" },
