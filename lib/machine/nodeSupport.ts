@@ -26,6 +26,9 @@ import {
     DockerOptions,
 } from "@atomist/sdm-pack-docker";
 import {
+    singleIssuePerCategoryManaging,
+} from "@atomist/sdm-pack-issue";
+import {
     executePublish,
     IsNode,
     nodeBuilder,
@@ -114,7 +117,8 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     })
         .withProjectListener(NodeModulesProjectListener);
 
-    autoCodeInspection.with(RunTslint);
+    autoCodeInspection.with(RunTslint)
+        .withListener(singleIssuePerCategoryManaging("tslint", true, p => true));
 
     publish.with({
         ...NodeDefaultOptions,

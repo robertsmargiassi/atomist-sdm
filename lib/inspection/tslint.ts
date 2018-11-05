@@ -17,6 +17,8 @@
 import {
     logger,
     Project,
+    ProjectReview,
+    ReviewComment,
     safeExec,
 } from "@atomist/automation-client";
 import {
@@ -56,15 +58,49 @@ export interface TslintResult {
 export type TslintResults = TslintResult[];
 
 /**
+ * Convert the JSON output of TSLint to proper ReviewComments.  If any
+ * part of the process fails, an empty array is returned.
+ *
+ * @param tslintOutput string output from running `tslint` that will be parsed and converted.
+ * @return TSLint errors and warnings as ReviewComments
+ */
+export function mapTslintResultsToReviewComments(tslintOutput: string): ReviewComment[] {
+    let results: TslintResults;
+    try {
+        results = JSON.parse(tslintOutput);
+    } catch (e) {
+        logger.error(`Failed to parse TSLint output '${tslintOutput}': ${e.message}`);
+        return [];
+    }
+
+    return results.map(r => {
+        const comment: ReviewComment = {
+            severity: (r.ruleSeverity === "ERROR") ? "error" : "warn",
+            detail: r.failure,
+            category: "lint",
+            subcategory: "tslint",
+            sourceLocation: {
+                path: r.name.split(process.cwd() + path.sep)[1],
+                offset: r.startPosition.position,
+                columnFrom1: r.startPosition.character + 1,
+                lineFrom1: r.startPosition.line + 1,
+            },
+        };
+        return comment;
+    });
+}
+
+/**
  * Run TSLint on a project with a tslint.json file, using the standard
  * version of TSLint and its configuration, i.e., the ones in this
  * project.
  */
-export const RunTslintOnProject: CodeInspection<TslintResults> = async (p: Project) => {
+export const RunTslintOnProject: CodeInspection<ProjectReview> = async (p: Project) => {
+    const review: ProjectReview = { repoId: p.id, comments: [] };
     const tslintJson = "tslint.json";
     const tslintConfigFile = await p.getFile(tslintJson);
     if (!tslintConfigFile) {
-        return [];
+        return review;
     }
     const baseDir = appRoot.path;
     const tslintExe = path.join(baseDir, "node_modules", ".bin", "tslint");
@@ -88,25 +124,20 @@ export const RunTslintOnProject: CodeInspection<TslintResults> = async (p: Proje
         } else {
             // if something else went wrong, we end up here
             logger.error(`Failed to run TSLint: ${e.message}`);
-            return [];
+            return review;
         }
     }
 
-    try {
-        const results: TslintResults = JSON.parse(output);
-        return results;
-    } catch (e) {
-        logger.error(`Failed to parse TSLint output '${output}': ${e.message}`);
-    }
+    review.comments.push(...mapTslintResultsToReviewComments(output));
 
-    return [];
+    return review;
 };
 
 /**
  * Provide a code inspection that runs TSLint.  If linting reports
  * fails, create an issue.
  */
-export const RunTslint: CodeInspectionRegistration<TslintResults> = {
+export const RunTslint: CodeInspectionRegistration<ProjectReview> = {
     name: "Update support files",
     inspection: RunTslintOnProject,
 };
