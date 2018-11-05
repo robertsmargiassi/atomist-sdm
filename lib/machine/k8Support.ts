@@ -43,7 +43,7 @@ export function kubernetesDeploymentData(sdm: SoftwareDeliveryMachine): (g: SdmG
                 imagePullSecret: "atomistjfrog",
                 replicas: ns === "production" ? 3 : 1,
                 ...ingress,
-            } as any;
+            };
         });
     };
 }
