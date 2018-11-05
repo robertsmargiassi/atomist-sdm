@@ -61,6 +61,7 @@ import { addGithubSupport } from "./githubSupport";
 import {
     build,
     BuildGoals,
+    BuildReleaseAndHomebrewGoals,
     BuildReleaseGoals,
     CheckGoals,
     DockerGoals,
@@ -127,6 +128,14 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         whenPushSatisfies(anySatisfied(IsNode, IsMaven), HasDockerfile)
             .itMeans("Docker Build")
             .setGoals(DockerGoals),
+
+        whenPushSatisfies(IsNode, not(HasDockerfile), ToDefaultBranch)
+            .itMeans("Release Build")
+            .setGoals(BuildReleaseGoals),
+
+        whenPushSatisfies(isNamed("cli"), IsNode, not(HasDockerfile), ToDefaultBranch)
+            .itMeans("Release Build")
+            .setGoals(BuildReleaseAndHomebrewGoals),
 
         whenPushSatisfies(IsNode, not(HasDockerfile), ToDefaultBranch)
             .itMeans("Release Build")

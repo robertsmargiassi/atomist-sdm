@@ -160,7 +160,11 @@ export const BuildReleaseGoals = goals("Build with Release")
     .plan(publishWithApproval).after(build)
     .plan(releaseNpm, releaseDocs, releaseVersion).after(publishWithApproval)
     .plan(releaseChangelog).after(releaseVersion)
-    .plan(releaseTag, releaseHomebrew).after(releaseNpm);
+    .plan(releaseTag).after(releaseNpm);
+
+export const BuildReleaseAndHomebrewGoals = goals("Build with Release, Homebrew")
+    .plan(BuildReleaseGoals)
+    .plan(releaseHomebrew).after(releaseNpm);
 
 // Build including docker build
 export const DockerGoals = goals("Docker Build")
