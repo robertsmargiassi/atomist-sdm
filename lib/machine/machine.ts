@@ -226,7 +226,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
                     footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
                 }],
             };
-            await gi.context.messageClient.addressUsers(msg, gi.goal.preApproval.userId, {id: msgId});
+            await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, {id: msgId});
             return {
                 vote: GoalApprovalRequestVote.Abstain,
             };
