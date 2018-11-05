@@ -49,9 +49,6 @@ class ApprovalParameters {
     @Parameter({ displayable: false, required: true })
     public goalState: SdmGoalState;
 
-    @Parameter({ description: "Some test parameter" })
-    public foo: string;
-
     @Parameter({ required: false })
     public msgId: string;
 
