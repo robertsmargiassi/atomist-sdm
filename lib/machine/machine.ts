@@ -15,10 +15,16 @@
  */
 
 import {
+    buttonForCommand,
+    configurationValue,
+    guid,
+} from "@atomist/automation-client";
+import {
     allSatisfied,
     anySatisfied,
     DoNotSetAnyGoals,
     githubTeamVoter,
+    GoalApprovalRequestVote,
     Immaterial,
     IsDeployEnabled,
     not,
@@ -49,6 +55,14 @@ import {
 } from "@atomist/sdm-pack-spring";
 import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
+import {
+    codeLine,
+    SlackMessage,
+} from "@atomist/slack-messages";
+import {
+    ApprovalCommand,
+    CancelApprovalCommand,
+} from "../command/approval";
 import { BadgeSupport } from "../command/badge";
 import { CreateTag } from "../command/tag";
 import {
@@ -56,6 +70,7 @@ import {
     isTeam,
 } from "../support/identityPushTests";
 import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
+import { SdmGoalState } from "../typings/types";
 import { addDockerSupport } from "./dockerSupport";
 import { addGithubSupport } from "./githubSupport";
 import {
@@ -173,7 +188,53 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         gitHubGoalStatus(),
         IssueSupport,
     );
-    sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"));
+
+    sdm.addGoalApprovalRequestVoter(githubTeamVoter("atomist-automation"))
+        .addGoalApprovalRequestVoter(async gi => {
+
+            if (gi.goal.data) {
+                const data = JSON.parse(gi.goal.data);
+                if (data.approved) {
+                    return {
+                        vote: GoalApprovalRequestVote.Granted,
+                    };
+                }
+            }
+
+            const msgId = guid();
+            const msg: SlackMessage = {
+                attachments: [{
+                    text: `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
+                        codeLine(`${gi.goal.repo.owner}/${gi.goal.repo.name}`} requires confirmation for approval`,
+                    fallback: "Goal requires approval",
+                    actions: [buttonForCommand(
+                        { text: "Approve" },
+                        "ApprovalCommand",
+                        {
+                            goalSetId: gi.goal.goalSetId,
+                            goalUniqueName: gi.goal.uniqueName,
+                            goalState: gi.goal.state,
+                            msgId,
+                        }), buttonForCommand(
+                        { text: "Cancel" },
+                        "CancelApprovalCommand",
+                        {
+                            goalSetId: gi.goal.goalSetId,
+                            goalUniqueName: gi.goal.uniqueName,
+                            goalState: gi.goal.state,
+                            msgId,
+                        })],
+                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
+                }],
+            };
+            await gi.context.messageClient.addressUsers(msg, gi.goal.preApproval.userId, {id: msgId});
+            return {
+                vote: GoalApprovalRequestVote.Abstain,
+            };
+        });
+
+    sdm.addCommand(ApprovalCommand)
+        .addCommand(CancelApprovalCommand);
 
     return sdm;
 }
