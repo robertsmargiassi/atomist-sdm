@@ -56,6 +56,7 @@ import {
 import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
 import {
+    bold,
     codeLine,
     SlackMessage,
 } from "@atomist/slack-messages";
@@ -204,7 +205,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             const msg: SlackMessage = {
                 attachments: [{
                     text: `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
-                        codeLine(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires confirmation for approval`,
+                        bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires confirmation for approval`,
                     fallback: "Goal requires approval",
                     actions: [buttonForCommand(
                         { text: "Approve" },

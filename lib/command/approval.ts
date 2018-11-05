@@ -28,6 +28,7 @@ import {
     slackWarningMessage,
 } from "@atomist/sdm";
 import {
+    bold,
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
@@ -82,7 +83,7 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
             slackSuccessMessage(
                 "Approve Goal",
                 `Successfully approved goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
-                    codeLine(`${goal.repo.owner}/${goal.repo.name}`)}`,
+                    bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 {
                     footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
                 }),
@@ -123,7 +124,7 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
             slackWarningMessage(
                 "Approve Goal",
                 `Successfully canceled approval of goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
-                    codeLine(`${goal.repo.owner}/${goal.repo.name}`)}`,
+                    bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 ci.context,
                 {
                     footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
