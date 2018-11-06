@@ -2,9 +2,6 @@
   "defaultSeverity": "error",
   "extends": [],
   "jsRules": {},
-  "linterOptions": {
-    "exclude": ["node_modules/**", "**/*.d.ts"]
-  },
   "rules": {
     "adjacent-overload-signatures": true,
     "align": {

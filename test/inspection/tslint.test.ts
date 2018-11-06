@@ -17,7 +17,6 @@
 import {
     logger,
 } from "@atomist/automation-client";
-import * as appRoot from "app-root-path";
 import * as path from "path";
 import * as assert from "power-assert";
 import {
@@ -41,11 +40,21 @@ describe("tslint", () => {
             logger.error = loggerError;
         });
 
+        it("should handle an empty array", () => {
+            errorMessage = undefined;
+            const c = mapTslintResultsToReviewComments("[]", "");
+            assert(c.length === 0);
+            assert(!errorMessage);
+        });
+
         it("should properly parse TSLint JSON output", () => {
+            errorMessage = undefined;
+            const d = "/some/path/to/something";
             // tslint:disable-next-line:max-line-length
-            const o = `[{"endPosition":{"character":191,"line":1,"position":205},"failure":"Exceeds maximum line length of 150","name":"${appRoot.path}${path.sep}test/inspection/tslint.test.ts","ruleName":"max-line-length","ruleSeverity":"WARNING","startPosition":{"character":0,"line":1,"position":14}},{"endPosition":{"character":11,"line":1,"position":25},"failure":"Calls to 'console.log' are not allowed.","name":"${appRoot.path}${path.sep}lib/inspection/tslint.ts","ruleName":"no-console","ruleSeverity":"WARNING","startPosition":{"character":0,"line":1,"position":14}},{"endPosition":{"character":13,"line":0,"position":13},"failure":"Missing semicolon","fix":{"innerStart":13,"innerLength":0,"innerText":";"},"name":"${appRoot.path}${path.sep}lib/inspection/tslint.ts","ruleName":"semicolon","ruleSeverity":"ERROR","startPosition":{"character":13,"line":0,"position":13}}]`;
-            const c = mapTslintResultsToReviewComments(o);
+            const o = `[{"endPosition":{"character":191,"line":1,"position":205},"failure":"Exceeds maximum line length of 150","name":"${d}${path.sep}test/inspection/tslint.test.ts","ruleName":"max-line-length","ruleSeverity":"WARNING","startPosition":{"character":0,"line":1,"position":14}},{"endPosition":{"character":11,"line":1,"position":25},"failure":"Calls to 'console.log' are not allowed.","name":"${d}${path.sep}lib/inspection/tslint.ts","ruleName":"no-console","ruleSeverity":"WARNING","startPosition":{"character":0,"line":1,"position":14}},{"endPosition":{"character":13,"line":0,"position":13},"failure":"Missing semicolon","fix":{"innerStart":13,"innerLength":0,"innerText":";"},"name":"${d}${path.sep}lib/inspection/tslint.ts","ruleName":"semicolon","ruleSeverity":"ERROR","startPosition":{"character":13,"line":0,"position":13}}]`;
+            const c = mapTslintResultsToReviewComments(o, d);
             assert(c.length === 3);
+            assert(!errorMessage);
             c.forEach(r => {
                 assert(r.category === "lint");
                 assert(r.subcategory === "tslint");
@@ -72,7 +81,7 @@ describe("tslint", () => {
 
         it("should handle no output", () => {
             errorMessage = undefined;
-            const c = mapTslintResultsToReviewComments("");
+            const c = mapTslintResultsToReviewComments("", "");
             assert(c.length === 0);
             assert(errorMessage);
             assert(errorMessage.startsWith("Failed to parse TSLint output '"));
@@ -80,7 +89,7 @@ describe("tslint", () => {
 
         it("should handle output with just whitespace", () => {
             errorMessage = undefined;
-            const c = mapTslintResultsToReviewComments("  \n");
+            const c = mapTslintResultsToReviewComments("  \n", "");
             assert(c.length === 0);
             assert(errorMessage);
             assert(errorMessage.startsWith("Failed to parse TSLint output '"));
@@ -88,7 +97,7 @@ describe("tslint", () => {
 
         it("should handle bad input", () => {
             errorMessage = undefined;
-            const c = mapTslintResultsToReviewComments("]})({[");
+            const c = mapTslintResultsToReviewComments("]})({[", "");
             assert(c.length === 0);
             assert(errorMessage);
             assert(errorMessage.startsWith("Failed to parse TSLint output '"));

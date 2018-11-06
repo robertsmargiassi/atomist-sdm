@@ -15,6 +15,7 @@
  */
 
 import {
+    isLocalProject,
     logger,
     Project,
     ProjectReview,
@@ -24,10 +25,16 @@ import {
 import {
     CodeInspection,
     CodeInspectionRegistration,
+    ReviewListener,
+    ReviewListenerInvocation,
+    ReviewListenerRegistration,
 } from "@atomist/sdm";
+import {
+    BranchFilter,
+    singleIssuePerCategoryManagingReviewListener,
+} from "@atomist/sdm-pack-issue";
 import * as appRoot from "app-root-path";
 import * as path from "path";
-import * as process from "process";
 
 export interface TslintPosition {
     character: number;
@@ -64,7 +71,7 @@ export type TslintResults = TslintResult[];
  * @param tslintOutput string output from running `tslint` that will be parsed and converted.
  * @return TSLint errors and warnings as ReviewComments
  */
-export function mapTslintResultsToReviewComments(tslintOutput: string): ReviewComment[] {
+export function mapTslintResultsToReviewComments(tslintOutput: string, dir: string): ReviewComment[] {
     let results: TslintResults;
     try {
         results = JSON.parse(tslintOutput);
@@ -80,7 +87,7 @@ export function mapTslintResultsToReviewComments(tslintOutput: string): ReviewCo
             category: "lint",
             subcategory: "tslint",
             sourceLocation: {
-                path: r.name.split(process.cwd() + path.sep)[1],
+                path: r.name.replace(dir + path.sep, ""),
                 offset: r.startPosition.position,
                 columnFrom1: r.startPosition.character + 1,
                 lineFrom1: r.startPosition.line + 1,
@@ -105,30 +112,32 @@ export const RunTslintOnProject: CodeInspection<ProjectReview> = async (p: Proje
     const baseDir = appRoot.path;
     const tslintExe = path.join(baseDir, "node_modules", ".bin", "tslint");
     const tslintConfig = path.join(baseDir, tslintJson);
-    logger.debug(`Running ${tslintExe} using ${tslintConfig} on ${p.name} in ${process.cwd}`);
+
+    if (!isLocalProject(p)) {
+        logger.error(`Project ${p.name} is not a local project`);
+        return review;
+    }
+    const cwd = p.baseDir;
+    logger.debug(`Running ${tslintExe} using ${tslintConfig} on ${p.name} in ${cwd}`);
     const tslintArgs = [
         "--config", tslintConfig,
         "--format", "json",
-        "--project", ".",
-        "**/*.ts",
+        "--project", cwd,
+        "--force",
     ];
     let output: string;
     try {
-        const tslintResult = await safeExec(tslintExe, tslintArgs);
-        // if there are only warning violations, exit status is zero and we end up here
+        const tslintResult = await safeExec(tslintExe, tslintArgs, { cwd });
+        logger.debug(`tslint:stdout:${tslintResult.stdout}`);
+        logger.debug(`tslint:stderr:${tslintResult.stderr}`);
         output = tslintResult.stdout;
     } catch (e) {
-        if (e.code && e.stdout) {
-            // if there are error violations, we end up here
-            output = e.stdout;
-        } else {
-            // if something else went wrong, we end up here
-            logger.error(`Failed to run TSLint: ${e.message}`);
-            return review;
-        }
+        logger.error(`Failed to run TSLint: ${e.message}`);
+        return review;
     }
 
-    review.comments.push(...mapTslintResultsToReviewComments(output));
+    review.comments.push(...mapTslintResultsToReviewComments(output, p.baseDir).slice(0, 20));
+    // logger.debug(`tslint:review:${JSON.stringify(review, undefined, 2)}`);
 
     return review;
 };
@@ -141,3 +150,35 @@ export const RunTslint: CodeInspectionRegistration<ProjectReview> = {
     name: "Update support files",
     inspection: RunTslintOnProject,
 };
+
+/**
+ * A review listener that creates a GitHub issue and fails the code
+ * inspection review if any reviews exist.
+ *
+ * @param source Unique identifier for the review
+ * @param assignIssue if true, assign created issue to last commit author
+ * @param branchFilter only process if this function returns true
+ */
+function createIssueAndFailGoalReviewListener(source: string, assignIssue: boolean, branchFilter: BranchFilter): ReviewListener {
+    return async (ri: ReviewListenerInvocation) => {
+        await singleIssuePerCategoryManagingReviewListener(source, assignIssue, branchFilter)(ri);
+        if (ri && ri.review && ri.review.comments && ri.review.comments.length > 0) {
+            throw new Error(`Review resulted in comments so failing goal`);
+        }
+    };
+}
+
+/**
+ * A review listener that fails if there are reviews.
+ */
+export function createIssueAndFailGoal(
+    source: string,
+    assign: boolean = true,
+    branchFilter: BranchFilter = p => true,
+): ReviewListenerRegistration {
+
+    return {
+        name: "GitHub Issue Review Listener",
+        listener: createIssueAndFailGoalReviewListener(source, assign, branchFilter),
+    };
+}

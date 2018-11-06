@@ -89,7 +89,7 @@
     "doc": "typedoc --mode modules --excludeExternals --ignoreCompilerErrors --exclude \"**/*.d.ts\" --out doc index.ts lib",
     "git:info": "atm-git-info",
     "gql:gen": "atm-gql-gen",
-    "lint": "tslint --config tslint.json --format verbose --project . \"**/*.ts\"",
+    "lint": "tslint --config tslint.json --format verbose --project .",
     "lint:fix": "npm run lint -- --fix",
     "start": "atm-start",
     "test": "mocha --require espower-typescript/guess \"test/**/*.test.ts\"",
