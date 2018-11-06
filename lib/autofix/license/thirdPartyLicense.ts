@@ -72,7 +72,7 @@ export function addThirdPartyLicenseTransform(): CodeTransform<NoParameters> {
         if (!(await p.hasDirectory("node_modules"))) {
             const result = await spawnAndWatch({
                     command: "npm",
-                    args: ["i", "--only-production"],
+                    args: ["ci"],
                 },
                 {
                     cwd,
