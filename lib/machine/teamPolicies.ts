@@ -71,7 +71,7 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
         const commits = l.push.commits.filter(c => {
             const doc = nlp(c.message);
             const tenses = doc.verbs().conjugation();
-            return !tenses.some(t => t.toLowerCase() === "past" || t.toLowerCase() === "pasttense");
+            return tenses.some(t => t.toLowerCase() === "past" || t.toLowerCase() === "pasttense");
         });
 
         if (screenName && commits.length > 0) {
