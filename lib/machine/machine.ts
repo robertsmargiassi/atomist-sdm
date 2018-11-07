@@ -89,6 +89,7 @@ import {
 import { addHomebrewSupport } from "./homebrewSupport";
 import { addMavenSupport } from "./mavenSupport";
 import { addNodeSupport } from "./nodeSupport";
+import { IsReleaseCommit } from "./release";
 import { addTeamPolicies } from "./teamPolicies";
 
 const AtomistHQWorkspace = "T095SFFBK";
@@ -101,6 +102,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
+            .setGoals(DoNotSetAnyGoals),
+
+        whenPushSatisfies(IsReleaseCommit)
+            .itMeans("Release commit")
             .setGoals(DoNotSetAnyGoals),
 
         whenPushSatisfies(IsNode, IsInLocalMode)
