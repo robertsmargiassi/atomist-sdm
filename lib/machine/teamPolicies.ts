@@ -69,7 +69,8 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
         const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         const nlp = require("compromise");
         const commits = l.push.commits.filter(c => {
-            const doc = nlp(c.message);
+            const msg = c.message.split("\n")[0];
+            const doc = nlp(msg);
             const tenses = doc.verbs().conjugation();
             return tenses.some(t => t.toLowerCase() === "past" || t.toLowerCase() === "pasttense");
         });
