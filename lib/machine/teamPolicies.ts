@@ -37,9 +37,7 @@ import {
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
-import {
-    AddCommunityFiles,
-} from "../autofix/addCommunityFiles";
+import { AddCommunityFiles } from "../autofix/addCommunityFiles";
 // import { UpdateSupportFilesFix } from "../autofix/updateSupportFiles";
 import {
     autofix,
@@ -63,28 +61,42 @@ export function addTeamPolicies(sdm: SoftwareDeliveryMachine<SoftwareDeliveryMac
         const commits = l.push.commits.filter(c => !isUpperCase(c.message));
         const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
         if (screenName && commits.length > 0) {
-            await warnAboutLowercaseCommitTitles(sdm, l, commits, screenName);
+            await warnAboutInvalidCommitMessages(sdm, l, commits, screenName);
+        }
+
+        return Success;
+    }).withListener(async l => {
+        const screenName = _.get(l.push, "after.committer.person.chatId.screenName");
+        const nlp = require("compromise");
+        const commits = l.push.commits.filter(c => {
+            const doc = nlp(c.message);
+            const tenses = doc.verbs().conjugation();
+            return !tenses.some(t => t.toLowerCase() === "past" || t.toLowerCase() === "pasttense");
+        });
+
+        if (screenName && commits.length > 0) {
+            await warnAboutInvalidCommitMessages(sdm, l, commits, screenName);
         }
         return Success;
     });
 
     autofix.with(AddCommunityFiles);
-    // autofix.with(UpdateSupportFilesFix);
+// autofix.with(UpdateSupportFilesFix);
 }
 
-async function warnAboutLowercaseCommitTitles(sdm: SoftwareDeliveryMachine,
+async function warnAboutInvalidCommitMessages(sdm: SoftwareDeliveryMachine,
                                               pushImpactListenerInvocation: PushImpactListenerInvocation,
                                               commits: PushFields.Commits[],
                                               screenName: string): Promise<void> {
     const msg = slackWarningMessage(
         "Commit Message",
-        `Please make sure that your commit messages start with an upper case letter.
+        `Please make sure that your commit messages start with an upper case letter and use present tense.
 
 The following ${commits.length > 1 ? "commits" : "commit"} in ${
-        bold(`${pushImpactListenerInvocation.push.repo.owner}/${
-            pushImpactListenerInvocation.push.repo.name}/${
-            pushImpactListenerInvocation.push.branch}`)} ${
-        commits.length > 1 ? "don't" : "doesn't"} follow that standard:
+            bold(`${pushImpactListenerInvocation.push.repo.owner}/${
+                pushImpactListenerInvocation.push.repo.name}/${
+                pushImpactListenerInvocation.push.branch}`)} ${
+            commits.length > 1 ? "don't" : "doesn't"} follow that standard:
 
 ${commits.map(c => `${codeLine(c.sha.slice(0, 7))} ${truncateCommitMessage(c.message, pushImpactListenerInvocation.push.repo)}`).join("\n")}`,
         pushImpactListenerInvocation.context, {

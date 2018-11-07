@@ -39,6 +39,7 @@
     "@types/app-root-path": "^1.2.4",
     "@types/semver": "^5.5.0",
     "app-root-path": "^2.1.0",
+    "compromise": "^11.12.3",
     "fs-extra": "^7.0.0",
     "license-checker": "^20.2.0",
     "lodash": "^4.17.10",

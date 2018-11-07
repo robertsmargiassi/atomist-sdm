@@ -86,5 +86,4 @@ describe("addHeader", () => {
             assert(newContent.startsWith("#!/usr/bin/env ts-node;\n" + ApacheHeader));
         });
     });
-
 });
