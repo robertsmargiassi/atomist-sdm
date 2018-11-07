@@ -23,11 +23,12 @@ import {
     allSatisfied,
     anySatisfied,
     DoNotSetAnyGoals,
-    githubTeamVoter,
+    gitHubTeamVoter,
     GoalApprovalRequestVote,
     Immaterial,
     IsDeployEnabled,
     not,
+    slackQuestionMessage,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
@@ -58,7 +59,6 @@ import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration
 import {
     bold,
     codeLine,
-    SlackMessage,
 } from "@atomist/slack-messages";
 import {
     ApprovalCommand,
@@ -189,13 +189,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         IssueSupport,
     );
 
+    sdm.addGoalApprovalRequestVoter(gitHubTeamVoter("atomist-automation"));
     sdm.addGoalApprovalRequestVoter(async gi => {
-
-        const vote = await githubTeamVoter("atomist-automation")(gi);
-        if (vote.vote !== GoalApprovalRequestVote.Granted) {
-            return vote;
-        }
-
         if (gi.goal.data) {
             const data = JSON.parse(gi.goal.data);
             if (data.approved) {
@@ -206,32 +201,29 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         }
 
         const msgId = guid();
-        const msg: SlackMessage = {
-            attachments: [{
-                text: `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
-                    bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires confirmation for approval`,
-                fallback: "Goal requires approval",
-                actions: [buttonForCommand(
-                    { text: "Approve" },
-                    "ApprovalCommand",
-                    {
-                        goalSetId: gi.goal.goalSetId,
-                        goalUniqueName: gi.goal.uniqueName,
-                        goalState: gi.goal.state,
-                        msgId,
-                    }), buttonForCommand(
-                    { text: "Cancel" },
-                    "CancelApprovalCommand",
-                    {
-                        goalSetId: gi.goal.goalSetId,
-                        goalUniqueName: gi.goal.uniqueName,
-                        goalState: gi.goal.state,
-                        msgId,
-                    })],
-                footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
-                thumb_url: "https://vignette.wikia.nocookie.net/central/images/c/cb/Clippy.png",
-            }],
-        };
+        const msg = slackQuestionMessage("Goal Approval", `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
+            bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires your confirmation to approve`, {
+            actions: [buttonForCommand(
+                { text: "Approve" },
+                "ApproveSdmGoalCommand",
+                {
+                    goalSetId: gi.goal.goalSetId,
+                    goalUniqueName: gi.goal.uniqueName,
+                    goalState: gi.goal.state,
+                    msgId,
+                }), buttonForCommand(
+                { text: "Cancel" },
+                "CancelApproveSdmGoalCommand",
+                {
+                    goalSetId: gi.goal.goalSetId,
+                    goalUniqueName: gi.goal.uniqueName,
+                    goalState: gi.goal.state,
+                    msgId,
+                })],
+            footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
+                gi.goal.goalSet} | ${gi.goal.goalSetId.slice(0, 7)}`,
+            thumb_url: "https://vignette.wikia.nocookie.net/central/images/c/cb/Clippy.png",
+        });
         await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, { id: msgId });
         return {
             vote: GoalApprovalRequestVote.Abstain,

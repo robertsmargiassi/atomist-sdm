@@ -55,7 +55,7 @@ class ApprovalParameters {
 }
 
 export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
-    name: "ApprovalCommand",
+    name: "ApproveSdmGoalCommand",
     intent: [],
     paramsMaker: ApprovalParameters,
     listener: async ci => {
@@ -82,7 +82,8 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
                 `Successfully approved goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
                     bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 {
-                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
+                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
+                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
                 }),
             {
                 id: ci.parameters.msgId,
@@ -91,7 +92,7 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
 };
 
 export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
-    name: "CancelApprovalCommand",
+    name: "CancelApproveSdmGoalCommand",
     intent: [],
     paramsMaker: ApprovalParameters,
     listener: async ci => {
@@ -124,7 +125,8 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
                     bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 ci.context,
                 {
-                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")}`,
+                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
+                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
                 }),
             {
                 id: ci.parameters.msgId,
