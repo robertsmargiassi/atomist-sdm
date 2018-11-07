@@ -54,7 +54,6 @@ import {
     IsMaven,
     MaterialChangeToJavaRepo,
 } from "@atomist/sdm-pack-spring";
-import { HasTravisFile } from "@atomist/sdm/lib/api-helper/pushtest/ci/ciPushTests";
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
 import {
     bold,
@@ -78,7 +77,6 @@ import {
     BuildGoals,
     BuildReleaseAndHomebrewGoals,
     BuildReleaseGoals,
-    CheckGoals,
     DockerGoals,
     DockerReleaseGoals,
     FixGoals,
@@ -125,10 +123,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         whenPushSatisfies(IsMaven, not(MaterialChangeToJavaRepo))
             .itMeans("No Material Change")
             .setGoals(Immaterial),
-
-        whenPushSatisfies(IsNode, HasTravisFile)
-            .itMeans("Just Checking")
-            .setGoals(CheckGoals),
 
         // Simplified deployment goal set for atomist-sdm, k8-automation; we are skipping
         // testing for these and deploying straight into their respective namespaces
