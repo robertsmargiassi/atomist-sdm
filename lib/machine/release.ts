@@ -643,7 +643,7 @@ export const IsReleaseCommit: PushTest = {
     name: "IsReleaseCommit",
     mapping: async pi => {
         const versionRegexp = /Version: increment after .* release/i;
-        const changelogRegexp = /Changelog: .*/i;
+        const changelogRegexp = /Changelog: add release .*/i;
         return versionRegexp.test(pi.push.after.message) || changelogRegexp.test(pi.push.after.message);
     },
 };
