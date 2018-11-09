@@ -16,6 +16,7 @@
 
 import {
     addressEvent,
+    AutomationContextAware,
     configurationValue,
     Parameter,
     Parameters,
@@ -75,6 +76,18 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
         updatedGoal.ts = Date.now();
         updatedGoal.version = updatedGoal.version + 1;
 
+        const actx = ci.context as any as AutomationContextAware;
+        const prov: SdmGoal.Provenance = {
+            name: actx.context.operation,
+            registration: actx.context.name,
+            version: actx.context.version,
+            correlationId: actx.context.correlationId,
+            ts: Date.now(),
+            channelId: this.channel,
+            userId: this.slackRequester ? this.slackRequester : this.githubRequester,
+        };
+        updatedGoal.provenance.push(prov);
+        
         updatedGoal.data = JSON.stringify({ approved: true });
 
         await ci.context.messageClient.send(updatedGoal, addressEvent(GoalRootType));
@@ -112,6 +125,18 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
         const updatedGoal = _.cloneDeep(goal);
         updatedGoal.ts = Date.now();
         updatedGoal.version = updatedGoal.version + 1;
+
+        const actx = ci.context as any as AutomationContextAware;
+        const prov: SdmGoal.Provenance = {
+            name: actx.context.operation,
+            registration: actx.context.name,
+            version: actx.context.version,
+            correlationId: actx.context.correlationId,
+            ts: Date.now(),
+            channelId: this.channel,
+            userId: this.slackRequester ? this.slackRequester : this.githubRequester,
+        };
+        updatedGoal.provenance.push(prov);
 
         if (ci.parameters.goalState === SdmGoalState.approved) {
             updatedGoal.state = SdmGoalState.waiting_for_approval;
