@@ -74,7 +74,7 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
         const updatedGoal = _.cloneDeep(goal);
         updatedGoal.ts = Date.now();
         updatedGoal.version = updatedGoal.version + 1;
-        
+
         updatedGoal.data = JSON.stringify({ approved: true });
 
         await ci.context.messageClient.send(updatedGoal, addressEvent(GoalRootType));
