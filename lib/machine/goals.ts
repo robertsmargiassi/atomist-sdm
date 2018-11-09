@@ -35,7 +35,7 @@ import { Changelog } from "@atomist/sdm-pack-changelog/lib/goal/Changelog";
 import { DockerBuild } from "@atomist/sdm-pack-docker";
 import { KubernetesDeploy } from "@atomist/sdm-pack-k8/lib/support/KubernetesDeploy";
 
-export const autoCodeInspection = new AutoCodeInspection();
+export const autoCodeInspection = new AutoCodeInspection({ reportToSlack: false });
 export const pushImpact = new PushImpact();
 export const version = new Version();
 export const autofix = new Autofix();
