@@ -29,6 +29,7 @@ import {
 } from "@atomist/sdm";
 import {
     bold,
+    channel,
     codeLine,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
@@ -83,7 +84,7 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
                     bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 {
                     footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
-                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
+                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)} | ${channel(goal.approval.channelId)}`,
                 }),
             {
                 id: ci.parameters.msgId,
@@ -122,7 +123,7 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
             slackWarningMessage(
                 "Approve Goal",
                 `Successfully canceled approval of goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
-                    bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
+                    bold(`${goal.repo.owner}/${goal.repo.name}`)} | ${channel(goal.approval.channelId)}`,
                 ci.context,
                 {
                     footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${

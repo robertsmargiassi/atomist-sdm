@@ -57,6 +57,7 @@ import {
 import { isSdmEnabled } from "@atomist/sdm/lib/api-helper/pushtest/configuration/configurationTests";
 import {
     bold,
+    channel,
     codeLine,
 } from "@atomist/slack-messages";
 import {
@@ -220,7 +221,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
                     msgId,
                 })],
             footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
-                gi.goal.goalSet} | ${gi.goal.goalSetId.slice(0, 7)}`,
+                gi.goal.goalSet} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
             thumb_url: "https://vignette.wikia.nocookie.net/central/images/c/cb/Clippy.png",
         });
         await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, { id: msgId });
