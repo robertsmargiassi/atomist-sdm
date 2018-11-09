@@ -73,7 +73,8 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
 
         const updatedGoal = _.cloneDeep(goal);
         updatedGoal.ts = Date.now();
-
+        updatedGoal.version = updatedGoal.version + 1;
+        
         updatedGoal.data = JSON.stringify({ approved: true });
 
         await ci.context.messageClient.send(updatedGoal, addressEvent(GoalRootType));
@@ -110,6 +111,7 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
 
         const updatedGoal = _.cloneDeep(goal);
         updatedGoal.ts = Date.now();
+        updatedGoal.version = updatedGoal.version + 1;
 
         if (ci.parameters.goalState === SdmGoalState.approved) {
             updatedGoal.state = SdmGoalState.waiting_for_approval;
@@ -118,6 +120,7 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
             updatedGoal.state = SdmGoalState.waiting_for_pre_approval;
             updatedGoal.preApproval = undefined;
         }
+
         await ci.context.messageClient.send(updatedGoal, addressEvent(GoalRootType));
         await ci.context.messageClient.respond(
             slackWarningMessage(

@@ -19,6 +19,10 @@ query SdmGoal($goalSetId: [String!], $state: [SdmGoalState]!, $uniqueName: [Stri
         description
         url
         externalUrl
+        externalUrls {
+            label
+            url
+        }
         state
         externalKey
         ts
@@ -56,5 +60,6 @@ query SdmGoal($goalSetId: [String!], $state: [SdmGoalState]!, $uniqueName: [Stri
             channelId
         }
         data
+        version
     }
 }
