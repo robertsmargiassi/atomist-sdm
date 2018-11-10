@@ -83,11 +83,9 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
             version: actx.context.version,
             correlationId: actx.context.correlationId,
             ts: Date.now(),
-            channelId: this.channel,
-            userId: this.slackRequester ? this.slackRequester : this.githubRequester,
         };
         updatedGoal.provenance.push(prov);
-        
+
         updatedGoal.data = JSON.stringify({ approved: true });
 
         await ci.context.messageClient.send(updatedGoal, addressEvent(GoalRootType));
@@ -133,8 +131,6 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
             version: actx.context.version,
             correlationId: actx.context.correlationId,
             ts: Date.now(),
-            channelId: this.channel,
-            userId: this.slackRequester ? this.slackRequester : this.githubRequester,
         };
         updatedGoal.provenance.push(prov);
 
