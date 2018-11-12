@@ -222,7 +222,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
                 })],
             footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
                 gi.goal.goalSet} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
-            thumb_url: "https://vignette.wikia.nocookie.net/central/images/c/cb/Clippy.png",
         });
         await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, { id: msgId });
         return {
