@@ -35,8 +35,7 @@
     },
     "curly": true,
     "cyclomatic-complexity": {
-      "severity": "warning",
-      "options": [10]
+      "severity": "warning"
     },
     "eofline": true,
     "forin": true,
