@@ -26,6 +26,9 @@ import {
     DockerOptions,
 } from "@atomist/sdm-pack-docker";
 import {
+    singleIssuePerCategoryManaging,
+} from "@atomist/sdm-pack-issue";
+import {
     executePublish,
     IsNode,
     nodeBuilder,
@@ -48,6 +51,8 @@ import {
 } from "../autofix/test/testNamingFix";
 import { UpdateSupportFilesTransform } from "../autofix/updateSupportFiles";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
+import { ApproveGoalIfErrorComments } from "../inspection/reviewComments";
+import { RunTslint } from "../inspection/tslint";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -55,6 +60,7 @@ import { TryToUpdateAtomistPeerDependencies } from "../transform/tryToUpdateAtom
 import { UpdatePackageAuthor } from "../transform/updatePackageAuthor";
 import { UpdatePackageVersion } from "../transform/updatePackageVersion";
 import {
+    autoCodeInspection,
     autofix,
     build,
     dockerBuild,
@@ -107,10 +113,14 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
     build.with({
         ...NodeDefaultOptions,
         name: "npm-run-build",
-        builder: nodeBuilder("npm run build"),
+        builder: nodeBuilder("npm run compile", "npm test"),
         pushTest: NodeDefaultOptions.pushTest,
     })
         .withProjectListener(NodeModulesProjectListener);
+
+    autoCodeInspection.with(RunTslint)
+        .withListener(singleIssuePerCategoryManaging("tslint", true, p => true))
+        .withListener(ApproveGoalIfErrorComments);
 
     publish.with({
         ...NodeDefaultOptions,
