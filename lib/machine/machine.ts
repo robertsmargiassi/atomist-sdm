@@ -16,13 +16,13 @@
 
 import {
     buttonForCommand,
-    configurationValue,
     guid,
 } from "@atomist/automation-client";
 import {
     allSatisfied,
     anySatisfied,
     DoNotSetAnyGoals,
+    footer,
     gitHubTeamVoter,
     GoalApprovalRequestVote,
     Immaterial,
@@ -59,6 +59,8 @@ import {
     bold,
     channel,
     codeLine,
+    italic,
+    url,
 } from "@atomist/slack-messages";
 import {
     ApprovalCommand,
@@ -201,8 +203,9 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         }
 
         const msgId = guid();
-        const msg = slackQuestionMessage("Goal Approval", `Goal _${gi.goal.name}_ on ${codeLine(gi.goal.sha.slice(0, 7))} of ${
-            bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires your confirmation to approve`, {
+        const msg = slackQuestionMessage("Goal Approval", `Goal ${italic(url(gi.goal.url, gi.goal.name))} on ${
+            codeLine(gi.goal.sha.slice(0, 7))} of ${bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires your confirmation to approve`,
+            {
             actions: [buttonForCommand(
                 { text: "Approve" },
                 "ApproveSdmGoalCommand",
@@ -220,8 +223,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
                     goalState: gi.goal.state,
                     msgId,
                 })],
-            footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
-                gi.goal.goalSet} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
+            footer: `${footer()} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
         });
         await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, { id: msgId });
         return {

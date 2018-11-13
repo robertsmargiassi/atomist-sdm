@@ -17,13 +17,13 @@
 import {
     addressEvent,
     AutomationContextAware,
-    configurationValue,
     Parameter,
     Parameters,
     QueryNoCacheOptions,
 } from "@atomist/automation-client";
 import {
     CommandHandlerRegistration,
+    footer,
     GoalRootType,
     slackSuccessMessage,
     slackWarningMessage,
@@ -32,6 +32,8 @@ import {
     bold,
     channel,
     codeLine,
+    italic,
+    url,
 } from "@atomist/slack-messages";
 import * as _ from "lodash";
 import {
@@ -92,11 +94,10 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
         await ci.context.messageClient.respond(
             slackSuccessMessage(
                 "Approve Goal",
-                `Successfully approved goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
+                `Successfully approved goal ${italic(url(goal.url, goal.name))} on ${codeLine(goal.sha.slice(0, 7))} of ${
                     bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 {
-                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
-                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)} | ${channel(goal.approval.channelId)}`,
+                    footer: `${footer()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)} | ${channel(goal.approval.channelId)}`,
                 }),
             {
                 id: ci.parameters.msgId,
@@ -146,12 +147,11 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
         await ci.context.messageClient.respond(
             slackWarningMessage(
                 "Approve Goal",
-                `Successfully canceled approval of goal _${goal.name}_ on ${codeLine(goal.sha.slice(0, 7))} of ${
+                `Successfully canceled approval of goal ${italic(url(goal.url, goal.name))} on ${codeLine(goal.sha.slice(0, 7))} of ${
                     bold(`${goal.repo.owner}/${goal.repo.name}`)} | ${channel(goal.approval.channelId)}`,
                 ci.context,
                 {
-                    footer: `${configurationValue<string>("name")}:${configurationValue<string>("version")} | ${
-                        goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
+                    footer: `${footer()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
                 }),
             {
                 id: ci.parameters.msgId,
