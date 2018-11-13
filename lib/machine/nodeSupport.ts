@@ -51,10 +51,8 @@ import {
 } from "../autofix/test/testNamingFix";
 import { UpdateSupportFilesTransform } from "../autofix/updateSupportFiles";
 import { deleteDistTagOnBranchDeletion } from "../event/deleteDistTagOnBranchDeletion";
-import {
-    FailGoalsIfErrorComments,
-    RunTslint,
-} from "../inspection/tslint";
+import { ApproveGoalIfErrorComments } from "../inspection/reviewComments";
+import { RunTslint } from "../inspection/tslint";
 import { AutomationClientTagger } from "../support/tagger";
 import { RewriteImports } from "../transform/rewriteImports";
 import { TryToUpdateAtomistDependencies } from "../transform/tryToUpdateAtomistDependencies";
@@ -122,7 +120,7 @@ export function addNodeSupport(sdm: SoftwareDeliveryMachine): SoftwareDeliveryMa
 
     autoCodeInspection.with(RunTslint)
         .withListener(singleIssuePerCategoryManaging("tslint", true, p => true))
-        .withListener(FailGoalsIfErrorComments);
+        .withListener(ApproveGoalIfErrorComments);
 
     publish.with({
         ...NodeDefaultOptions,

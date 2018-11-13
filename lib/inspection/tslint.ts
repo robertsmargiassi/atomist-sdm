@@ -28,12 +28,12 @@ import {
 import {
     CodeInspection,
     CodeInspectionRegistration,
-    PushImpactResponse,
-    ReviewListener,
-    ReviewListenerRegistration,
 } from "@atomist/sdm";
 import * as appRoot from "app-root-path";
 import * as path from "path";
+import {
+    reviewCommentSorter,
+} from "./reviewComments";
 
 export interface TslintPosition {
     character: number;
@@ -66,13 +66,19 @@ export type TslintResults = TslintResult[];
 /**
  * Return a review comment for a TSLint violation.
  */
-function tslintReviewComment(detail: string, severity: Severity = "error", sourceLocation?: SourceLocation): ReviewComment {
+function tslintReviewComment(
+    detail: string,
+    rule: string,
+    severity: Severity = "info",
+    sourceLocation?: SourceLocation,
+): ReviewComment {
+
     return {
-        severity,
+        category: "tslint",
         detail,
-        category: "lint",
-        subcategory: "tslint",
+        severity,
         sourceLocation,
+        subcategory: rule,
     };
 }
 
@@ -93,13 +99,14 @@ export function mapTslintResultsToReviewComments(tslintOutput: string, dir: stri
     }
 
     const comments = results.map(r => {
-        const comment = tslintReviewComment(r.failure, (r.ruleSeverity === "ERROR") ? "error" : "warn", {
+        const location: SourceLocation = {
             path: r.name.replace(dir + path.sep, ""),
             offset: r.startPosition.position,
             columnFrom1: r.startPosition.character + 1,
             lineFrom1: r.startPosition.line + 1,
-        });
-        return comment;
+        };
+        const severity = (r.ruleSeverity === "ERROR") ? "error" : "warn";
+        return tslintReviewComment(r.failure, r.ruleName, severity, location);
     });
     return comments;
 }
@@ -143,8 +150,10 @@ export const RunTslintOnProject: CodeInspection<ProjectReview, NoParameters> = a
         const maxComments = 20;
         if (comments.length > maxComments) {
             const remove = comments.length - maxComments;
-            const more = tslintReviewComment(`${remove} additional errors and/or warnings were omitted from this report`);
-            comments.splice(maxComments, remove, more);
+            const more = tslintReviewComment(`${remove} additional errors and/or warnings were omitted from this report`,
+                "atomist-truncated-list");
+            comments.sort(reviewCommentSorter)
+                .splice(maxComments, remove, more);
         }
         review.comments.push(...comments);
     } catch (e) {
@@ -163,21 +172,4 @@ export const RunTslint: CodeInspectionRegistration<ProjectReview, NoParameters> 
     description: "Run TSLint on project",
     inspection: RunTslintOnProject,
     intent: "tslint",
-};
-
-/**
- * Listener that fails the code inspection if the review has any
- * error comments.
- */
-export const failGoalsIfErrorCommentsReviewListener: ReviewListener = async rli => {
-    if (rli && rli.review && rli.review.comments && rli.review.comments.some(c => c.severity === "error")) {
-        logger.debug(`Failing auto code inspection due to error review comments`);
-        return PushImpactResponse.failGoals;
-    }
-    return PushImpactResponse.proceed;
-};
-
-export const FailGoalsIfErrorComments: ReviewListenerRegistration = {
-    name: "Fail Goals if any code inspections result in comments with severity error",
-    listener: failGoalsIfErrorCommentsReviewListener,
 };

@@ -17,14 +17,9 @@
 import {
     logger,
 } from "@atomist/automation-client";
-import {
-    PushImpactResponse,
-    ReviewListenerInvocation,
-} from "@atomist/sdm";
 import * as path from "path";
 import * as assert from "power-assert";
 import {
-    failGoalsIfErrorCommentsReviewListener,
     mapTslintResultsToReviewComments,
 } from "../../lib/inspection/tslint";
 
@@ -61,23 +56,25 @@ describe("tslint", () => {
             assert(c.length === 3);
             assert(!errorMessage);
             c.forEach(r => {
-                assert(r.category === "lint");
-                assert(r.subcategory === "tslint");
+                assert(r.category === "tslint");
             });
             assert(c[0].detail === "Exceeds maximum line length of 150");
             assert(c[0].severity === "warn");
+            assert(c[0].subcategory === "max-line-length");
             assert(c[0].sourceLocation.path === "test/inspection/tslint.test.ts");
             assert(c[0].sourceLocation.columnFrom1 === 1);
             assert(c[0].sourceLocation.lineFrom1 === 2);
             assert(c[0].sourceLocation.offset === 14);
             assert(c[1].detail === "Calls to 'console.log' are not allowed.");
             assert(c[1].severity === "warn");
+            assert(c[1].subcategory === "no-console");
             assert(c[1].sourceLocation.path === "lib/inspection/tslint.ts");
             assert(c[1].sourceLocation.columnFrom1 === 1);
             assert(c[1].sourceLocation.lineFrom1 === 2);
             assert(c[1].sourceLocation.offset === 14);
             assert(c[2].detail === "Missing semicolon");
             assert(c[2].severity === "error");
+            assert(c[2].subcategory === "semicolon");
             assert(c[2].sourceLocation.path === "lib/inspection/tslint.ts");
             assert(c[2].sourceLocation.columnFrom1 === 14);
             assert(c[2].sourceLocation.lineFrom1 === 1);
@@ -106,61 +103,6 @@ describe("tslint", () => {
             assert(c.length === 0);
             assert(errorMessage);
             assert(errorMessage.startsWith("Failed to parse TSLint output '"));
-        });
-
-    });
-
-    describe("failGoalsIfErrorCommentsReviewListener", () => {
-
-        it("should fail the goals if error comments exists", async () => {
-            const rli: ReviewListenerInvocation = {
-                review: {
-                    comments: [
-                        { severity: "error" },
-                    ],
-                },
-            } as any;
-            const r = await failGoalsIfErrorCommentsReviewListener(rli);
-            assert(r === PushImpactResponse.failGoals);
-        });
-
-        it("should proceed if no error comments exists", async () => {
-            const rli: ReviewListenerInvocation = {
-                review: {
-                    comments: [
-                        { severity: "warning" },
-                        { severity: "info" },
-                        { severity: "warning" },
-                    ],
-                },
-            } as any;
-            const r = await failGoalsIfErrorCommentsReviewListener(rli);
-            assert(r === PushImpactResponse.proceed);
-        });
-
-        it("should find an error in several comments", async () => {
-            const rli: ReviewListenerInvocation = {
-                review: {
-                    comments: [
-                        { severity: "warning" },
-                        { severity: "info" },
-                        { severity: "warning" },
-                        { severity: "error" },
-                        { severity: "info" },
-                        { severity: "warning" },
-                    ],
-                },
-            } as any;
-            const r = await failGoalsIfErrorCommentsReviewListener(rli);
-            assert(r === PushImpactResponse.failGoals);
-        });
-
-        it("should proceed if there are no comments", async () => {
-            const rli: ReviewListenerInvocation = {
-                review: { comments: [] },
-            } as any;
-            const r = await failGoalsIfErrorCommentsReviewListener(rli);
-            assert(r === PushImpactResponse.proceed);
         });
 
     });
