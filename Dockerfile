@@ -4,6 +4,7 @@ LABEL maintainer="Atomist <docker@atomist.com>"
 
 RUN apt-get update && apt-get install -y \
         curl \
+        wget \
     && rm -rf /var/lib/apt/lists/*
 
 ENV DUMB_INIT_VERSION=1.2.2
