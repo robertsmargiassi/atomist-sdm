@@ -44,6 +44,11 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
 RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.10.8/bin/linux/amd64/kubectl \
     && chmod +x /usr/local/bin/kubectl
 
+ENV LEIN_ROOT true
+RUN wget -q -O /usr/bin/lein \
+    https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein \
+    && chmod +x /usr/bin/lein
+
 COPY package.json package-lock.json ./
 
 RUN NODE_ENV=development npm ci \
