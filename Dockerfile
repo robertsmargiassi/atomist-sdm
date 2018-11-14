@@ -4,7 +4,6 @@ LABEL maintainer="Atomist <docker@atomist.com>"
 
 RUN apt-get update && apt-get install -y \
         curl \
-        wget \
     && rm -rf /var/lib/apt/lists/*
 
 ENV DUMB_INIT_VERSION=1.2.2
@@ -46,9 +45,8 @@ RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes
     && chmod +x /usr/local/bin/kubectl
 
 ENV LEIN_ROOT true
-RUN wget -q -O /usr/bin/lein \
-    https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein \
-    && chmod +x /usr/bin/lein
+RUN curl -sL -o /usr/local/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein \
+    && chmod +x /usr/local/bin/lein
 
 COPY package.json package-lock.json ./
 
