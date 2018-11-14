@@ -78,7 +78,7 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
         updatedGoal.ts = Date.now();
         updatedGoal.version = updatedGoal.version + 1;
 
-        const actx = ci.context as any as AutomationContextAware;
+        const actx: AutomationContextAware = ci.context as any;
         const prov: SdmGoal.Provenance = {
             name: actx.context.operation,
             registration: actx.context.name,
