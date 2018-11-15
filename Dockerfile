@@ -22,6 +22,7 @@ ENV BLUEBIRD_WARNINGS 0
 ENV NODE_ENV production
 ENV NPM_CONFIG_LOGLEVEL warn
 ENV SUPPRESS_NO_CONFIG_WARNING true
+ENV NODE_OPTIONS --no-deprecation
 
 ENTRYPOINT ["dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize_for_size", "--always_compact", "--max_old_space_size=384"]
 
@@ -38,7 +39,7 @@ RUN apt-get update && apt-get install -y \
 RUN git config --global user.email "bot@atomist.com" \
     && git config --global user.name "Atomist Bot"
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
