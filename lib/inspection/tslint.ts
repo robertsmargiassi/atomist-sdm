@@ -139,13 +139,14 @@ export const RunTslintOnProject: CodeInspection<ProjectReview, NoParameters> = a
         "--force",
     ];
     try {
-        const npmCiResult = await safeExec("npm", ["ci"], { cwd });
+        const env = { ...process.env, NODE_ENV: "development" };
+        const npmCiResult = await safeExec("npm", ["ci"], { cwd, env });
         if (npmCiResult.stderr) {
-            logger.debug(`NPM ci standard error: ${npmCiResult.stderr}`);
+            logger.debug(`NPM ci standard error from ${p.name}: ${npmCiResult.stderr}`);
         }
         const tslintResult = await safeExec(tslintExe, tslintArgs, { cwd });
         if (tslintResult.stderr) {
-            logger.debug(`TSLint standard error: ${tslintResult.stderr}`);
+            logger.debug(`TSLint standard error from ${p.name}: ${tslintResult.stderr}`);
         }
         const comments = mapTslintResultsToReviewComments(tslintResult.stdout, p.baseDir);
         review.comments.push(...comments);
