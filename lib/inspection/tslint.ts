@@ -31,9 +31,6 @@ import {
 } from "@atomist/sdm";
 import * as appRoot from "app-root-path";
 import * as path from "path";
-import {
-    reviewCommentSorter,
-} from "./reviewComments";
 
 export interface TslintPosition {
     character: number;
@@ -147,14 +144,6 @@ export const RunTslintOnProject: CodeInspection<ProjectReview, NoParameters> = a
             logger.debug(`TSLint standard error: ${tslintResult.stderr}`);
         }
         const comments = mapTslintResultsToReviewComments(tslintResult.stdout, p.baseDir);
-        const maxComments = 20;
-        if (comments.length > maxComments) {
-            const remove = comments.length - maxComments;
-            const more = tslintReviewComment(`${remove} additional errors and/or warnings were omitted from this report`,
-                "atomist-truncated-list");
-            comments.sort(reviewCommentSorter)
-                .splice(maxComments, remove, more);
-        }
         review.comments.push(...comments);
     } catch (e) {
         logger.error(`Failed to run TSLint: ${e.message}`);

@@ -23,8 +23,8 @@ import {
 } from "@atomist/automation-client";
 import {
     CommandHandlerRegistration,
-    footer,
     GoalRootType,
+    slackFooter,
     slackSuccessMessage,
     slackWarningMessage,
 } from "@atomist/sdm";
@@ -95,9 +95,9 @@ export const ApprovalCommand: CommandHandlerRegistration<ApprovalParameters> = {
             slackSuccessMessage(
                 "Approve Goal",
                 `Successfully approved goal ${italic(goal.url ? url(goal.url, goal.name) : goal.name)} on ${
-                    codeLine(goal.sha.slice(0, 7))} of ${bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
+                codeLine(goal.sha.slice(0, 7))} of ${bold(`${goal.repo.owner}/${goal.repo.name}`)}`,
                 {
-                    footer: `${footer()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)} | ${channel(goal.approval.channelId)}`,
+                    footer: `${slackFooter()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)} | ${channel(goal.approval.channelId)}`,
                 }),
             {
                 id: ci.parameters.msgId,
@@ -148,10 +148,10 @@ export const CancelApprovalCommand: CommandHandlerRegistration<ApprovalParameter
             slackWarningMessage(
                 "Approve Goal",
                 `Successfully canceled approval of goal ${italic(goal.url ? url(goal.url, goal.name) : goal.name)} on ${
-                    codeLine(goal.sha.slice(0, 7))} of ${bold(`${goal.repo.owner}/${goal.repo.name}`)} | ${channel(goal.approval.channelId)}`,
+                codeLine(goal.sha.slice(0, 7))} of ${bold(`${goal.repo.owner}/${goal.repo.name}`)} | ${channel(goal.approval.channelId)}`,
                 ci.context,
                 {
-                    footer: `${footer()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
+                    footer: `${slackFooter()} | ${goal.goalSet} | ${goal.goalSetId.slice(0, 7)}`,
                 }),
             {
                 id: ci.parameters.msgId,

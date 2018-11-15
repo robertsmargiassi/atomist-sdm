@@ -22,12 +22,12 @@ import {
     allSatisfied,
     anySatisfied,
     DoNotSetAnyGoals,
-    footer,
     gitHubTeamVoter,
     GoalApprovalRequestVote,
     Immaterial,
     IsDeployEnabled,
     not,
+    slackFooter,
     slackQuestionMessage,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
@@ -97,9 +97,9 @@ const AtomistHQWorkspace = "T095SFFBK";
 
 export function machine(configuration: SoftwareDeliveryMachineConfiguration): SoftwareDeliveryMachine {
     const sdm = createSoftwareDeliveryMachine({
-            name: "Atomist Software Delivery Machine",
-            configuration,
-        },
+        name: "Atomist Software Delivery Machine",
+        configuration,
+    },
 
         whenPushSatisfies(not(IsNode))
             .itMeans("Non Node repository")
@@ -206,25 +206,25 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         const msg = slackQuestionMessage("Goal Approval", `Goal ${italic(gi.goal.url ? url(gi.goal.url, gi.goal.name) : gi.goal.name)} on ${
             codeLine(gi.goal.sha.slice(0, 7))} of ${bold(`${gi.goal.repo.owner}/${gi.goal.repo.name}`)} requires your confirmation to approve`,
             {
-            actions: [buttonForCommand(
-                { text: "Approve" },
-                "ApproveSdmGoalCommand",
-                {
-                    goalSetId: gi.goal.goalSetId,
-                    goalUniqueName: gi.goal.uniqueName,
-                    goalState: gi.goal.state,
-                    msgId,
-                }), buttonForCommand(
-                { text: "Cancel" },
-                "CancelApproveSdmGoalCommand",
-                {
-                    goalSetId: gi.goal.goalSetId,
-                    goalUniqueName: gi.goal.uniqueName,
-                    goalState: gi.goal.state,
-                    msgId,
-                })],
-            footer: `${footer()} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
-        });
+                actions: [buttonForCommand(
+                    { text: "Approve" },
+                    "ApproveSdmGoalCommand",
+                    {
+                        goalSetId: gi.goal.goalSetId,
+                        goalUniqueName: gi.goal.uniqueName,
+                        goalState: gi.goal.state,
+                        msgId,
+                    }), buttonForCommand(
+                        { text: "Cancel" },
+                        "CancelApproveSdmGoalCommand",
+                        {
+                            goalSetId: gi.goal.goalSetId,
+                            goalUniqueName: gi.goal.uniqueName,
+                            goalState: gi.goal.state,
+                            msgId,
+                        })],
+                footer: `${slackFooter()} | ${gi.goal.goalSetId.slice(0, 7)} | ${channel(gi.goal.approval.channelId)}`,
+            });
         await gi.context.messageClient.addressUsers(msg, gi.goal.approval.userId, { id: msgId });
         return {
             vote: GoalApprovalRequestVote.Abstain,
